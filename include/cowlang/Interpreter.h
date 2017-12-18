@@ -2,8 +2,7 @@
 
 #include <string>
 
-#include "cow/NodeType.h"
-
+#include "NodeType.h"
 #include "Module.h"
 #include "Value.h"
 #include "Tuple.h"
@@ -26,6 +25,9 @@ public:
     void set_string(const std::string& name, const std::string &value);
     
     void set_module(const std::string& name, ModulePtr &module);
+
+    uint32_t num_execution_steps() const;
+    void set_execution_step_limit(uint32_t limit);
 
     MemoryManager& memory_manager()
     {
@@ -52,6 +54,9 @@ private:
     Scope *m_global_scope;
 
     std::unordered_map<std::string, ModulePtr> m_loaded_modules;
+
+    uint32_t m_num_execution_steps;
+    uint32_t m_execution_step_limit;
 };
 
 }

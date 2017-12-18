@@ -1,5 +1,5 @@
-#include "cow/Object.h"
-#include "cow/Scope.h"
+#include <cowlang/Object.h>
+#include <cowlang/Scope.h>
 
 namespace cow
 {

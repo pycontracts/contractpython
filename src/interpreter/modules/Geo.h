@@ -2,7 +2,7 @@
 
 #ifdef USE_GEO
 
-#include <cow/cow.h>
+#include <cowlang/cow.h>
 
 namespace cow
 {

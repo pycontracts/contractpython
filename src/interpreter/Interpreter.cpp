@@ -1,9 +1,10 @@
 #include <memory>
 #include <map>
 
-#include "cow/Interpreter.h"
-#include "cow/Callable.h"
-#include "cow/Scope.h"
+#include <cowlang/Interpreter.h>
+#include <cowlang/Callable.h>
+#include <cowlang/Scope.h>
+
 #include "RangeIterator.h"
 #include "modules/modules.h"
 
@@ -58,6 +59,17 @@ enum class UnaryOpType
     Sub,
 };
 
+Interpreter::Interpreter(const BitStream &data)
+    : m_num_execution_steps(0), m_execution_step_limit(0)
+{
+    m_global_scope = new (m_mem) Scope(m_mem);
+    m_data.assign(data.data(), data.size(), true);
+}
+
+Interpreter::~Interpreter()
+{
+    delete m_global_scope;
+}
 
 ModulePtr Interpreter::get_module(const std::string &name)
 {
@@ -95,6 +107,19 @@ void Interpreter::load_from_module(Scope &scope, const std::string &mname, const
         throw std::runtime_error("Unknown module: " + mname);
 
     scope.set_value(as_name == "" ? name: as_name, module->get_member(name));
+}
+
+uint32_t Interpreter::num_execution_steps() const
+{
+    return m_num_execution_steps;
+}
+
+void Interpreter::set_execution_step_limit(uint32_t limit)
+{
+    if(limit == 0)
+        throw std::runtime_error("Limit has to be larger than 0");
+
+    m_execution_step_limit = limit;
 }
 
 void Interpreter::load_module(Scope &scope, const std::string &mname, const std::string &as_name)
@@ -173,6 +198,14 @@ std::string Interpreter::read_name()
 
 ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 {
+    m_num_execution_steps += 1;
+
+    if(m_execution_step_limit > 0
+       && m_num_execution_steps >= m_execution_step_limit)
+    {
+        throw execution_limit_exception("Reached maximum number of steps!");
+    }
+
     auto start = m_data.pos();
     ValuePtr returnval = nullptr;
 
@@ -1049,17 +1082,6 @@ void Interpreter::set_list(const std::string &name, const std::vector<std::strin
     }
 
     m_global_scope->set_value(name, l);
-}
-
-Interpreter::Interpreter(const BitStream &data)
-{
-    m_global_scope = new (m_mem) Scope(m_mem);
-    m_data.assign(data.data(), data.size(), true);
-}
-
-Interpreter::~Interpreter()
-{
-    delete m_global_scope;
 }
 
 }

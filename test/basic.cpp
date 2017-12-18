@@ -1,48 +1,15 @@
-#include "cow/cow.h"
-#include "cow/unpack.h"
+#include <cowlang/cow.h>
+#include <cowlang/unpack.h>
 
 #include <gtest/gtest.h>
 
 using namespace cow;
 
-class PythonTest : public testing::Test
+class BasicTest : public testing::Test
 {
 };
 
-class FooObj : public Module
-{
-public:
-    using Module::Module;
-
-    ValuePtr get_member(const std::string &name)
-    {
-        auto &mem = memory_manager();
-
-        return make_value<Function>(mem,
-              [&](const std::vector<ValuePtr> &args) -> ValuePtr {
-                    return wrap_value(new (mem) IntVal(mem, 42));
-        });
-    }
-};
-
-class Foo2Obj : public Module
-{
-public:
-    using Module::Module;
-
-    ValuePtr get_member(const std::string &name)
-    {
-        auto &mem = memory_manager();
-
-        return make_value<Function>(mem, 
-              [&](const std::vector<ValuePtr> &args) -> ValuePtr {
-                  auto i = value_cast<IntVal>(args[0]);
-                  return wrap_value(new (mem) IntVal(mem,i->get() * 2));
-        });
-    }
-};
-
-TEST(PythonTest, pass)
+TEST(BasicTest, pass)
 {
     const std::string code = "pass\n"
                              "return True";
@@ -54,7 +21,7 @@ TEST(PythonTest, pass)
     EXPECT_TRUE(unpack_bool(pyint.execute()));
 }
 
-TEST(PythonTest, greater_than)
+TEST(BasicTest, greater_than)
 {
     const std::string code = "i = 0\n"
                              "return i > -1";
@@ -66,7 +33,7 @@ TEST(PythonTest, greater_than)
     EXPECT_TRUE(unpack_bool(pyint.execute()));
 }
 
-TEST(PythonTest, while_loop)
+TEST(BasicTest, while_loop)
 {
     const std::string code =
             "i = 0\n"
@@ -81,7 +48,7 @@ TEST(PythonTest, while_loop)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, rand)
+TEST(BasicTest, rand)
 {
     const std::string code =
             "import rand\n"
@@ -95,7 +62,7 @@ TEST(PythonTest, rand)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, rand2)
+TEST(BasicTest, rand2)
 {
     const std::string code =
             "from rand import randint\n"
@@ -108,50 +75,7 @@ TEST(PythonTest, rand2)
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
 }
-
-TEST(PythonTest, call_cpp_with_argument)
-{
-    const std::string code =
-            "from foo import double\n"
-            "f = double(21)\n"
-            "if f == 42:\n"
-            "	return True\n"
-            "else:\n"
-            "	return False";
-
-    auto doc = compile_code(code);
-
-    Interpreter pyint(doc);
- 
-    auto v = wrap_value(new (pyint.memory_manager()) Foo2Obj(pyint.memory_manager()));
-    pyint.set_module("foo", v);
-
-    auto res = pyint.execute();
-    EXPECT_TRUE(unpack_bool(res));
-}
-
-TEST(PythonTest, call_cpp)
-{
-    const std::string code =
-            "import foo\n"
-            "f = foo.get()\n"
-            "if f == 42:\n"
-            "	return True\n"
-            "else:\n"
-            "	return False";
-
-    auto doc = compile_code(code);
-
-    Interpreter pyint(doc);
-    
-    auto v = wrap_value(new (pyint.memory_manager()) FooObj(pyint.memory_manager()));
-    pyint.set_module("foo", v);
-
-    auto res = pyint.execute();
-    EXPECT_TRUE(unpack_bool(res));
-}
-
-TEST(PythonTest, array)
+TEST(BasicTest, array)
 {
     const std::string code =
             "arr = [5,4,1337,2]\n"
@@ -167,7 +91,7 @@ TEST(PythonTest, array)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, for_loop)
+TEST(BasicTest, for_loop)
 {
     const std::string code = "l = [1,2,3]\n"
                              "res = 0\n"
@@ -182,7 +106,7 @@ TEST(PythonTest, for_loop)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, dictionary)
+TEST(BasicTest, dictionary)
 {
     const std::string code =
             "i = {'value':42}\n"
@@ -196,7 +120,7 @@ TEST(PythonTest, dictionary)
     EXPECT_EQ(unpack_integer(res), 42);
 }
 
-TEST(PythonTest, if_clause)
+TEST(BasicTest, if_clause)
 {
     const std::string code =
             "i = 42\n"
@@ -213,7 +137,7 @@ TEST(PythonTest, if_clause)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, str_eq)
+TEST(BasicTest, str_eq)
 {
     const std::string code =
             "a = 'foo'\n"
@@ -229,7 +153,7 @@ TEST(PythonTest, str_eq)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, none_value)
+TEST(BasicTest, none_value)
 {
     const std::string code =
             "a = None\n"
@@ -244,7 +168,7 @@ TEST(PythonTest, none_value)
     EXPECT_FALSE(unpack_bool(res));
 }
 
-TEST(PythonTest, logical_and)
+TEST(BasicTest, logical_and)
 {
     const std::string code =
             "a = False\n"
@@ -258,7 +182,7 @@ TEST(PythonTest, logical_and)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, create_by_assign)
+TEST(BasicTest, create_by_assign)
 {
     const std::string code =
             "a = 1\n"
@@ -272,7 +196,7 @@ TEST(PythonTest, create_by_assign)
     EXPECT_EQ(unpack_integer(res), 2);
 }
 
-TEST(PythonTest, iterate_dict)
+TEST(BasicTest, iterate_dict)
 {
     const std::string code =
            "res  = 0\n"
@@ -290,7 +214,7 @@ TEST(PythonTest, iterate_dict)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, or_op)
+TEST(BasicTest, or_op)
 {
     const std::string code =
            "dict = None\n"
@@ -306,7 +230,7 @@ TEST(PythonTest, or_op)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, iterate_dict2)
+TEST(BasicTest, iterate_dict2)
 {
     const std::string code =
            "res  = 0\n"
@@ -323,7 +247,7 @@ TEST(PythonTest, iterate_dict2)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, loop_break)
+TEST(BasicTest, loop_break)
 {
     const std::string code =
            "a = 5\n"
@@ -339,7 +263,7 @@ TEST(PythonTest, loop_break)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, loop_continue)
+TEST(BasicTest, loop_continue)
 {
     const std::string code =
            "a = 5\n"
@@ -356,7 +280,7 @@ TEST(PythonTest, loop_continue)
 }
 
 
-TEST(PythonTest, not)
+TEST(BasicTest, not)
 {
     const std::string code =
             "b = False\n"
@@ -369,7 +293,7 @@ TEST(PythonTest, not)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, pre_set_list)
+TEST(BasicTest, pre_set_list)
 {
     const std::string code =
             "return b[1] == 'foo'";
@@ -383,7 +307,7 @@ TEST(PythonTest, pre_set_list)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(PythonTest, set_variable)
+TEST(BasicTest, set_variable)
 {
     const std::string code =
             "b = False \n"
@@ -397,7 +321,7 @@ TEST(PythonTest, set_variable)
     EXPECT_FALSE(unpack_bool(res));
 }
 
-TEST(PythonTest, document_to_value)
+TEST(BasicTest, document_to_value)
 {
     MemoryManager mem;
     
@@ -410,7 +334,7 @@ TEST(PythonTest, document_to_value)
     EXPECT_EQ(dic->size(), 2);
 }
 
-TEST(PythonTest, pre_set_value)
+TEST(BasicTest, pre_set_value)
 {
     std::string code = "if op_type == 'put':\n"
                       "    return False\n"

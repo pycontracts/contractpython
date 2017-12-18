@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cow/Iterator.h"
+#include <cowlang/Iterator.h>
 
 namespace cow
 {

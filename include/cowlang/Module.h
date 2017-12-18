@@ -2,8 +2,9 @@
 
 #include <functional>
 #include <memory>
-#include "cow/Value.h"
-#include "cow/Callable.h"
+
+#include "Value.h"
+#include "Callable.h"
 
 namespace cow
 {

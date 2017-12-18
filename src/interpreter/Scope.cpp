@@ -1,6 +1,7 @@
-#include <cow/Scope.h>
-#include <cow/Dictionary.h>
-#include <cow/List.h>
+#include <cowlang/Scope.h>
+#include <cowlang/Dictionary.h>
+#include <cowlang/List.h>
+
 #include "Builtin.h"
 
 namespace cow

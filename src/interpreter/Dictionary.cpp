@@ -1,5 +1,5 @@
-#include "cow/Dictionary.h"
-#include "cow/Tuple.h"
+#include <cowlang/Dictionary.h>
+#include <cowlang/Tuple.h>
 
 namespace cow
 {

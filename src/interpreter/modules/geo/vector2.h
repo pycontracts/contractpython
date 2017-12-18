@@ -1,7 +1,7 @@
 #pragma once
 #ifdef USE_GEO
 
-#include <cow/cow.h>
+#include <cowlang/cow.h>
 #include <geo/vector2.h>
 
 namespace cow

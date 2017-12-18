@@ -1,6 +1,6 @@
-#include "cow/Value.h"
-#include "cow/Dictionary.h"
-#include "cow/List.h"
+#include <cowlang/Value.h>
+#include <cowlang/Dictionary.h>
+#include <cowlang/List.h>
 
 #include "modules/geo/vector2.h"
 

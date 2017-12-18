@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cow/Module.h"
+#include <cowlang/Module.h>
 
 namespace cow
 {

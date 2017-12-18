@@ -9,6 +9,7 @@ Cow is a minimal Python interpreter that can be embedded into C++ programs.
 
 ## Dependencies
 * The Meson Build System
+* Google Test
 * libpypa (https://github.com/vinzenz/libpypa): A python parser, currently used in the compiler 
 * libdocument (https://github.com/kaimast/libdocument): A super fast JSON library
        

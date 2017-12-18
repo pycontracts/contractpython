@@ -1,1 +1,1 @@
-test_cpp_files = files('python.cpp')
+test_cpp_files = files('basic.cpp', 'limits.cpp', 'modules.cpp')

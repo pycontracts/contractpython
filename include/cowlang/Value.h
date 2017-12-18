@@ -206,18 +206,36 @@ typedef std::shared_ptr<StringVal> StringValPtr;
 typedef std::shared_ptr<FloatVal> FloatValPtr;
 typedef std::shared_ptr<BoolVal> BoolValPtr;
 
-class value_exception
+class value_exception : public std::exception
 {
-    std::string m_what;
-
 public:
     value_exception(const std::string &what)
-        : m_what(what) {}
+        : std::exception(), m_what(what)
+    {}
 
-    const std::string& what() const
+    const char* what() const noexcept override
     {
-        return m_what;
+        return m_what.c_str();
     }
+
+private:
+    const std::string m_what;
+};
+
+class execution_limit_exception : public std::exception
+{
+public:
+    execution_limit_exception(const std::string &what)
+        : std::exception(), m_what(what)
+    {}
+
+    const char* what() const noexcept override
+    {
+        return m_what.c_str();
+    }
+
+private:
+    const std::string m_what;
 };
 
 template<typename T>

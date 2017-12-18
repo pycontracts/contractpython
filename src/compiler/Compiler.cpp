@@ -1,5 +1,5 @@
 #include "json/BitStream.h"
-#include "cow/NodeType.h"
+#include <cowlang/NodeType.h>
 
 #include "pypa/reader.hh"
 #include "pypa/filebuf.hh"

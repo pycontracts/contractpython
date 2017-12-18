@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cow/Value.h"
+#include "Value.h"
 
 namespace cow
 {

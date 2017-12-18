@@ -1,4 +1,4 @@
-#include <cow/Object.h>
+#include <cowlang/Object.h>
 
 namespace cow
 {

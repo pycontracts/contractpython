@@ -1,8 +1,9 @@
 #pragma once
 
 #include "RangeIterator.h"
-#include "cow/Value.h"
-#include "cow/unpack.h"
+
+#include <cowlang/Value.h>
+#include <cowlang/unpack.h>
 
 #ifdef IS_ENCLAVE
 extern void print_program_output(const std::string &str);
