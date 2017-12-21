@@ -29,7 +29,12 @@ public:
         return m_vec;
     }
 
-    ValuePtr get_member(const std::string &name)
+    std::string str() override
+    {
+        return std::to_string(m_vec);
+    }
+
+    ValuePtr get_member(const std::string &name) override
     {
         auto &mem = memory_manager();
 

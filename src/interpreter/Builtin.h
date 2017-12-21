@@ -70,22 +70,10 @@ public:
             {
                 return memory_manager().create_string("None");
             }   
-            else if(arg->type() == ValueType::String)
-            {
-                return arg;
-            }
-            else if(arg->type() == ValueType::Bool)
-            {
-                auto b = unpack_bool(arg);
-                return memory_manager().create_string(b ? "True" : "False");
-            }
-            else if(arg->type() == ValueType::Integer)
-            {
-                auto i = unpack_integer(arg);
-                return memory_manager().create_string(std::to_string(i));
-            }
             else
-                throw std::runtime_error("Can't conver to integer");
+            {
+                return memory_manager().create_string(arg->str());
+            }
         }
         else if(m_type == BuiltinType::MakeInt)
         {

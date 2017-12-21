@@ -23,8 +23,6 @@ public:
 
     ValueType type() const override { return ValueType::Module; }
 
-    virtual ValuePtr get_member(const std::string& name) = 0;
-
     ValuePtr duplicate(MemoryManager&) override
     {
         return nullptr; //not supported

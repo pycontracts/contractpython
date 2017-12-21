@@ -85,6 +85,18 @@ public:
 
     uint32_t size() const;
 
+    ValuePtr get_member(const std::string &name) override
+    {
+        if(name == "items")
+        {
+            return items();
+        }
+        else
+        {
+            throw std::runtime_error("Failed to get member");
+        }
+    }
+
     void insert(const std::string &key, ValuePtr value);
 
     ValueType type() const override;

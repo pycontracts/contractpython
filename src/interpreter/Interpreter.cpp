@@ -275,18 +275,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         ValuePtr value = execute_next(scope, dummy_loop_state);
         std::string name = read_name();
-
-        if(value->type() == ValueType::Module)
-        {
-            returnval = value_cast<Module>(value)->get_member(name);
-        }
-        else if(value->type() == ValueType::Dictionary && name == "items")
-        {
-            returnval = value_cast<Dictionary>(value)->items();
-        }
-        else
-            throw std::runtime_error("Cannot get attribute");
-
+        returnval = value->get_member(name);
         break;
     }
     case NodeType::Name:

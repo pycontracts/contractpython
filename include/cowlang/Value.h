@@ -57,7 +57,17 @@ public:
         return duplicate(memory_manager());
     }
 
+    virtual std::string str()
+    {
+        throw std::runtime_error("Cannot convert value to string");
+    }
+
     virtual ValuePtr duplicate(MemoryManager &mem) = 0;
+
+    virtual ValuePtr get_member(const std::string &name)
+    {
+        throw std::runtime_error("No such member: " + name);
+    }
 
     virtual bool is_generator() const
     {
@@ -128,6 +138,11 @@ public:
         m_value = v;
     }
 
+    std::string str() override
+    {
+        return std::to_string(m_value);
+    }
+
 protected:
     value_type m_value;
 };
@@ -168,14 +183,33 @@ public:
     bool bool_test() const override { return m_value; }
 };
 
-class StringVal : public PlainValue<std::string, ValueType::String>
+class StringVal : public Value
 {
 public:
     StringVal(MemoryManager &mem, const std::string &val)
-        : PlainValue(mem, val) {}
+        : Value(mem), m_value(val)
+    {}
 
     ValuePtr duplicate(MemoryManager &mem) override
     { return wrap_value(new (mem) StringVal(mem, m_value)); }
+
+    std::string str() override
+    {
+        return get();
+    }
+
+    ValueType type() const override
+    {
+        return ValueType::String;
+    }
+
+    const std::string& get() const
+    {
+        return m_value;
+    }
+
+private:
+    std::string m_value;
 };
 
 class FloatVal : public PlainValue<double, ValueType::Float>
