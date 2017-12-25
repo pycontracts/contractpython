@@ -50,6 +50,7 @@ public:
 
     bool set_encoding(const std::string &coding)
     {
+        (void)coding;
         return true;
     }
 

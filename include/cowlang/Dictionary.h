@@ -83,7 +83,7 @@ public:
 
     DictItemsPtr items();
 
-    uint32_t size() const;
+    uint32_t size() const override;
 
     ValuePtr get_member(const std::string &name) override
     {

@@ -7,10 +7,10 @@ subdir('./src/compiler')
 subdir('./src/interpreter')
 subdir('./test')
 
-gtest = dependency('gtest', main : true)
+gtest = dependency('gtest')
 gmock = dependency('gmock')
 
-compile_args = []
+compile_args = ['-Wextra', '-Werror']
 
 if get_option('use_geo') == true
     compile_args = compile_args + ['-DUSE_GEO']

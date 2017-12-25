@@ -140,6 +140,9 @@ public:
     void handle_binary(const std::string &key, const uint8_t *data, uint32_t len) override
     {
         //FIXME
+        (void)key;
+        (void)data;
+        (void)len;
     }
 
 private:
