@@ -10,7 +10,9 @@ subdir('./test')
 gtest = dependency('gtest')
 gmock = dependency('gmock')
 
-compile_args = ['-Wextra', '-Werror']
+# FIXME: Pypa causes a lot of warnings
+compile_args = ['-Wall', '-Werror']
+#compile_args = ['-Wextra', '-Werror']
 
 if get_option('use_geo') == true
     compile_args = compile_args + ['-DUSE_GEO']
