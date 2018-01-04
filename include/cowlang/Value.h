@@ -110,7 +110,7 @@ public:
         return ValueType::Custom;
     }
 
-    virtual BitStream as_bitstream() const = 0;
+    virtual bitstream as_bitstream() const = 0;
 };
 
 bool operator==(const Value &v1, const Value& v2);
@@ -318,11 +318,11 @@ inline bool operator==(const Value &first, const Value &second)
 }
 
 /**
- * @brief Serialize a Value to a BitStream
+ * @brief Serialize a Value to a bitstream
  *
  * @note This currently only supports plain values
  */
-inline BitStream& operator<<(BitStream &bs, ValuePtr val)
+inline bitstream& operator<<(bitstream &bs, ValuePtr val)
 {
     if(!val)
     {
@@ -361,11 +361,11 @@ inline BitStream& operator<<(BitStream &bs, ValuePtr val)
  * @brief Read a value from a bitstream
  *
  * @param bs
- *      The BitStream containg the value
+ *      The bitstream containg the value
  * @param mem
  *      The value will be initialized in mem's context
  */
-inline ValuePtr read_value(BitStream &bs, MemoryManager &mem)
+inline ValuePtr read_value(bitstream &bs, MemoryManager &mem)
 {
     ValueType type;
     bs >> type;

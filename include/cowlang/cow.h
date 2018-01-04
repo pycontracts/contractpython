@@ -8,7 +8,7 @@ namespace cow
 
 json::Document value_to_document(ValuePtr val);
 
-BitStream compile_file(const std::string &filename);
-BitStream compile_code(const std::string &code);
+bitstream compile_file(const std::string &filename);
+bitstream compile_code(const std::string &code);
 
 }

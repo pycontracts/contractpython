@@ -1,4 +1,4 @@
-#include "json/BitStream.h"
+#include <bitstream.h>
 #include <cowlang/NodeType.h>
 
 #include "pypa/reader.hh"
@@ -76,13 +76,13 @@ public:
         parse_next(*(m_ast->body));
     }
 
-    BitStream get_result()
+    bitstream get_result()
     {
         uint8_t *data = nullptr;
         uint32_t len = 0;
         m_result.detach(data, len);
 
-        BitStream res;
+        bitstream res;
         res.assign(data, len, false);
         return res;
     }
@@ -380,10 +380,10 @@ private:
 
     const pypa::AstModulePtr m_ast;
 
-    BitStream m_result;
+    bitstream m_result;
 };
 
-BitStream compile_file(const std::string &filename)
+bitstream compile_file(const std::string &filename)
 {
     pypa::AstModulePtr ast;
     pypa::SymbolTablePtr symbols;
@@ -404,7 +404,7 @@ BitStream compile_file(const std::string &filename)
 
     return compiler.get_result();
 }
-BitStream compile_code(const std::string &code)
+bitstream compile_code(const std::string &code)
 {
     pypa::AstModulePtr ast;
     pypa::SymbolTablePtr symbols;

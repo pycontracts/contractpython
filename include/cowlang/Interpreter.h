@@ -14,7 +14,7 @@ namespace cow
 class Interpreter
 {
 public:
-    Interpreter(const BitStream &data);
+    Interpreter(const bitstream &data);
     ~Interpreter();
 
     ValuePtr execute();
@@ -48,7 +48,7 @@ private:
     std::string read_name();
     std::vector<std::string> read_names();
 
-    BitStream m_data;
+    bitstream m_data;
 
     MemoryManager m_mem;
     Scope *m_global_scope;

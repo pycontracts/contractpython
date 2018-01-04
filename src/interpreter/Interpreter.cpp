@@ -59,7 +59,7 @@ enum class UnaryOpType
     Sub,
 };
 
-Interpreter::Interpreter(const BitStream &data)
+Interpreter::Interpreter(const bitstream &data)
     : m_num_execution_steps(0), m_execution_step_limit(0)
 {
     m_global_scope = new (m_mem) Scope(m_mem);
