@@ -62,6 +62,11 @@ public:
         throw std::runtime_error("Cannot convert value to string");
     }
 
+    virtual uint32_t size()
+    {
+        throw std::runtime_error("Cannot get size of value");
+    }
+
     virtual ValuePtr duplicate(MemoryManager &mem) = 0;
 
     virtual ValuePtr get_member(const std::string &name)
@@ -196,6 +201,11 @@ public:
     std::string str() override
     {
         return get();
+    }
+
+    uint32_t size() override
+    {
+        return m_value.size();
     }
 
     ValueType type() const override

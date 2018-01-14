@@ -25,7 +25,8 @@ enum class BuiltinType
     Range,
     MakeInt,
     MakeString,
-    Print
+    Print,
+    Length
 };
 
 class Builtin : public Callable
@@ -94,10 +95,22 @@ public:
             else
                 throw std::runtime_error("Can't conver to integer");
         }
+        else if(m_type == BuiltinType::Length)
+        {
+            if(args.size() != 1)
+            {
+                throw std::runtime_error("Invalid number of arguments");
+            }
+
+            auto arg = args[0];
+            return wrap_value(new (memory_manager()) IntVal(memory_manager(), arg->size()));
+        }
         else if(m_type == BuiltinType::Print)
         {
             if(args.size() != 1)
+            {
                 throw std::runtime_error("Invalid number of arguments");
+            }
 
             auto arg = args[0];
 

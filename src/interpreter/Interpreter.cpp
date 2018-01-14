@@ -104,7 +104,9 @@ void Interpreter::load_from_module(Scope &scope, const std::string &mname, const
     auto module = get_module(mname);
         
     if(!module)
+    {
         throw std::runtime_error("Unknown module: " + mname);
+    }
 
     scope.set_value(as_name == "" ? name: as_name, module->get_member(name));
 }
@@ -117,7 +119,9 @@ uint32_t Interpreter::num_execution_steps() const
 void Interpreter::set_execution_step_limit(uint32_t limit)
 {
     if(limit == 0)
+    {
         throw std::runtime_error("Limit has to be larger than 0");
+    }
 
     m_execution_step_limit = limit;
 }
@@ -127,7 +131,9 @@ void Interpreter::load_module(Scope &scope, const std::string &mname, const std:
     auto module = get_module(mname);
         
     if(!module)
+    {
         throw std::runtime_error("Unknown module: " + mname);
+    }
 
     scope.set_value(as_name == "" ? mname: as_name, module);
 }

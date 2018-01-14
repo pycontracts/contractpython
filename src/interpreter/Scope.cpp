@@ -38,18 +38,34 @@ ValuePtr Scope::get_value(const std::string &id)
     Value* val = nullptr;
 
     if(id == BUILTIN_STR_NONE)
+    {
         return std::shared_ptr<Value>{nullptr};
+    }
     else if(id == BUILTIN_STR_RANGE)
+    {
         val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Range);
+    }
     else if(id == BUILTIN_STR_MAKE_INT)
+    {
         val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::MakeInt);
+    }
     else if(id == BUILTIN_STR_MAKE_STR)
+    {
         val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::MakeString);
+    }
     else if(id == BUILTIN_STR_PRINT)
+    {
         val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Print);
+    }
+    else if(id == BUILTIN_STR_LENGTH)
+    {
+        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Length);
+    }
 
     if(val)
+    {
         return std::shared_ptr<Value>(val);
+    }
 
     auto it = m_values.find(id);
     if(it == m_values.end())

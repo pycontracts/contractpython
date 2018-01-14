@@ -11,11 +11,12 @@ namespace cow
 class Scope : public Object
 {
 public:
-    const std::string BUILTIN_STR_NONE = "None";
-    const std::string BUILTIN_STR_RANGE = "range";
-    const std::string BUILTIN_STR_MAKE_INT = "int";
-    const std::string BUILTIN_STR_MAKE_STR = "str";
-    const std::string BUILTIN_STR_PRINT = "print";
+    static constexpr const char* BUILTIN_STR_NONE = "None";
+    static constexpr const char* BUILTIN_STR_RANGE = "range";
+    static constexpr const char* BUILTIN_STR_MAKE_INT = "int";
+    static constexpr const char* BUILTIN_STR_MAKE_STR = "str";
+    static constexpr const char* BUILTIN_STR_PRINT = "print";
+    static constexpr const char* BUILTIN_STR_LENGTH = "len";
 
     Scope(MemoryManager &mem) : Object(mem), m_parent(nullptr) {}
     Scope(MemoryManager &mem, Scope &parent) : Object(mem), m_parent(&parent) {}

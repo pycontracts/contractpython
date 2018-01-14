@@ -9,6 +9,19 @@ class BasicTest : public testing::Test
 {
 };
 
+TEST(BasicTest, strlen)
+{
+    const std::string code = "s = 'foo'\n"
+                             "return len(s)";
+
+    auto doc = compile_code(code);
+
+    Interpreter pyint(doc);
+
+    EXPECT_EQ(3, unpack_integer(pyint.execute()));
+}
+
+
 TEST(BasicTest, pass)
 {
     const std::string code = "pass\n"
