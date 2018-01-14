@@ -52,7 +52,7 @@ public:
         return true;
     }
 
-    virtual uint32_t size() const = 0;
+    virtual uint32_t size() const override = 0;
 
     virtual IteratorPtr iterate() = 0;
 

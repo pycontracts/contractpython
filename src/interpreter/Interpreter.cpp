@@ -300,7 +300,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::Continue:
     {
         if(loop_state == LoopState::None)
+        {
             throw std::runtime_error("Not a loop");
+        }
 
         loop_state = LoopState::Continue;
         break;
@@ -308,7 +310,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::Break:
     {
         if(loop_state == LoopState::None)
+        {
             throw std::runtime_error("Not a loop");
+        }
 
         loop_state = LoopState::Break;
         break;
@@ -798,13 +802,14 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             
             if(!cond)
             {
-                skip_next();
                 break;
             }
 
             Scope body_scope(m_mem, scope);
             execute_next(body_scope, for_loop_state);
         }
+
+        skip_next();
         break;
     }
     case NodeType::ForLoop:

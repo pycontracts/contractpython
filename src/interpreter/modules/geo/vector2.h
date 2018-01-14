@@ -29,7 +29,7 @@ public:
         return m_vec;
     }
 
-    std::string str() override
+    std::string str() const override
     {
         return std::to_string(m_vec);
     }

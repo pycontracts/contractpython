@@ -57,12 +57,12 @@ public:
         return duplicate(memory_manager());
     }
 
-    virtual std::string str()
+    virtual std::string str() const
     {
         throw std::runtime_error("Cannot convert value to string");
     }
 
-    virtual uint32_t size()
+    virtual uint32_t size() const
     {
         throw std::runtime_error("Cannot get size of value");
     }
@@ -143,7 +143,7 @@ public:
         m_value = v;
     }
 
-    std::string str() override
+    std::string str() const override
     {
         return std::to_string(m_value);
     }
@@ -198,12 +198,12 @@ public:
     ValuePtr duplicate(MemoryManager &mem) override
     { return wrap_value(new (mem) StringVal(mem, m_value)); }
 
-    std::string str() override
+    std::string str() const override
     {
         return get();
     }
 
-    uint32_t size() override
+    uint32_t size() const override
     {
         return m_value.size();
     }

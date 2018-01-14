@@ -21,7 +21,29 @@ TEST(BasicTest, strlen)
     EXPECT_EQ(3, unpack_integer(pyint.execute()));
 }
 
+TEST(BasicTest, arraylen)
+{
+    const std::string code = "a = ['foo', 'bar']\n"
+                             "return len(a)";
 
+    auto doc = compile_code(code);
+
+    Interpreter pyint(doc);
+
+    EXPECT_EQ(2, unpack_integer(pyint.execute()));
+}
+
+TEST(BasicTest, arraystr)
+{
+    const std::string code = "a = ['foo', 'bar']\n"
+                             "return str(a)";
+
+    auto doc = compile_code(code);
+
+    Interpreter pyint(doc);
+
+    EXPECT_EQ("['foo', 'bar']", unpack_string(pyint.execute()));
+}
 TEST(BasicTest, pass)
 {
     const std::string code = "pass\n"
@@ -260,7 +282,40 @@ TEST(BasicTest, iterate_dict2)
     EXPECT_TRUE(unpack_bool(res));
 }
 
-TEST(BasicTest, loop_break)
+TEST(BasicTest, while_loop_break1)
+{
+    const std::string code =
+           "a = 5\n"
+           "while True:\n"
+           "    a += 1\n"
+           "    break\n"
+           "return a == 6";
+
+    auto doc = compile_code(code);
+    Interpreter pyint(doc);
+    auto res = pyint.execute();
+
+    EXPECT_TRUE(unpack_bool(res));
+}
+
+TEST(BasicTest, while_loop_break2)
+{
+    const std::string code =
+           "a = 5\n"
+           "while True:\n"
+           "    a += 1\n"
+           "    break\n"
+           "    a += 5\n"
+           "return a == 6";
+
+    auto doc = compile_code(code);
+    Interpreter pyint(doc);
+    auto res = pyint.execute();
+
+    EXPECT_TRUE(unpack_bool(res));
+}
+
+TEST(BasicTest, for_loop_break)
 {
     const std::string code =
            "a = 5\n"

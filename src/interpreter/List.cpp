@@ -38,6 +38,35 @@ const std::vector<ValuePtr>& List::elements() const
     return m_elements;
 }
 
+std::string List::str() const
+{
+    std::string result = "[";
+    bool first = true;
+
+    for(auto elem: m_elements)
+    {
+        if(first)
+        {
+            first = false;
+        }
+        else
+        {
+            result += ", ";
+        }
+
+        if(elem->type() == ValueType::String)
+        {
+            result += '\'' + elem->str() + '\'';
+        }
+        else
+        {
+            result += elem->str();
+        }
+    }
+
+    return result + ']';
+}
+
 bool List::contains(const Value &value) const
 {
     for(auto elem: m_elements)

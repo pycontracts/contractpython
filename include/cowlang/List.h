@@ -37,6 +37,8 @@ public:
 
     uint32_t size() const override;
 
+    std::string str() const override;
+
     bool contains(const Value &value) const;
 
     ValueType type() const override;
