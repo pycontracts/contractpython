@@ -32,7 +32,7 @@ public:
         m_content.push_back(val);
     }
 
-    uint32_t size() const
+    uint32_t size() const override
     {
         return m_content.size();
     }

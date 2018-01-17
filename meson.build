@@ -1,4 +1,4 @@
-project('cowlang', 'cpp', default_options: ['cpp_std=c++1z'], version: '1.0')
+project('cowlang', 'cpp', version: '1.0')
 
 inc_dirs = include_directories(get_option('prefix') + '/include', '/usr/local/include', './include/')
 prefix_library_path=[get_option('prefix')+'/lib/x86_64-linux-gnu', get_option('prefix')+'/lib', '/usr/local/lib', '/usr/local/lib/x86_64-linux-gnu']
@@ -10,9 +10,10 @@ subdir('./test')
 gtest = dependency('gtest')
 gmock = dependency('gmock')
 
+compile_args = ['-Wall', '-Werror', '-std=c++17']
+
 # FIXME: Pypa causes a lot of warnings
-compile_args = ['-Wall']
-#compile_args = ['-Wextra', '-Werror']
+#compile_args += ['-Wextra']
 
 if get_option('use_geo') == true
     compile_args = compile_args + ['-DUSE_GEO']

@@ -48,7 +48,7 @@ public:
         return "code";
     }
 
-    bool set_encoding(const std::string &coding)
+    bool set_encoding(const std::string &coding) override
     {
         (void)coding;
         return true;

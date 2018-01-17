@@ -66,7 +66,7 @@ public:
         throw std::runtime_error("Datetime not supported");
     }
 
-    void handle_string(const std::string &key, const std::string &str)
+    void handle_string(const std::string &key, const std::string &str) override
     {
         auto val = m_mem.create_string(str);
         add_value(key, val);
