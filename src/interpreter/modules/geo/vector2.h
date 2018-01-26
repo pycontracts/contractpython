@@ -39,11 +39,17 @@ public:
         auto &mem = memory_manager();
 
         if(name == "x")
+        {
             return mem.create_float(m_vec.X);
+        }
         else if(name == "y")
+        {
             return mem.create_float(m_vec.Y);
+        }
         else
-            throw std::runtime_error("Failed to get member!");
+        {
+            throw language_error("No such member geo::vector2::" + name);
+        }
     }
 
 private:

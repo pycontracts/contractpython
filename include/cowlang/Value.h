@@ -3,6 +3,9 @@
 #include <memory>
 #include <stdint.h>
 #include <string>
+
+#include "language_exception.h"
+#include "execution_limits.h"
 #include "json/json.h"
 #include "Object.h"
 
@@ -71,7 +74,7 @@ public:
 
     virtual ValuePtr get_member(const std::string &name)
     {
-        throw std::runtime_error("No such member: " + name);
+        throw language_exception("No such member: " + name);
     }
 
     virtual bool is_generator() const
@@ -266,22 +269,6 @@ private:
     const std::string m_what;
 };
 
-class execution_limit_exception : public std::exception
-{
-public:
-    execution_limit_exception(const std::string &what)
-        : std::exception(), m_what(what)
-    {}
-
-    const char* what() const noexcept override
-    {
-        return m_what.c_str();
-    }
-
-private:
-    const std::string m_what;
-};
-
 template<typename T>
 std::shared_ptr<T> value_cast(ValuePtr val)
 {
@@ -381,7 +368,9 @@ inline ValuePtr read_value(bitstream &bs, MemoryManager &mem)
     bs >> type;
 
     if(type == ValueType::None)
+    {
         return nullptr;
+    }
 
     switch(type)
     {

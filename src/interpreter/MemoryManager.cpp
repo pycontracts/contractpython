@@ -1,4 +1,5 @@
 #include <cowlang/Object.h>
+#include <cowlang/execution_limits.h>
 
 namespace cow
 {
@@ -26,10 +27,11 @@ void DummyMemoryManager::free(void *ptr)
 
 void* MemoryManager::malloc(size_t size)
 {
-/*    if(m_buffer_pos+size >= m_buffer.size())
+    if(m_buffer_pos+size >= PAGE_SIZE)
     {
-        m_buffer.resize(m_buffer_pos+size);
-    }*/
+        //FIXME allocate new pages if allowed
+        throw execution_limit_exception("Out of memory!");
+    }
 
     auto ptr = &m_buffer[m_buffer_pos];
     auto idx = reinterpret_cast<intptr_t>(ptr);

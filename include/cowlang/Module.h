@@ -1,10 +1,8 @@
 #pragma once
 
-#include <functional>
 #include <memory>
 
-#include "Value.h"
-#include "Callable.h"
+#include "Function.h"
 
 namespace cow
 {
@@ -27,32 +25,6 @@ public:
     {
         return nullptr; //not supported
     }
-};
-
-/**
- * @brief Wrapper for a lambda function
- */
-class Function : public Callable
-{
-public:
-    Function(MemoryManager &mem, std::function<ValuePtr(const std::vector<ValuePtr>&)> func)
-        : Callable(mem), m_func(func)
-    {}
-
-    ValuePtr duplicate(MemoryManager &mem) override
-    {
-        return wrap_value(new (mem) Function(mem, m_func));
-    }
-
-    ValuePtr call(const std::vector<ValuePtr>& args) override
-    {
-        return m_func(args);
-    }
-
-    ValueType type() const override { return ValueType::Function; }
-
-private:
-    const std::function<ValuePtr (const std::vector<ValuePtr>)> m_func;
 };
 
 }

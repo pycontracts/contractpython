@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "execution_limits.h"
 #include "NodeType.h"
 #include "Module.h"
 #include "Value.h"

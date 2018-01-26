@@ -1,4 +1,5 @@
 #include <cowlang/List.h>
+#include <cowlang/Function.h>
 
 namespace cow
 {
@@ -20,10 +21,35 @@ ValuePtr List::duplicate(MemoryManager &mem)
     return d;
 }
 
+ValuePtr List::get_member(const std::string &name)
+{
+    auto &mem = memory_manager();
+
+    if(name == "append")
+    {
+         return wrap_value( new (mem) Function(mem,
+              [&](const std::vector<ValuePtr> &args) -> ValuePtr {
+                if(args.size() != 1)
+                {
+                    throw std::runtime_error("Invalid number of arguments");
+                }
+            
+                this->append(args[0]);
+                return nullptr;
+            }));
+    }
+    else
+    {
+        throw language_exception("No such member List::" + name);
+    }
+}
+
 ValuePtr List::get(uint32_t index)
 {
     if(index >= size())
+    {
         throw std::runtime_error("List index out of range");
+    }
 
     return m_elements[index];
 }

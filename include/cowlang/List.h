@@ -35,6 +35,8 @@ public:
 
     ValuePtr get(uint32_t index);
 
+    ValuePtr get_member(const std::string &name) override;
+
     uint32_t size() const override;
 
     std::string str() const override;
