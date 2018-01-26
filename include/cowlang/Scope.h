@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "List.h"
 #include "Tuple.h"
 #include "Value.h"

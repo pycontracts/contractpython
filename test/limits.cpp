@@ -36,8 +36,11 @@ TEST(Limits, below_limit)
 
 TEST(Limits, out_of_memory)
 {
+    /// TODO
+    /// currently this just tries to allocate more then a page size
+    /// Once we have paging implement setting memory size limits
     const std::string code = "a = []\n"
-                             "for _ in range(10000):\n"
+                             "for _ in range(100000):\n"
                              "   a.append('somestring')";
 
     auto doc = compile_code(code);

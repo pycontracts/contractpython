@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <memory>
 
@@ -68,7 +68,8 @@ private:
 
     void resize(size_t new_size);
 
-    std::unordered_map<intptr_t, AllocInfo> m_allocs;
+    //Needs to be ordered
+    std::map<intptr_t, AllocInfo> m_allocs;
 };
 
 /**
