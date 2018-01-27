@@ -793,7 +793,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         LoopState for_loop_state = LoopState::TopLevel;
         auto start = m_data.pos();
  
-        while(for_loop_state != LoopState::Break)
+        while(!scope.is_terminated() && for_loop_state != LoopState::Break)
         {
             m_data.move_to(start);
 
@@ -806,7 +806,14 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             }
 
             Scope body_scope(m_mem, scope);
-            execute_next(body_scope, for_loop_state);
+            auto res = execute_next(body_scope, for_loop_state);
+
+            // Propagate return?
+            if(body_scope.is_terminated())
+            {
+                scope.terminate();
+                returnval = res;
+            }
         }
 
         skip_next();
@@ -829,9 +836,11 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             iter = value_cast<IterateableValue>(obj)->iterate();
         }
         else
+        {
             throw std::runtime_error("Can't iterate");
+        }
 
-        while(for_loop_state != LoopState::Break)
+        while(!scope.is_terminated() && for_loop_state != LoopState::Break)
         {
             Scope body_scope(m_mem, scope);
             ValuePtr next = nullptr;
@@ -850,15 +859,26 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             {
                 auto t = value_cast<Tuple>(next);
                 if(!t)
-                    throw std::runtime_error("Not a tuple!");
+                {
+                    throw std::runtime_error("Cannot unpack values: not a tuple!");
+                }
 
                 body_scope.set_value(names[0], t->get(0));
                 body_scope.set_value(names[1], t->get(1));
             }
             else
+            {
                 throw std::runtime_error("Cannot handle more than two names");
+            }
 
-            execute_next(body_scope, for_loop_state);
+            auto res = execute_next(body_scope, for_loop_state);
+
+            // Propagate return?
+            if(body_scope.is_terminated())
+            {
+                scope.terminate();
+                returnval = res;
+            }
         }
 
         skip_next();

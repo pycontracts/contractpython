@@ -71,6 +71,23 @@ TEST(LoopTest, while_loop_break2)
     EXPECT_TRUE(unpack_bool(res));
 }
 
+TEST(LoopTest, while_loop_return)
+{
+    const std::string code =
+           "a = 5\n"
+           "while True:\n"
+           "    a += 1\n"
+           "    return a\n"
+           "    a += 5\n"
+           "return a";
+
+    auto doc = compile_code(code);
+    Interpreter pyint(doc);
+    auto res = pyint.execute();
+
+    EXPECT_EQ(6, unpack_integer(res));
+}
+
 TEST(LoopTest, for_loop_break)
 {
     const std::string code =
@@ -79,6 +96,20 @@ TEST(LoopTest, for_loop_break)
            "    a += 1\n"
            "    break\n"
            "return a == 6";
+
+    auto doc = compile_code(code);
+    Interpreter pyint(doc);
+    auto res = pyint.execute();
+
+    EXPECT_TRUE(unpack_bool(res));
+}
+
+TEST(LoopTest, for_loop_return)
+{
+    const std::string code =
+           "for _ in range(10):\n"
+           "    return True\n"
+           "return False";
 
     auto doc = compile_code(code);
     Interpreter pyint(doc);

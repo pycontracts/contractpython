@@ -66,7 +66,7 @@ void* MemoryManager::malloc(size_t size)
 }
 
 void MemoryManager::free(void *ptr)
-{   
+{
     auto idx = reinterpret_cast<intptr_t>(ptr);
     auto it = m_allocs.find(idx);
 
