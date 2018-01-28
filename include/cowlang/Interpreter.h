@@ -12,10 +12,22 @@
 namespace cow
 {
 
+/**
+ * Main class that takes care of running (=interpreting) the compiled code
+ */
 class Interpreter
 {
 public:
-    Interpreter(const bitstream &data);
+    /**
+     * Construct the Python interpreter
+     *
+     * @param data
+     *      The compiled syntax tree of the program
+     *
+     * @param dummy_memory_manager
+     *      If set to true, the interpreter will not a dedicated memory manager
+     */
+    Interpreter(const bitstream &data, bool dummy_memory_manager = false);
     ~Interpreter();
 
     ValuePtr execute();
@@ -32,7 +44,7 @@ public:
 
     MemoryManager& memory_manager()
     {
-        return m_mem;
+        return *m_mem;
     }
 
 private:
@@ -51,7 +63,7 @@ private:
 
     bitstream m_data;
 
-    MemoryManager m_mem;
+    MemoryManager *m_mem;
     Scope *m_global_scope;
 
     std::unordered_map<std::string, ModulePtr> m_loaded_modules;

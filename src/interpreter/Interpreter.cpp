@@ -59,10 +59,19 @@ enum class UnaryOpType
     Sub,
 };
 
-Interpreter::Interpreter(const bitstream &data)
+Interpreter::Interpreter(const bitstream &data, bool dummy_memory_manager)
     : m_num_execution_steps(0), m_execution_step_limit(0)
 {
-    m_global_scope = new (m_mem) Scope(m_mem);
+    if(dummy_memory_manager)
+    {
+        m_mem = new DummyMemoryManager();
+    }
+    else
+    {
+        m_mem = new MemoryManager();
+    }
+
+    m_global_scope = new (memory_manager()) Scope(memory_manager());
     m_data.assign(data.data(), data.size(), true);
 }
 
@@ -84,12 +93,12 @@ ModulePtr Interpreter::get_module(const std::string &name)
 
     if(name == "rand")
     {
-        module = wrap_value<Module>(new (m_mem) RandModule(m_mem));
+        module = wrap_value<Module>(new (memory_manager()) RandModule(memory_manager()));
     }
 #ifdef USE_GEO
     else if(name == "geo")
     {
-        module = wrap_value<Module>(new (m_mem) GeoModule(m_mem));
+        module = wrap_value<Module>(new (memory_manager()) GeoModule(memory_manager()));
     }
 #endif
     else
@@ -250,7 +259,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         uint32_t num_elems = 0;
         m_data >> num_elems;
 
-        auto tuple = wrap_value(new (m_mem) Tuple(m_mem));
+        auto tuple = wrap_value(new (memory_manager()) Tuple(memory_manager()));
 
         for(uint32_t i = 0; i < num_elems; ++i)
             tuple->append(execute_next(scope, dummy_loop_state));
@@ -270,7 +279,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         std::string name, as_name;
         m_data >> name >> as_name;
-        returnval = wrap_value(new (m_mem) Alias(m_mem, name, as_name));
+        returnval = wrap_value(new (memory_manager()) Alias(memory_manager(), name, as_name));
         break;
     }
     case NodeType::Pass:
@@ -290,9 +299,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         m_data >> str;
 
         if(str == "False")
-            returnval = m_mem.create_boolean(false);
+            returnval = memory_manager().create_boolean(false);
         else if(str == "True")
-            returnval = m_mem.create_boolean(true);
+            returnval = memory_manager().create_boolean(true);
         else
             returnval = scope.get_value(str);
         break;
@@ -387,7 +396,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             switch(type)
             {
             case UnaryOpType::Not:
-                returnval = m_mem.create_boolean(!cond);
+                returnval = memory_manager().create_boolean(!cond);
                 break;
             default:
                 throw std::runtime_error("Unknown unary operation");
@@ -400,13 +409,13 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             switch(type)
             {
             case UnaryOpType::Sub:
-                returnval = m_mem.create_integer((-1)*i);
+                returnval = memory_manager().create_integer((-1)*i);
                 break;
             case UnaryOpType::Add:
                 returnval = res;
                 break;
             case UnaryOpType::Not:
-                returnval = m_mem.create_boolean(false);
+                returnval = memory_manager().create_boolean(false);
                 break;
             default:
                 throw std::runtime_error("Unknown unary operation");
@@ -417,7 +426,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             switch(type)
             {
             case UnaryOpType::Not:
-                returnval = m_mem.create_boolean(res == nullptr);
+                returnval = memory_manager().create_boolean(res == nullptr);
                 break;
             default:
                 throw std::runtime_error("Unknonw unary op");
@@ -490,7 +499,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         else
             throw std::runtime_error("unknown bool op type");
 
-        returnval = m_mem.create_boolean(res);
+        returnval = memory_manager().create_boolean(res);
         break;
     }
     case NodeType::BinaryOp:
@@ -510,14 +519,14 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 auto i1 = value_cast<IntVal>(left)->get();
                 auto i2 = value_cast<IntVal>(right)->get();
 
-                returnval = m_mem.create_integer(i1 + i2);
+                returnval = memory_manager().create_integer(i1 + i2);
             }
             else if(left->type() == ValueType::String && right->type() == ValueType::String)
             {
                 auto s1 = value_cast<StringVal>(left)->get();
                 auto s2 = value_cast<StringVal>(right)->get();
 
-                returnval = m_mem.create_string(s1 + s2);
+                returnval = memory_manager().create_string(s1 + s2);
             }
             else
                 throw std::runtime_error("failed to add");
@@ -531,7 +540,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 auto i1 = value_cast<IntVal>(left)->get();
                 auto i2 = value_cast<IntVal>(right)->get();
 
-                returnval = m_mem.create_integer(i1 * i2);
+                returnval = memory_manager().create_integer(i1 * i2);
             }
             else
                 throw std::runtime_error("failed to multiply");
@@ -545,7 +554,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 auto i1 = value_cast<IntVal>(left)->get();
                 auto i2 = value_cast<IntVal>(right)->get();
 
-                returnval = m_mem.create_integer(i1 % i2);
+                returnval = memory_manager().create_integer(i1 % i2);
             }
             else
                 throw std::runtime_error("failed apply mod function");
@@ -563,7 +572,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 auto i1 = value_cast<IntVal>(left)->get();
                 auto i2 = value_cast<IntVal>(right)->get();
 
-                returnval = m_mem.create_integer(i1 - i2);
+                returnval = memory_manager().create_integer(i1 - i2);
             }
             else
                 throw std::runtime_error("failed to sub");
@@ -583,7 +592,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     }
     case NodeType::List:
     {
-        auto list = m_mem.create_list();
+        auto list = memory_manager().create_list();
 
         uint32_t size = 0;
         m_data >> size;
@@ -602,7 +611,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         std::string str;
         m_data >> str;
 
-        returnval = m_mem.create_string(str);
+        returnval = memory_manager().create_string(str);
         break;
     }
     case NodeType::Compare:
@@ -679,7 +688,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             else
                 throw std::runtime_error("Unknown op type");
 
-            current = m_mem.create_boolean(res);
+            current = memory_manager().create_boolean(res);
         }
 
         returnval = current;
@@ -694,7 +703,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         int32_t val;
         m_data >> val;
-        returnval = m_mem.create_integer(val);
+        returnval = memory_manager().create_integer(val);
         break;
     }
     case NodeType::Call:
@@ -754,7 +763,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     }
     case NodeType::Dictionary:
     {
-        auto res = m_mem.create_dictionary();
+        auto res = memory_manager().create_dictionary();
 
         uint32_t size;
         m_data >> size;
@@ -805,7 +814,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 break;
             }
 
-            Scope body_scope(m_mem, scope);
+            Scope body_scope(memory_manager(), scope);
             auto res = execute_next(body_scope, for_loop_state);
 
             // Propagate return?
@@ -842,7 +851,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         while(!scope.is_terminated() && for_loop_state != LoopState::Break)
         {
-            Scope body_scope(m_mem, scope);
+            Scope body_scope(memory_manager(), scope);
             ValuePtr next = nullptr;
 
             try {
@@ -1086,18 +1095,18 @@ void Interpreter::set_module(const std::string &name, ModulePtr module)
 
 void Interpreter::set_string(const std::string &name, const std::string &value)
 {
-    auto s = m_mem.create_string(value);
+    auto s = memory_manager().create_string(value);
     m_global_scope->set_value(name, s);
 }
 
 void Interpreter::set_list(const std::string &name, const std::vector<std::string> &list)
 {
-    auto l = m_mem.create_list();
+    auto l = memory_manager().create_list();
     
     for(auto &e: list)
     {
         //FIXME support other types
-        auto s = m_mem.create_string(e);
+        auto s = memory_manager().create_string(e);
         l->append(s);
     }
 

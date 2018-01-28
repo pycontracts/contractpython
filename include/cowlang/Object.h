@@ -56,13 +56,14 @@ public:
     ValuePtr create_none();
 
 private:
-    uint8_t *m_buffer;
- //   std::vector<uint8_t> m_buffer;
+    void* assign_alloc(size_t page_no, size_t poffset, size_t size);
+
+    std::vector<uint8_t*> m_buffers;
     size_t m_buffer_pos;
 
     struct AllocInfo
     {
-//        page_id_t page;
+        size_t page;
         size_t size;
     };
 
