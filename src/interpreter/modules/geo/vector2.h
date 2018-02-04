@@ -48,7 +48,7 @@ public:
         }
         else
         {
-            throw language_error("No such member geo::vector2::" + name);
+            throw language_exception("No such member geo::vector2::" + name);
         }
     }
 
