@@ -2,6 +2,8 @@
 #include <cowlang/execution_limits.h>
 #include <cassert>
 
+#include <iostream>
+
 namespace cow
 {
 
@@ -32,6 +34,11 @@ void DummyMemoryManager::free(void *ptr)
 
 void* MemoryManager::assign_alloc(size_t page_no, size_t poffset, size_t size)
 {
+    if(poffset + size > PAGE_SIZE)
+    {
+        throw std::runtime_error("Invalid offset");
+    }
+
     auto ptr = reinterpret_cast<uint8_t*>(&m_buffers[page_no][poffset]);
     auto idx = reinterpret_cast<intptr_t>(ptr);
 
@@ -46,14 +53,14 @@ void* MemoryManager::malloc(size_t size)
         throw std::runtime_error("cannot allocate more than page size");
     }
 
-    auto last_pos = 0;
-
-    uint32_t pos = 0;
+    uint32_t buf_pos = 0;
     for(auto buffer: m_buffers)
     {
+        auto last_pos = 0;
+        
         for(auto &[ptr, a]: m_allocs)
         {
-            if(pos != a.page)
+            if(buf_pos != a.page)
             {
                 continue;
             }
@@ -63,7 +70,7 @@ void* MemoryManager::malloc(size_t size)
 
             if(s >= size)
             {
-                return assign_alloc(pos, last_pos, size);
+                return assign_alloc(buf_pos, last_pos, size);
             }
             else
             {
@@ -71,7 +78,7 @@ void* MemoryManager::malloc(size_t size)
             }
         }
 
-        pos += 1;
+        buf_pos += 1;
     }
 
     auto buffer_size = m_buffers.size() * PAGE_SIZE;
@@ -86,8 +93,13 @@ void* MemoryManager::malloc(size_t size)
         //  throw execution_limit_exception("Out of memory!");
     }
 
+    auto new_pos = m_buffer_pos;
     m_buffer_pos += size;
-    return assign_alloc(m_buffers.size() - 1, m_buffer_pos - ((m_buffers.size() - 1) * PAGE_SIZE), size);
+
+    auto buffer = m_buffers.size() - 1;
+    auto offset = new_pos - (buffer * PAGE_SIZE);
+
+    return assign_alloc(buffer, offset, size);
 }
 
 void MemoryManager::free(void *ptr)
