@@ -7,14 +7,14 @@
 namespace cow
 {
 
-MemoryManager::MemoryManager()
+DefaultMemoryManager::DefaultMemoryManager()
     : m_buffer_pos(0)
 {
     auto buffer = new uint8_t[PAGE_SIZE];
     m_buffers.push_back(buffer);
 }
 
-MemoryManager::~MemoryManager()
+DefaultMemoryManager::~DefaultMemoryManager()
 {
     for(auto buffer: m_buffers)
     {
@@ -32,7 +32,7 @@ void DummyMemoryManager::free(void *ptr)
     ::free(ptr);
 }
 
-void* MemoryManager::assign_alloc(size_t page_no, size_t poffset, size_t size)
+void* DefaultMemoryManager::assign_alloc(size_t page_no, size_t poffset, size_t size)
 {
     if(poffset + size > PAGE_SIZE)
     {
@@ -46,7 +46,7 @@ void* MemoryManager::assign_alloc(size_t page_no, size_t poffset, size_t size)
     return ptr;
 }
 
-void* MemoryManager::malloc(size_t size)
+void* DefaultMemoryManager::malloc(size_t size)
 {
     if(size >= PAGE_SIZE)
     {
@@ -102,7 +102,7 @@ void* MemoryManager::malloc(size_t size)
     return assign_alloc(buffer, offset, size);
 }
 
-void MemoryManager::free(void *ptr)
+void DefaultMemoryManager::free(void *ptr)
 {
     auto idx = reinterpret_cast<intptr_t>(ptr);
     auto it = m_allocs.find(idx);

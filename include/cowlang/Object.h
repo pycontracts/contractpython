@@ -31,19 +31,19 @@ typedef std::shared_ptr<Tuple> TuplePtr;
 typedef std::shared_ptr<BoolVal> BoolValPtr;
 typedef std::shared_ptr<FloatVal> FloatValPtr;
 
+/**
+ * Interface for memory management
+ */
 class MemoryManager
 {
 public:
-    static constexpr size_t PAGE_SIZE = 1024*1024;
-
-    MemoryManager();
-
+    MemoryManager() = default;
     MemoryManager(MemoryManager &other) = delete;
 
-    virtual ~MemoryManager();
+    virtual ~MemoryManager() {}
 
-    virtual void* malloc(size_t sz);
-    virtual void free(void* ptr);
+    virtual void* malloc(size_t sz) = 0;
+    virtual void free(void* ptr) = 0;
 
     IntValPtr create_integer(const int32_t value);
     DictionaryPtr create_dictionary();
@@ -54,6 +54,18 @@ public:
     BoolValPtr create_boolean(const bool value);
     ListPtr create_list();
     ValuePtr create_none();
+};
+
+class DefaultMemoryManager : public MemoryManager
+{
+public:
+   DefaultMemoryManager();
+   ~DefaultMemoryManager();
+
+   static constexpr size_t PAGE_SIZE = 1024*1024;
+
+   void* malloc(size_t sz) override;
+   void free(void* ptr) override;
 
 private:
     void* assign_alloc(size_t page_no, size_t poffset, size_t size);
@@ -71,6 +83,7 @@ private:
 
     //Needs to be ordered
     std::map<intptr_t, AllocInfo> m_allocs;
+
 };
 
 /**
@@ -79,6 +92,8 @@ private:
 class DummyMemoryManager : public MemoryManager
 {
 public:
+    DummyMemoryManager() = default;
+
     void* malloc(size_t sz) override;
     void free(void* ptr) override;
 };

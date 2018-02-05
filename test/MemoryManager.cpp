@@ -10,7 +10,7 @@ class MemoryManagerTest : public testing::Test
 
 TEST(MemoryManager, simple_realloc)
 {
-    MemoryManager mem;
+    DefaultMemoryManager mem;
     const size_t size = 420;
 
     auto ptr = mem.malloc(size);
@@ -36,7 +36,7 @@ TEST(MemoryManager, simple_realloc)
 
 TEST(MemoryManager, malloc_free)
 {
-    MemoryManager mem;
+    DefaultMemoryManager mem;
     const size_t size = 420;
 
     auto ptr = mem.malloc(size);
@@ -59,7 +59,7 @@ TEST(MemoryManager, malloc_free)
 
 TEST(MemoryManager, malloc_few)
 {
-    MemoryManager mem;
+    DefaultMemoryManager mem;
     constexpr size_t SIZE = 50;
     constexpr size_t NUM = 4;
 
@@ -82,7 +82,7 @@ TEST(MemoryManager, malloc_few)
 
 TEST(MemoryManager, malloc_many)
 {
-    MemoryManager mem;
+    DefaultMemoryManager mem;
     constexpr size_t SIZE = 50;
     constexpr size_t NUM = 1000;
 
@@ -104,7 +104,7 @@ TEST(MemoryManager, malloc_many)
 
 TEST(MemoryManager, realloc)
 {
-    MemoryManager mem;
+    DefaultMemoryManager mem;
     constexpr size_t SIZE = 50;
     constexpr size_t NUM = 10;
 

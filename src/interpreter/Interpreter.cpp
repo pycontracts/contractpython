@@ -68,7 +68,7 @@ Interpreter::Interpreter(const bitstream &data, bool dummy_memory_manager)
     }
     else
     {
-        m_mem = new MemoryManager();
+        m_mem = new DefaultMemoryManager();
     }
 
     m_global_scope = new (memory_manager()) Scope(memory_manager());

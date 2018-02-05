@@ -328,7 +328,7 @@ TEST(BasicTest, set_variable)
 
 TEST(BasicTest, document_to_value)
 {
-    MemoryManager mem;
+    DummyMemoryManager mem;
     
     json::Document doc("{ \"a\": 1, \"b\": 2}");
 
