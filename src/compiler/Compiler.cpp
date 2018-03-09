@@ -33,7 +33,12 @@ public:
         return m_line_pos;
     }
 
-    std::string get_line() override
+    std::string get_line(size_t idx) override
+    {
+        return m_code[idx];
+    }
+
+    std::string next_line() override
     {
         if(eof())
             return "";
