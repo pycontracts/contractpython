@@ -9,6 +9,20 @@ class LoopTest : public testing::Test
 {
 };
 
+TEST(LoopTest, skip_while_loop)
+{
+    const std::string code = "return True\n"
+                             "while False:\n"
+                             "   pass\n"
+                             "return False";
+
+    auto doc = compile_code(code);
+    Interpreter pyint(doc);
+
+    auto res = pyint.execute();
+    EXPECT_TRUE(unpack_bool(res));
+}
+
 TEST(LoopTest, for_loop)
 {
     const std::string code = "l = [1,2,3]\n"

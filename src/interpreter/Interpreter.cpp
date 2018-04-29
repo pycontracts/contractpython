@@ -365,7 +365,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         for(uint32_t i = 0; i < size; ++i)
         {
             if(scope.is_terminated() || loop_state == LoopState::Break || loop_state == LoopState::Continue)
+            {
                 skip_next();
+            }
             else
             {
                 LoopState child_loop_state = loop_state;
@@ -950,6 +952,12 @@ void Interpreter::skip_next()
     case NodeType::ForLoop:
     {
         read_names();
+        skip_next();
+        skip_next();
+        break;
+    }
+    case NodeType::WhileLoop:
+    {
         skip_next();
         skip_next();
         break;
