@@ -92,10 +92,14 @@ public:
 
     void add_value(const std::string& key, ValuePtr value)
     {
-        if(key == "")
+        if(key.empty())
+        {
             parse_stack.push(value);
+        }
         else
+        {
             append_child(key, value);
+        }
     }
 
     void handle_null(const std::string &key) override
@@ -108,8 +112,11 @@ public:
     {
         auto dict = m_mem.create_dictionary();
 
-        if(key != "")
+        if(!key.empty())
+        {
             append_child(key, dict);
+        }
+
         parse_stack.push(dict);
     }
 
@@ -124,8 +131,11 @@ public:
     void handle_array_start(const std::string &key) override
     {
         auto list = m_mem.create_list();
-        if(key != "")
+        if(!key.empty())
+        {
             append_child(key, list);
+        }
+
         parse_stack.push(list);
     }
 
@@ -140,9 +150,11 @@ public:
     void handle_binary(const std::string &key, const uint8_t *data, uint32_t len) override
     {
         //FIXME
-        (void)key;
         (void)data;
         (void)len;
+
+        auto val = m_mem.create_integer(0);
+        add_value(key, val);
     }
 
 private:
