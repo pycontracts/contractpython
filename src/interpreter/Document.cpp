@@ -37,7 +37,7 @@ void value_to_bdoc(const std::string &key, ValuePtr value, json::Writer &writer)
             value_to_bdoc("", e, writer);
         }
 
-        writer.end_map();
+        writer.end_array();
         break;
     }
     case ValueType::String:
