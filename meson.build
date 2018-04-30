@@ -10,7 +10,7 @@ subdir('./test')
 gtest = dependency('gtest')
 gmock = dependency('gmock')
 
-compile_args = ['-Wall', '-std=c++17', '-Werror']
+compile_args = ['-Wall', '-std=c++17']
 
 # FIXME: Pypa causes a lot of warnings
 #compile_args += ['-Wextra', '-Werror']
