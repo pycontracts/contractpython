@@ -730,14 +730,18 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::If:
     {
         auto test = execute_next(scope, loop_state);
-        bool cond = test->bool_test();
+        bool cond = test && test->bool_test();
 
         ValuePtr res = nullptr;
 
         if(cond)
+        {
             res = execute_next(scope, loop_state);
+        }
         else
+        {
             skip_next();
+        }
 
         returnval = res;
         break;
@@ -745,10 +749,13 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::IfElse:
     {
         auto test = execute_next(scope, loop_state);
-        if(test->type() != ValueType::Bool)
-            throw std::runtime_error("not a boolean!");
 
-        bool cond = value_cast<BoolVal>(test)->get();
+        if(test && test->type() != ValueType::Bool)
+        {
+            throw std::runtime_error("not a boolean!");
+        }
+
+        bool cond = test && value_cast<BoolVal>(test)->get();
 
         if(cond)
         {

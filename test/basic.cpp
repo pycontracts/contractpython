@@ -158,6 +158,42 @@ TEST(BasicTest, dictionary)
     EXPECT_EQ(unpack_integer(res), 42);
 }
 
+TEST(BasicTest, if_none)
+{
+    const std::string code =
+            "i = None\n"
+            "if i:\n"
+            "	return False\n"
+            "\n"
+            "return True";
+
+    auto doc = compile_code(code);
+
+    Interpreter pyint(doc);
+
+    auto res = pyint.execute();
+    EXPECT_TRUE(unpack_bool(res));
+}
+
+TEST(BasicTest, if_else_none)
+{
+    const std::string code =
+            "i = None\n"
+            "if i:\n"
+            "	return False\n"
+            "else:\n"
+            "	return True";
+
+    auto doc = compile_code(code);
+
+    Interpreter pyint(doc);
+
+    auto res = pyint.execute();
+    EXPECT_TRUE(unpack_bool(res));
+}
+
+
+
 TEST(BasicTest, if_clause)
 {
     const std::string code =
