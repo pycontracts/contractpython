@@ -549,6 +549,27 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
             break;
         }
+        case BinaryOpType::Div:
+        {
+            if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
+            {
+                auto i1 = value_cast<IntVal>(left)->get();
+                auto i2 = value_cast<IntVal>(right)->get();
+
+                returnval = memory_manager().create_integer(i1 / i2);
+            }
+            else if(left->type() == ValueType::Float && right->type() == ValueType::Float)
+            {
+                auto f1 = value_cast<FloatVal>(left)->get();
+                auto f2 = value_cast<FloatVal>(right)->get();
+
+                returnval = memory_manager().create_float(f1 / f2);
+            }
+            else
+                throw std::runtime_error("failed to multiply");
+
+            break;
+        } 
         case BinaryOpType::Mod:
         {
             if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
