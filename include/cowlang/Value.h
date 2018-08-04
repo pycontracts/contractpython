@@ -3,6 +3,7 @@
 #include <memory>
 #include <stdint.h>
 #include <string>
+#include <stdbitstream.h>
 
 #include "language_exception.h"
 #include "execution_limits.h"

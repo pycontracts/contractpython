@@ -14,7 +14,7 @@ TEST(BasicTest, strlen)
     const std::string code = "s = 'foo'\n"
                              "return len(s)";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -26,7 +26,7 @@ TEST(BasicTest, arraylen)
     const std::string code = "a = ['foo', 'bar']\n"
                              "return len(a)";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -38,7 +38,7 @@ TEST(BasicTest, arraystr)
     const std::string code = "a = ['foo', 'bar']\n"
                              "return str(a)";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -49,7 +49,7 @@ TEST(BasicTest, pass)
     const std::string code = "pass\n"
                              "return True";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -61,7 +61,7 @@ TEST(BasicTest, greater_than)
     const std::string code = "i = 0\n"
                              "return i > -1";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -76,7 +76,7 @@ TEST(BasicTest, while_loop)
             "   i += 1\n"
             "return i == 3";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     auto res = pyint.execute();
@@ -90,7 +90,7 @@ TEST(BasicTest, rand)
             "r = rand.randint(0,10)\n"
             "return r >= 0 and r <= 10\n";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     auto res = pyint.execute();
@@ -104,7 +104,7 @@ TEST(BasicTest, rand2)
             "r = randint(0,10)\n"
             "return r >= 0 and r <= 10\n";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     auto res = pyint.execute();
@@ -119,7 +119,7 @@ TEST(BasicTest, array)
             "	return True\n"
             "return False";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -137,7 +137,7 @@ TEST(BasicTest, array_append)
             "	return True\n"
             "return False";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -150,7 +150,7 @@ TEST(BasicTest, dictionary)
             "i = {'value':42}\n"
             "return i['value']";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -167,7 +167,7 @@ TEST(BasicTest, if_none)
             "\n"
             "return True";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -184,7 +184,7 @@ TEST(BasicTest, if_else_none)
             "else:\n"
             "	return True";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -203,7 +203,7 @@ TEST(BasicTest, if_clause)
             "else:\n"
             "	return True";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
@@ -219,7 +219,7 @@ TEST(BasicTest, str_eq)
             "eq = (a == b)\n"
             "return eq";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     auto res = pyint.execute();
@@ -235,7 +235,7 @@ TEST(BasicTest, none_value)
             "   return False\n"
             "return True";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -249,7 +249,7 @@ TEST(BasicTest, logical_and)
             "b = True\n"
             "return (not a) and b";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -263,7 +263,7 @@ TEST(BasicTest, create_by_assign)
             "b = a+1\n"
             "return b";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -281,7 +281,7 @@ TEST(BasicTest, iterate_dict)
            "       res = v\n"
            "return res == 2";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -297,7 +297,7 @@ TEST(BasicTest, or_op)
            "else:\n"
            "    return False";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -314,7 +314,7 @@ TEST(BasicTest, iterate_dict2)
            "       res = v\n"
            "return res == 2";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -327,7 +327,7 @@ TEST(BasicTest, not)
             "b = False\n"
             "return not b";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -339,7 +339,7 @@ TEST(BasicTest, pre_set_list)
     const std::string code =
             "return b[1] == 'foo'";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     pyint.set_list("b", {"bar", "foo"});
@@ -354,7 +354,7 @@ TEST(BasicTest, set_variable)
             "b = False \n"
             "return b";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     auto res = pyint.execute();
@@ -382,7 +382,7 @@ TEST(BasicTest, pre_set_value)
                       "else:\n"
                       "	   return True";
 
-    auto data = compile_code(code);
+    auto data = compile_string(code);
     Interpreter interpreter(data);
 
     interpreter.set_string("op_type", "put");

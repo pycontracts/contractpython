@@ -24,7 +24,20 @@ log_dep = cpp.find_library('glog')
 json_dep = cpp.find_library('document', dirs: prefix_library_path)
 pypa_dep = cpp.find_library('pypa', dirs: prefix_library_path)
 
-cowlang = shared_library('cowlang', [compiler_cpp_files, interpreter_cpp_files], include_directories: inc_dirs, dependencies: [log_dep, json_dep, pypa_dep], install: true, cpp_args: compile_args)
+py3_ext = import('python3')
+py3_dep = dependency('python3')
+
+if py3_ext.language_version() == '3.5'
+    python_dir = 'lib/python3.5/dist-packages'
+    boost_py3_dep = cpp.find_library('boost_python-py35')
+elif py3_ext.language_version() == '3.6'
+    python_dir = 'lib/python3.6/dist-packages'
+    boost_py3_dep = cpp.find_library('boost_python-py36')
+else
+    error('Unknown python version')
+endif
+
+libcowlang = shared_library('libcowlang', [compiler_cpp_files, interpreter_cpp_files], include_directories: inc_dirs, dependencies: [log_dep, json_dep, pypa_dep], install: true, cpp_args: compile_args, name_prefix: '')
 
 sgx_sdk_dir = '/opt/intel/sgxsdk'
 sgx_library_path = sgx_sdk_dir + '/lib64'
@@ -51,9 +64,15 @@ cowlang_sgx = static_library('cowlang_sgx', interpreter_cpp_files,
     ],
     include_directories: [sgx_incdir, sgx_tlibc_incdir, sgx_stdcxx_incdir, inc_dirs], install: true)
 
+py3_ext.extension_module('cowlang', 'src/python_bindings.cpp',
+    dependencies: [py3_dep, boost_py3_dep], install: true, include_directories: [inc_dirs],
+    cpp_args: compile_args, install_dir: python_dir, link_with: [libcowlang]
+)
+
+
 subdir('doc')
 
 install_subdir('include/cowlang', install_dir : 'include')
 
-tests = executable('cowlang-test', test_cpp_files, dependencies: [gtest, json_dep, pypa_dep], link_with: cowlang, include_directories: inc_dirs)
+tests = executable('cowlang-test', test_cpp_files, dependencies: [gtest, json_dep, pypa_dep], link_with: [libcowlang], include_directories: inc_dirs)
 test('cowlang-test', tests)

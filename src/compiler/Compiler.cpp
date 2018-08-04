@@ -1,4 +1,4 @@
-#include <bitstream.h>
+#include <stdbitstream.h>
 #include <cowlang/NodeType.h>
 
 #include "pypa/reader.hh"
@@ -409,7 +409,8 @@ bitstream compile_file(const std::string &filename)
 
     return compiler.get_result();
 }
-bitstream compile_code(const std::string &code)
+
+bitstream compile_string(const std::string &code)
 {
     pypa::AstModulePtr ast;
     pypa::SymbolTablePtr symbols;

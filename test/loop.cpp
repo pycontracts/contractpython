@@ -16,7 +16,7 @@ TEST(LoopTest, skip_while_loop)
                              "   pass\n"
                              "return False";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
 
     auto res = pyint.execute();
@@ -31,7 +31,7 @@ TEST(LoopTest, for_loop)
                              "   res += i\n"
                              "return res == 6";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
 
     auto res = pyint.execute();
@@ -45,7 +45,7 @@ TEST(LoopTest, while_bool_cond)
                              "  v = True\n"
                              "return v";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
 
     auto res = pyint.execute();
@@ -61,7 +61,7 @@ TEST(LoopTest, while_loop_break1)
            "    break\n"
            "return a == 6";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -78,7 +78,7 @@ TEST(LoopTest, while_loop_break2)
            "    a += 5\n"
            "return a == 6";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -95,7 +95,7 @@ TEST(LoopTest, while_loop_return)
            "    a += 5\n"
            "return a";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -111,7 +111,7 @@ TEST(LoopTest, for_loop_break)
            "    break\n"
            "return a == 6";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -125,7 +125,7 @@ TEST(LoopTest, for_loop_return)
            "    return True\n"
            "return False";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 
@@ -141,7 +141,7 @@ TEST(LoopTest, loop_continue)
            "    a += 1\n"
            "return a == 5";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
     Interpreter pyint(doc);
     auto res = pyint.execute();
 

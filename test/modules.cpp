@@ -53,7 +53,7 @@ TEST(ModuleTest, call_cpp_with_argument)
             "else:\n"
             "	return False";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
  
@@ -74,7 +74,7 @@ TEST(ModuleTest, call_cpp)
             "else:\n"
             "	return False";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     

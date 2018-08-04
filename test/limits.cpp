@@ -14,7 +14,7 @@ TEST(Limits, above_limit)
     const std::string code = "for _ in range(10):\n"
                              "  pass";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     pyint.set_execution_step_limit(5);
@@ -27,7 +27,7 @@ TEST(Limits, below_limit)
     const std::string code = "for _ in range(10):\n"
                              "  pass";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
     pyint.set_execution_step_limit(30);
@@ -44,7 +44,7 @@ TEST(Limits, out_of_memory)
                              "for _ in range(100000):\n"
                              "   a.append('somestring')";
 
-    auto doc = compile_code(code);
+    auto doc = compile_string(code);
 
     Interpreter pyint(doc);
 
