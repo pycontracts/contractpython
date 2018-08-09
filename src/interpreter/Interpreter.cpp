@@ -1132,7 +1132,7 @@ void Interpreter::set_module(const std::string &name, ModulePtr module)
 void Interpreter::set_string(const std::string &name, const std::string &value)
 {
     auto s = memory_manager().create_string(value);
-    m_global_scope->set_value(name, s);
+    set_value(name, s);
 }
 
 void Interpreter::set_list(const std::string &name, const std::vector<std::string> &list)
@@ -1146,7 +1146,7 @@ void Interpreter::set_list(const std::string &name, const std::vector<std::strin
         l->append(s);
     }
 
-    m_global_scope->set_value(name, l);
+    set_value(name, l);
 }
 
 }

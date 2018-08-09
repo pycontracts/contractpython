@@ -32,12 +32,11 @@ public:
 
     ValuePtr execute();
 
-    void set_module(const std::string& name, ModulePtr module);
+    void set_value(const std::string &name, ValuePtr value);
 
+    void set_module(const std::string& name, ModulePtr module);
     void set_list(const std::string& name, const std::vector<std::string> &list);
     void set_string(const std::string& name, const std::string &value);
-    
-    void set_module(const std::string& name, ModulePtr &module);
 
     uint32_t num_execution_steps() const;
     void set_execution_step_limit(uint32_t limit);
@@ -71,5 +70,10 @@ private:
     uint32_t m_num_execution_steps;
     uint32_t m_execution_step_limit;
 };
+
+inline void Interpreter::set_value(const std::string &name, ValuePtr value)
+{
+    m_global_scope->set_value(name, value);
+}
 
 }
