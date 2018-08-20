@@ -36,30 +36,35 @@ endif
 
 libcowlang = shared_library('libcowlang', [compiler_cpp_files, interpreter_cpp_files], include_directories: inc_dirs, dependencies: [log_dep, json_dep, pypa_dep], install: true, cpp_args: compile_args, name_prefix: '')
 
-sgx_sdk_dir = '/opt/intel/sgxsdk'
-sgx_library_path = sgx_sdk_dir + '/lib64'
-
-sgx_tlibc_incdir = include_directories(sgx_sdk_dir+'/include/tlibc')
-sgx_stdcxx_incdir = include_directories(sgx_sdk_dir+'/include/libcxx')
-sgx_incdir = include_directories(sgx_sdk_dir + '/include')
-sgx_trts_dep = cpp.find_library('sgx_trts', dirs: sgx_library_path)
-
 cpp = meson.get_compiler('cpp')
 
-sgx_tstdc_dep = cpp.find_library('sgx_tstdc', dirs: sgx_library_path)
-sgx_tstdcxx_dep = cpp.find_library('sgx_tcxx', dirs: sgx_library_path)
-json_sgx_dep = cpp.find_library('document_sgx', dirs: prefix_library_path)
+sgx_sdk_dir = get_option('sgx_sdk_dir')
+sgx_library_path = sgx_sdk_dir + '/lib64'
 
-sgx_compile_args = ['-DIS_ENCLAVE', '-nostdinc', '-fstack-protector', '-pie', '-UNDEBUG', '-UEDEBUG']
+sgx_tstdc_dep = cpp.find_library('sgx_tstdc', dirs: sgx_library_path, required: false)
+sgx_tstdcxx_dep = cpp.find_library('sgx_tcxx', dirs: sgx_library_path, required: false)
+sgx_trts_dep = cpp.find_library('sgx_trts', dirs: sgx_library_path, required: false)
 
-cowlang_sgx = static_library('cowlang_sgx', interpreter_cpp_files,
-    c_args: sgx_compile_args,
-    cpp_args: ['-std=c++11', '-nostdinc++'] + sgx_compile_args,
-    link_args:['-Wl,--no-undefined','-nostdlib','-nodefaultlibs','-nostartfiles','-L'+sgx_sdk_dir+'/lib64',
-    '-Wl,--whole-archive','-lsgx_trts','-Wl,--no-whole-archive',
-    '-Wl,--start-group','-lsgx_tstdc','-lsgx_tcxx', '-lsgx_tkey_exchange','-ldocument_sgx','-Wl,--end-group',
-    ],
-    include_directories: [sgx_incdir, sgx_tlibc_incdir, sgx_stdcxx_incdir, inc_dirs], install: true)
+if sgx_tstdc_dep.found() and sgx_tstdcxx_dep.found() and sgx_trts_dep.found()
+    message('SGX found')
+
+    sgx_tlibc_incdir = include_directories(sgx_sdk_dir +'/include/tlibc')
+    sgx_stdcxx_incdir = include_directories(sgx_sdk_dir +'/include/libcxx')
+    sgx_incdir = include_directories(sgx_sdk_dir + '/include')
+
+    sgx_compile_args = ['-DIS_ENCLAVE', '-nostdinc', '-fstack-protector', '-pie', '-UNDEBUG', '-UEDEBUG']
+
+    cowlang_sgx = static_library('cowlang_sgx', interpreter_cpp_files,
+        c_args: sgx_compile_args,
+        cpp_args: ['-std=c++11', '-nostdinc++'] + sgx_compile_args,
+        link_args:['-Wl,--no-undefined','-nostdlib','-nodefaultlibs','-nostartfiles','-L'+sgx_sdk_dir+'/lib64',
+        '-Wl,--whole-archive','-lsgx_trts','-Wl,--no-whole-archive',
+        '-Wl,--start-group','-lsgx_tstdc','-lsgx_tcxx', '-lsgx_tkey_exchange','-ldocument_sgx','-Wl,--end-group',
+        ],
+        include_directories: [sgx_incdir, sgx_tlibc_incdir, sgx_stdcxx_incdir, inc_dirs], install: true)
+else
+    message('SGX not found. Not building trusted library.')
+endif
 
 py3_ext.extension_module('cowlang', 'src/python_bindings.cpp',
     dependencies: [py3_dep, boost_py3_dep], install: true, include_directories: [inc_dirs],
