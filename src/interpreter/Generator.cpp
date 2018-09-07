@@ -54,7 +54,9 @@ public:
     {
         // Not a valid document?
         if(parse_stack.size() != 1)
+        {
             throw std::runtime_error("Json converter in an invalid child");
+        }
 
         return parse_stack.top();
     }
@@ -190,6 +192,11 @@ private:
 
 ValuePtr MemoryManager::create_from_document(const json::Document &doc)
 {
+    if(!doc.valid() || doc.empty())
+    {
+        return nullptr;
+    }
+
     DocConverter converter(*this);
     doc.iterate(converter);
     return converter.get_result();

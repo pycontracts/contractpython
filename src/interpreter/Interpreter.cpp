@@ -1,5 +1,6 @@
 #include <memory>
 #include <map>
+#include <sstream>
 
 #include <cowlang/Interpreter.h>
 #include <cowlang/Callable.h>
@@ -342,7 +343,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             else if(names.size() == 2)
             {
                 if(val->type() != ValueType::Tuple)
-                    throw std::runtime_error("cannot unpack value");
+                {
+                    throw std::runtime_error("cannot unpack value: not a tuple");
+                }
 
                 auto t = value_cast<Tuple>(val);
 
@@ -350,7 +353,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 scope.set_value(names[1], t->get(1));
             }
             else
+            {
                 throw std::runtime_error("invalid number of names");
+            }
         }
 
         break;
@@ -372,12 +377,16 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             {
                 LoopState child_loop_state = loop_state;
                 if(child_loop_state == LoopState::TopLevel)
+                {
                     child_loop_state = LoopState::Normal;
+                }
 
                 final = execute_next(scope, child_loop_state);
 
                 if(loop_state != LoopState::None && child_loop_state != LoopState::Normal)
+                {
                     loop_state = child_loop_state;
+                }
             }
         }
 
@@ -531,7 +540,15 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 returnval = memory_manager().create_string(s1 + s2);
             }
             else
-                throw std::runtime_error("failed to add");
+            {
+            #ifdef IS_ENCLAVE
+                throw std::runtime_error("Failed to add");
+            #else
+                std::stringstream sstr;
+                sstr << "failed to add: incompatible types " << left->type() << right->type();
+                throw std::runtime_error(sstr.str());
+            #endif
+            }
 
             break;
         }
@@ -733,7 +750,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         auto callable = execute_next(scope, dummy_loop_state);
         if(!callable->is_callable())
+        {
             throw std::runtime_error("Cannot call un-callable!");
+        }
 
         uint32_t num_args = 0;
         m_data >> num_args;
@@ -823,7 +842,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
              returnval = value_cast<List>(val)->get(value_cast<IntVal>(slice)->get());
         }
         else
+        {
             throw std::runtime_error("Invalid subscript");
+        }
 
         break;
     }
@@ -938,7 +959,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         case BinaryOpType::Add:
         {
             if(!target || !value || target->type() != ValueType::Integer || value->type() != ValueType::Integer)
+            {
                 throw std::runtime_error("Values need to be numerics");
+            }
 
             auto i_target = value_cast<IntVal>(target);
             auto i_value  = value_cast<IntVal>(value);

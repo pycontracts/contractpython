@@ -35,6 +35,49 @@ enum class ValueType
     Custom
 };
 
+#ifndef IS_ENCLAVE
+inline std::ostream& operator<<(std::ostream &stream, ValueType type)
+{
+    switch(type)
+    {
+    case ValueType::None:
+        stream << "None";
+        break;
+    case ValueType::Bool:
+        stream << "Bool";
+        break;
+    case ValueType::String:
+        stream << "String";
+        break;
+    case ValueType::Integer:
+        stream << "Integer";
+        break;
+    case ValueType::Float:
+        stream << "Float";
+        break;
+    case ValueType::DictItems:
+        stream << "DictItems";
+        break;
+    case ValueType::CppObject:
+        stream << "C++ Object";
+        break;
+    case ValueType::List:
+        stream << "List";
+        break;
+    case ValueType::Tuple:
+        stream << "Tuple";
+        break;
+    case ValueType::Dictionary:
+        stream << "Dictionary";
+        break;
+    default:
+        stream << "Unknown Value Type";
+    }
+
+    return stream;
+}
+#endif
+
 class Value;
 typedef std::shared_ptr<Value> ValuePtr;
 
