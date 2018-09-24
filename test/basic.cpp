@@ -44,6 +44,7 @@ TEST(BasicTest, arraystr)
 
     EXPECT_EQ("['foo', 'bar']", unpack_string(pyint.execute()));
 }
+
 TEST(BasicTest, pass)
 {
     const std::string code = "pass\n"
@@ -373,6 +374,17 @@ TEST(BasicTest, document_to_value)
     auto dic = value_cast<Dictionary>(val);
 
     EXPECT_EQ(dic->size(), 2);
+}
+
+TEST(BasicTest, empty_document_to_value)
+{
+    DummyMemoryManager mem;
+    
+    json::Document doc;
+
+    auto val = mem.create_from_document(doc);
+
+    EXPECT_EQ(nullptr, val);
 }
 
 TEST(BasicTest, pre_set_value)
