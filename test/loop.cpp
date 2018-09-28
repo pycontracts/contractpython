@@ -148,4 +148,17 @@ TEST(LoopTest, loop_continue)
     EXPECT_TRUE(unpack_bool(res));
 }
 
+TEST(LoopTest, array_loop)
+{
+    const std::string code = 
+        "a = [2*i for i in range(5)]\n"
+        "return a[3]";
+
+    auto doc = compile_string(code);
+    Interpreter pyint(doc);
+    auto res = pyint.execute();
+
+    EXPECT_EQ(6, unpack_integer(res));
+}
+
 

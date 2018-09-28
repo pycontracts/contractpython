@@ -841,6 +841,10 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         {
              returnval = value_cast<List>(val)->get(value_cast<IntVal>(slice)->get());
         }
+        else if(val->type() == ValueType::Tuple && slice->type() == ValueType::Integer)
+        {
+            returnval = value_cast<Tuple>(val)->get(value_cast<IntVal>(slice)->get());
+        }
         else
         {
             throw std::runtime_error("Invalid subscript");
@@ -942,6 +946,60 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         }
 
         skip_next();
+        break;
+    }
+    case NodeType::ListComp:
+    {
+        auto body_pos = m_data.pos();
+        skip_next();
+
+        uint32_t num_loops = 0;
+        m_data >> num_loops;
+        
+        if(num_loops != 1)
+        {
+            throw std::runtime_error("Only simple list comprehensions are supported");
+        }
+
+        NodeType type2;
+        m_data >> type2;
+
+        if(type2 != NodeType::Comprehension)
+        {
+            throw std::runtime_error("invalid type");
+        }   
+
+        auto for_loop_state = LoopState::TopLevel;
+        auto target = read_name();
+        auto list = memory_manager().create_list();
+        
+        auto iter = value_cast<Iterator>(execute_next(scope, loop_state));
+
+        // no support for if statements yet 
+        skip_next();
+
+        auto end_pos = m_data.pos();
+
+        while(!scope.is_terminated() && for_loop_state != LoopState::Break)
+        {
+            ValuePtr next;
+
+            try {
+                next = iter->next();
+            } catch(stop_iteration_exception) {
+                break;
+            }
+
+            Scope body_scope(memory_manager(), scope);
+            body_scope.set_value(target, next);
+
+            m_data.move_to(body_pos);
+            auto res = execute_next(body_scope, for_loop_state);
+            list->append(res);
+        }
+
+        m_data.move_to(end_pos);
+        returnval = list;
         break;
     }
     case NodeType::AugmentedAssign:

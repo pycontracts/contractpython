@@ -376,8 +376,29 @@ private:
             break;
         }
         case pypa::AstType::Pass:
+        {
             m_result << NodeType::Pass;
             break;
+        }
+        case pypa::AstType::ListComp:
+        {
+            auto &c = reinterpret_cast<const pypa::AstListComp&>(stmt);
+            m_result << NodeType::ListComp;
+
+            parse_next(*c.element);
+            parse_expr_list(c.generators);
+            break;
+        }
+        case pypa::AstType::Comprehension:
+        {
+            auto &c = reinterpret_cast<const pypa::AstComprehension&>(stmt);
+            m_result << NodeType::Comprehension;
+
+            parse_next(*c.target);
+            parse_next(*c.iter);
+            parse_expr_list(c.ifs);
+            break;
+        }
         default:
             throw std::runtime_error("Unknown statement type!");
         }

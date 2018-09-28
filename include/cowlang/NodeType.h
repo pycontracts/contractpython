@@ -22,6 +22,8 @@ enum class NodeType
     BinaryOp,
     BoolOp,
     List,
+    ListComp,
+    Comprehension,
     Tuple,
     Subscript,
     Index,

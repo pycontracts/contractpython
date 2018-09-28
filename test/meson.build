@@ -1,1 +1,9 @@
-test_cpp_files = files('basic.cpp', 'limits.cpp', 'modules.cpp', 'main.cpp', 'loop.cpp', 'MemoryManager.cpp')
+test_cpp_files = files(
+    'basic.cpp',
+    'limits.cpp',
+    'modules.cpp',
+    'main.cpp',
+    'loop.cpp',
+    'tuple.cpp',
+    'MemoryManager.cpp'
+)
