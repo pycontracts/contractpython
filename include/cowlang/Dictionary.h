@@ -93,7 +93,7 @@ public:
         }
         else
         {
-            throw std::runtime_error("Failed to get member");
+            throw std::runtime_error("Failed to get member Dictionary::" + name);
         }
     }
 

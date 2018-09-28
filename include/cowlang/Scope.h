@@ -19,6 +19,8 @@ public:
     static constexpr const char* BUILTIN_STR_MAKE_STR = "str";
     static constexpr const char* BUILTIN_STR_PRINT = "print";
     static constexpr const char* BUILTIN_STR_LENGTH = "len";
+    static constexpr const char* BUILTIN_STR_MAX = "max";
+    static constexpr const char* BUILTIN_STR_MIN = "min";
 
     Scope(MemoryManager &mem) : Object(mem), m_parent(nullptr) {}
     Scope(MemoryManager &mem, Scope &parent) : Object(mem), m_parent(&parent) {}
