@@ -15,6 +15,11 @@ inline bool unpack_bool(ValuePtr val)
 
 inline int32_t unpack_integer(ValuePtr val)
 {
+    if(val == nullptr || val->type() != ValueType::Integer)
+    {
+        throw std::runtime_error("value is not an integer");
+    }
+
     auto ival = value_cast<IntVal>(val);
     return ival->get();
 }

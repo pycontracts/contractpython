@@ -50,21 +50,39 @@ public:
     {
         if(m_type == BuiltinType::Range)
         {
-            //TODO implemeent the rest...
-            if(args.size() != 1)
+            int min, max, step;
+
+            if(args.size() == 1)
+            {
+                step = 1;
+                min = 0;
+                max = unpack_integer(args[0]);
+            }
+            else if(args.size() == 2)
+            {
+                step = 1;
+                min = unpack_integer(args[0]);
+                max = unpack_integer(args[1]);
+            }
+            else if(args.size() == 3)
+            {
+                min = unpack_integer(args[0]);
+                max = unpack_integer(args[1]);
+                step = unpack_integer(args[2]);
+            }
+            else
+            {
                 throw std::runtime_error("Invalid number of arguments");
+            }
 
-            auto arg = args[0];
-
-            if(arg == nullptr || arg->type() != ValueType::Integer)
-                throw std::runtime_error("invalid argument type");
-
-            return ValuePtr(new (memory_manager()) RangeIterator(memory_manager(), 0, value_cast<IntVal>(arg)->get(), 1));
+            return ValuePtr(new (memory_manager()) RangeIterator(memory_manager(), min, max, step));
         }
         else if(m_type == BuiltinType::MakeString)
         {
             if(args.size() != 1)
+            {
                 throw std::runtime_error("Invalid number of arguments");
+            }
 
             auto arg = args[0];
             if(!arg)
@@ -93,7 +111,9 @@ public:
                 return wrap_value(new (memory_manager()) IntVal(memory_manager(), strtol(s.c_str(), &endptr, 10)));
             }
             else
-                throw std::runtime_error("Can't conver to integer");
+            {
+                throw std::runtime_error("Can not convert to integer");
+            }
         }
         else if(m_type == BuiltinType::Length)
         {
@@ -115,7 +135,9 @@ public:
             auto arg = args[0];
 
             if(arg->type() != ValueType::String)
-                throw std::runtime_error("Argument not a string");
+            {
+                throw std::runtime_error("Argument is not a string");
+            }
 
             print_program_output(("Program says: ") + value_cast<StringVal>(arg)->get());
         }
