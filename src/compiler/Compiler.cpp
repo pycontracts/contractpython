@@ -386,6 +386,7 @@ private:
             m_result << NodeType::ListComp;
 
             parse_next(*c.element);
+
             parse_expr_list(c.generators);
             break;
         }

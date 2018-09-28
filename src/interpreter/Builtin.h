@@ -25,6 +25,8 @@ enum class BuiltinType
     Range,
     MakeInt,
     MakeString,
+    Min,
+    Max,
     Print,
     Length
 };
@@ -76,10 +78,42 @@ public:
                 return memory_manager().create_string(arg->str());
             }
         }
+        else if(m_type == BuiltinType::Min || m_type == BuiltinType::Max)
+        {
+            if(args.size() != 2)
+            {
+                throw std::runtime_error("Invalid number of arguments");
+            }
+
+            auto arg1 = args[0];
+            auto arg2 = args[1];
+
+            if(arg1->type() != ValueType::Integer || arg2->type() != ValueType::Integer)
+            {
+                throw std::runtime_error("Min/max need integer arguments");
+            }
+        
+            int result;
+            auto i1 = value_cast<IntVal>(arg1)->get();
+            auto i2 = value_cast<IntVal>(arg2)->get();
+
+            if(m_type == BuiltinType::Max)
+            {
+                result = std::max(i1, i2);
+            }
+            else
+            {
+                result = std::min(i1, i2);
+            }
+
+            return memory_manager().create_integer(result); 
+        }
         else if(m_type == BuiltinType::MakeInt)
         {
             if(args.size() != 1)
+            {
                 throw std::runtime_error("Invalid number of arguments");
+            }
 
             auto arg = args[0];
             if(arg->type() == ValueType::Integer)

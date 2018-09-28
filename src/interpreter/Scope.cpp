@@ -61,6 +61,14 @@ ValuePtr Scope::get_value(const std::string &id)
     {
         val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Length);
     }
+    else if(id == BUILTIN_STR_MIN)
+    {
+        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Min);
+    }
+    else if(id == BUILTIN_STR_MAX)
+    {
+        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Max);
+    }
 
     if(val)
     {
