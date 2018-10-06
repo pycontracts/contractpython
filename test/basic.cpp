@@ -271,6 +271,36 @@ TEST(BasicTest, create_by_assign)
     EXPECT_EQ(unpack_integer(res), 2);
 }
 
+TEST(BasicTest, range2)
+{
+    const std::string code =
+            "i = 0\n"
+            "for j in range(4,10):\n"
+            "   i += j\n"
+            "return i";
+
+    auto doc = compile_string(code);
+    Interpreter pyint(doc);
+    auto res = pyint.execute();
+
+    EXPECT_EQ(39, unpack_integer(res));
+}
+
+TEST(BasicTest, range3)
+{
+    const std::string code =
+            "i = 0\n"
+            "for j in range(1,5,2):\n"
+            "   i += j\n"
+            "return i";
+
+    auto doc = compile_string(code);
+    Interpreter pyint(doc);
+    auto res = pyint.execute();
+
+    EXPECT_EQ(4, unpack_integer(res));
+}
+
 TEST(BasicTest, iterate_dict)
 {
     const std::string code =
