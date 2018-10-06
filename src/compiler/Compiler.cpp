@@ -180,6 +180,7 @@ private:
             break;
         }
         case pypa::AstType::Str:
+        case pypa::AstType::DocString:
         {
             auto &str = reinterpret_cast<const pypa::AstStr&>(stmt);
             m_result << NodeType::String;
