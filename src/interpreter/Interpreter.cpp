@@ -79,6 +79,7 @@ Interpreter::Interpreter(const bitstream &data, bool dummy_memory_manager)
 Interpreter::~Interpreter()
 {
     delete m_global_scope;
+    delete m_mem;
 }
 
 ModulePtr Interpreter::get_module(const std::string &name)
