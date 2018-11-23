@@ -60,18 +60,9 @@ enum class UnaryOpType
     Sub,
 };
 
-Interpreter::Interpreter(const bitstream &data, bool dummy_memory_manager)
-    : m_num_execution_steps(0), m_execution_step_limit(0)
+Interpreter::Interpreter(const bitstream &data, MemoryManager &mem)
+    : m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0)
 {
-    if(dummy_memory_manager)
-    {
-        m_mem = new DummyMemoryManager();
-    }
-    else
-    {
-        m_mem = new DefaultMemoryManager();
-    }
-
     m_global_scope = new (memory_manager()) Scope(memory_manager());
     m_data.assign(data.data(), data.size(), true);
 }
@@ -79,7 +70,6 @@ Interpreter::Interpreter(const bitstream &data, bool dummy_memory_manager)
 Interpreter::~Interpreter()
 {
     delete m_global_scope;
-    delete m_mem;
 }
 
 ModulePtr Interpreter::get_module(const std::string &name)

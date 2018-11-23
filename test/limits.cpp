@@ -15,8 +15,10 @@ TEST(Limits, above_limit)
                              "  pass";
 
     auto doc = compile_string(code);
+    
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
-    Interpreter pyint(doc);
     pyint.set_execution_step_limit(5);
 
     ASSERT_THROW(pyint.execute(), execution_limit_exception);
@@ -29,7 +31,9 @@ TEST(Limits, below_limit)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     pyint.set_execution_step_limit(30);
     pyint.execute();
 }

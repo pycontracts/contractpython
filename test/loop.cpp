@@ -17,7 +17,8 @@ TEST(LoopTest, skip_while_loop)
                              "return False";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
@@ -32,7 +33,8 @@ TEST(LoopTest, for_loop)
                              "return res == 6";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
@@ -46,7 +48,8 @@ TEST(LoopTest, while_bool_cond)
                              "return v";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
@@ -62,7 +65,9 @@ TEST(LoopTest, while_loop_break1)
            "return a == 6";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -79,7 +84,9 @@ TEST(LoopTest, while_loop_break2)
            "return a == 6";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -96,7 +103,10 @@ TEST(LoopTest, while_loop_return)
            "return a";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     auto res = pyint.execute();
 
     EXPECT_EQ(6, unpack_integer(res));
@@ -112,9 +122,10 @@ TEST(LoopTest, for_loop_break)
            "return a == 6";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
-    auto res = pyint.execute();
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
+    auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
 }
 
@@ -126,9 +137,11 @@ TEST(LoopTest, for_loop_return)
            "return False";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
-    auto res = pyint.execute();
 
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
+    auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
 }
 
@@ -142,9 +155,10 @@ TEST(LoopTest, loop_continue)
            "return a == 5";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
-    auto res = pyint.execute();
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
+    auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
 }
 
@@ -155,9 +169,10 @@ TEST(LoopTest, array_loop)
         "return a[3]";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
-    auto res = pyint.execute();
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
+    auto res = pyint.execute();
     EXPECT_EQ(6, unpack_integer(res));
 }
 

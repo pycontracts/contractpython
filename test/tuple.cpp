@@ -15,7 +15,8 @@ TEST(TupleTest, access_element)
                              "return v[2]";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
 

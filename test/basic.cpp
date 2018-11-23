@@ -16,7 +16,8 @@ TEST(BasicTest, strlen)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     EXPECT_EQ(3, unpack_integer(pyint.execute()));
 }
@@ -27,8 +28,8 @@ TEST(BasicTest, arraylen)
                              "return len(a)";
 
     auto doc = compile_string(code);
-
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     EXPECT_EQ(2, unpack_integer(pyint.execute()));
 }
@@ -39,8 +40,8 @@ TEST(BasicTest, arraystr)
                              "return str(a)";
 
     auto doc = compile_string(code);
-
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     EXPECT_EQ("['foo', 'bar']", unpack_string(pyint.execute()));
 }
@@ -52,7 +53,8 @@ TEST(BasicTest, pass)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     EXPECT_TRUE(unpack_bool(pyint.execute()));
 }
@@ -64,7 +66,8 @@ TEST(BasicTest, greater_than)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     EXPECT_TRUE(unpack_bool(pyint.execute()));
 }
@@ -78,8 +81,9 @@ TEST(BasicTest, while_loop)
             "return i == 3";
 
     auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
-    Interpreter pyint(doc);
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
 }
@@ -92,8 +96,9 @@ TEST(BasicTest, rand)
             "return r >= 0 and r <= 10\n";
 
     auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
-    Interpreter pyint(doc);
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
 }
@@ -106,8 +111,9 @@ TEST(BasicTest, rand2)
             "return r >= 0 and r <= 10\n";
 
     auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
-    Interpreter pyint(doc);
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
 }
@@ -121,8 +127,8 @@ TEST(BasicTest, array)
             "return False";
 
     auto doc = compile_string(code);
-
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
@@ -140,7 +146,8 @@ TEST(BasicTest, array_append)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
@@ -153,7 +160,8 @@ TEST(BasicTest, dictionary)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_EQ(unpack_integer(res), 42);
@@ -170,7 +178,8 @@ TEST(BasicTest, if_none)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
@@ -186,8 +195,8 @@ TEST(BasicTest, if_else_none)
             "	return True";
 
     auto doc = compile_string(code);
-
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
@@ -206,7 +215,8 @@ TEST(BasicTest, if_clause)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
@@ -221,8 +231,9 @@ TEST(BasicTest, str_eq)
             "return eq";
 
     auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
-    Interpreter pyint(doc);
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -237,7 +248,9 @@ TEST(BasicTest, none_value)
             "return True";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     auto res = pyint.execute();
 
     EXPECT_FALSE(unpack_bool(res));
@@ -251,7 +264,9 @@ TEST(BasicTest, logical_and)
             "return (not a) and b";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -265,7 +280,9 @@ TEST(BasicTest, create_by_assign)
             "return b";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     auto res = pyint.execute();
 
     EXPECT_EQ(unpack_integer(res), 2);
@@ -280,7 +297,9 @@ TEST(BasicTest, range2)
             "return i";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     auto res = pyint.execute();
 
     EXPECT_EQ(39, unpack_integer(res));
@@ -295,7 +314,9 @@ TEST(BasicTest, range3)
             "return i";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     auto res = pyint.execute();
 
     EXPECT_EQ(4, unpack_integer(res));
@@ -313,7 +334,10 @@ TEST(BasicTest, iterate_dict)
            "return res == 2";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -329,7 +353,9 @@ TEST(BasicTest, or_op)
            "    return False";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+ 
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -346,7 +372,9 @@ TEST(BasicTest, iterate_dict2)
            "return res == 2";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+ 
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -359,7 +387,9 @@ TEST(BasicTest, not)
             "return not b";
 
     auto doc = compile_string(code);
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+ 
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -372,7 +402,9 @@ TEST(BasicTest, pre_set_list)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+ 
     pyint.set_list("b", {"bar", "foo"});
     auto res = pyint.execute();
 
@@ -387,7 +419,8 @@ TEST(BasicTest, set_variable)
 
     auto doc = compile_string(code);
 
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
     auto res = pyint.execute();
 
     EXPECT_FALSE(unpack_bool(res));
@@ -424,11 +457,13 @@ TEST(BasicTest, pre_set_value)
                       "else:\n"
                       "	   return True";
 
-    auto data = compile_string(code);
-    Interpreter interpreter(data);
+    auto doc = compile_string(code);
+    
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
-    interpreter.set_string("op_type", "put");
+    pyint.set_string("op_type", "put");
 
-    auto res = interpreter.execute();
+    auto res = pyint.execute();
     EXPECT_FALSE(unpack_bool(res));
 }

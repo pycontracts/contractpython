@@ -54,9 +54,9 @@ TEST(ModuleTest, call_cpp_with_argument)
             "	return False";
 
     auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
 
-    Interpreter pyint(doc);
- 
     auto v = wrap_value(new (pyint.memory_manager()) Foo2Obj(pyint.memory_manager()));
     pyint.set_module("foo", v);
 
@@ -75,8 +75,8 @@ TEST(ModuleTest, call_cpp)
             "	return False";
 
     auto doc = compile_string(code);
-
-    Interpreter pyint(doc);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
     
     auto v = wrap_value(new (pyint.memory_manager()) FooObj(pyint.memory_manager()));
     pyint.set_module("foo", v);
