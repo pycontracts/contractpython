@@ -5,6 +5,8 @@
 #include <cowlang/Value.h>
 #include <cowlang/unpack.h>
 
+#include "args.h"
+
 #ifdef IS_ENCLAVE
 extern void print_program_output(const std::string &str);
 #else
@@ -81,10 +83,7 @@ public:
         }
         else if(m_type == BuiltinType::MakeString)
         {
-            if(args.size() != 1)
-            {
-                throw std::runtime_error("Invalid number of arguments");
-            }
+            check_num_args(args, 1);
 
             auto arg = args[0];
             if(!arg)
@@ -98,17 +97,22 @@ public:
         }
         else if(m_type == BuiltinType::Min || m_type == BuiltinType::Max)
         {
-            if(args.size() != 2)
-            {
-                throw std::runtime_error("Invalid number of arguments");
-            }
+            check_num_args(args, 2);
 
             auto arg1 = args[0];
             auto arg2 = args[1];
 
-            if(arg1->type() != ValueType::Integer || arg2->type() != ValueType::Integer)
+            check_is_integer(arg1);
+            check_is_integer(arg2);
+
+            if(arg1 == nullptr || arg1->type() != ValueType::Integer)
             {
-                throw std::runtime_error("Min/max need integer arguments");
+               
+            }
+            
+            if(arg2 == nullptr || arg2->type() != ValueType::Integer)
+            {
+                throw std::runtime_error("First argument of min/max" );
             }
         
             int result;
@@ -128,10 +132,7 @@ public:
         }
         else if(m_type == BuiltinType::MakeInt)
         {
-            if(args.size() != 1)
-            {
-                throw std::runtime_error("Invalid number of arguments");
-            }
+            check_num_args(args, 1);
 
             auto arg = args[0];
             if(arg->type() == ValueType::Integer)
@@ -151,32 +152,24 @@ public:
         }
         else if(m_type == BuiltinType::Length)
         {
-            if(args.size() != 1)
-            {
-                throw std::runtime_error("Invalid number of arguments");
-            }
+            check_num_args(args, 1);
 
             auto arg = args[0];
             return wrap_value(new (memory_manager()) IntVal(memory_manager(), arg->size()));
         }
         else if(m_type == BuiltinType::Print)
         {
-            if(args.size() != 1)
-            {
-                throw std::runtime_error("Invalid number of arguments");
-            }
-
+            check_num_args(args, 1);
             auto arg = args[0];
 
-            if(arg->type() != ValueType::String)
-            {
-                throw std::runtime_error("Argument is not a string");
-            }
+            check_is_string(arg);
 
             print_program_output(("Program says: ") + value_cast<StringVal>(arg)->get());
         }
         else
+        {
             throw std::runtime_error("Unknown builtin type");
+        }
 
         return nullptr;
     }

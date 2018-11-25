@@ -8,7 +8,6 @@ subdir('./src/interpreter')
 subdir('./test')
 
 gtest = dependency('gtest')
-gmock = dependency('gmock')
 
 compile_args = ['-Wall', '-std=c++17']
 
