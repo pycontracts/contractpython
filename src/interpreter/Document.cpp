@@ -1,6 +1,6 @@
-#include <cowlang/Value.h>
 #include <cowlang/Dictionary.h>
 #include <cowlang/List.h>
+#include <cowlang/Value.h>
 
 #include "modules/geo/vector2.h"
 
@@ -80,4 +80,4 @@ json::Document value_to_document(ValuePtr value)
     return writer.make_document();
 }
 
-}
+} // namespace cow

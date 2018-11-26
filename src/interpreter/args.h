@@ -29,4 +29,4 @@ inline void check_is_string(const ValuePtr arg)
     }
 }
 
-}
+} // namespace cow

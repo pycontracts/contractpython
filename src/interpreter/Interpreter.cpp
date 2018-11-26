@@ -1,9 +1,9 @@
-#include <memory>
 #include <map>
+#include <memory>
 #include <sstream>
 
-#include <cowlang/Interpreter.h>
 #include <cowlang/Callable.h>
+#include <cowlang/Interpreter.h>
 #include <cowlang/Scope.h>
 
 #include "RangeIterator.h"
@@ -61,16 +61,13 @@ enum class UnaryOpType
 };
 
 Interpreter::Interpreter(const bitstream &data, MemoryManager &mem)
-    : m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0)
+: m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0)
 {
-    m_global_scope = new (memory_manager()) Scope(memory_manager());
+    m_global_scope = new(memory_manager()) Scope(memory_manager());
     m_data.assign(data.data(), data.size(), true);
 }
 
-Interpreter::~Interpreter()
-{
-    delete m_global_scope;
-}
+Interpreter::~Interpreter() { delete m_global_scope; }
 
 ModulePtr Interpreter::get_module(const std::string &name)
 {
@@ -85,12 +82,12 @@ ModulePtr Interpreter::get_module(const std::string &name)
 
     if(name == "rand")
     {
-        module = wrap_value<Module>(new (memory_manager()) RandModule(memory_manager()));
+        module = wrap_value<Module>(new(memory_manager()) RandModule(memory_manager()));
     }
 #ifdef USE_GEO
     else if(name == "geo")
     {
-        module = wrap_value<Module>(new (memory_manager()) GeoModule(memory_manager()));
+        module = wrap_value<Module>(new(memory_manager()) GeoModule(memory_manager()));
     }
 #endif
     else
@@ -103,19 +100,16 @@ ModulePtr Interpreter::get_module(const std::string &name)
 void Interpreter::load_from_module(Scope &scope, const std::string &mname, const std::string &name, const std::string &as_name)
 {
     auto module = get_module(mname);
-        
+
     if(!module)
     {
         throw std::runtime_error("Unknown module: " + mname);
     }
 
-    scope.set_value(as_name == "" ? name: as_name, module->get_member(name));
+    scope.set_value(as_name == "" ? name : as_name, module->get_member(name));
 }
 
-uint32_t Interpreter::num_execution_steps() const
-{
-    return m_num_execution_steps;
-}
+uint32_t Interpreter::num_execution_steps() const { return m_num_execution_steps; }
 
 void Interpreter::set_execution_step_limit(uint32_t limit)
 {
@@ -130,13 +124,13 @@ void Interpreter::set_execution_step_limit(uint32_t limit)
 void Interpreter::load_module(Scope &scope, const std::string &mname, const std::string &as_name)
 {
     auto module = get_module(mname);
-        
+
     if(!module)
     {
         throw std::runtime_error("Unknown module: " + mname);
     }
 
-    scope.set_value(as_name == "" ? mname: as_name, module);
+    scope.set_value(as_name == "" ? mname : as_name, module);
 }
 
 ValuePtr Interpreter::execute()
@@ -207,8 +201,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 {
     m_num_execution_steps += 1;
 
-    if(m_execution_step_limit > 0
-       && m_num_execution_steps >= m_execution_step_limit)
+    if(m_execution_step_limit > 0 && m_num_execution_steps >= m_execution_step_limit)
     {
         throw execution_limit_exception("Reached maximum number of steps!");
     }
@@ -226,7 +219,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::ImportFrom:
     {
         auto module = read_name();
-    
+
         auto val = execute_next(scope, dummy_loop_state);
 
         if(val->type() == ValueType::Tuple)
@@ -251,7 +244,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         uint32_t num_elems = 0;
         m_data >> num_elems;
 
-        auto tuple = wrap_value(new (memory_manager()) Tuple(memory_manager()));
+        auto tuple = wrap_value(new(memory_manager()) Tuple(memory_manager()));
 
         for(uint32_t i = 0; i < num_elems; ++i)
             tuple->append(execute_next(scope, dummy_loop_state));
@@ -259,7 +252,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         returnval = tuple;
         break;
     }
- 
+
     case NodeType::Import:
     {
         auto val = execute_next(scope, dummy_loop_state);
@@ -271,7 +264,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         std::string name, as_name;
         m_data >> name >> as_name;
-        returnval = wrap_value(new (memory_manager()) Alias(memory_manager(), name, as_name));
+        returnval = wrap_value(new(memory_manager()) Alias(memory_manager(), name, as_name));
         break;
     }
     case NodeType::Pass:
@@ -411,7 +404,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             switch(type)
             {
             case UnaryOpType::Sub:
-                returnval = memory_manager().create_integer((-1)*i);
+                returnval = memory_manager().create_integer((-1) * i);
                 break;
             case UnaryOpType::Add:
                 returnval = res;
@@ -471,32 +464,31 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 if(!value_cast<BoolVal>(val)->get())
                     res = false;
             }
-
         }
         else if(type == BoolOpType::Or)
         {
             res = false;
 
-             for(uint32_t i = 0; i < num_vals; ++i)
-             {
-                 if(res)
-                 {
-                     skip_next();
-                     continue;
-                 }
+            for(uint32_t i = 0; i < num_vals; ++i)
+            {
+                if(res)
+                {
+                    skip_next();
+                    continue;
+                }
 
-                 auto val = execute_next(scope, dummy_loop_state);
+                auto val = execute_next(scope, dummy_loop_state);
 
-                 if(!val)
-                     continue;
+                if(!val)
+                    continue;
 
-                 if(val->type() != ValueType::Bool)
-                     throw std::runtime_error("not a valid bool operation");
+                if(val->type() != ValueType::Bool)
+                    throw std::runtime_error("not a valid bool operation");
 
-                 //FIXME use bool testable
-                 if(value_cast<BoolVal>(val)->get())
-                     res = true;
-             }
+                // FIXME use bool testable
+                if(value_cast<BoolVal>(val)->get())
+                    res = true;
+            }
         }
         else
             throw std::runtime_error("unknown bool op type");
@@ -532,13 +524,13 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             }
             else
             {
-            #ifdef IS_ENCLAVE
+#ifdef IS_ENCLAVE
                 throw std::runtime_error("Failed to add");
-            #else
+#else
                 std::stringstream sstr;
                 sstr << "failed to add: incompatible types " << left->type() << right->type();
                 throw std::runtime_error(sstr.str());
-            #endif
+#endif
             }
 
             break;
@@ -577,7 +569,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 throw std::runtime_error("failed to multiply");
 
             break;
-        } 
+        }
         case BinaryOpType::Mod:
         {
             if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
@@ -591,7 +583,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 throw std::runtime_error("failed apply mod function");
             break;
         }
- 
+
         case BinaryOpType::Sub:
         {
             if(!left || !right)
@@ -677,7 +669,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             else if(op_type == CompareOpType::More)
             {
                 if(!current || !rval)
-                    res = false; //FIXME throw exception
+                    res = false; // FIXME throw exception
                 else
                     res = (*current > *rval);
             }
@@ -705,7 +697,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             else if(op_type == CompareOpType::LessEqual)
             {
                 if(!current || !rval)
-                    res =  current == rval;
+                    res = current == rval;
                 else
                     res = (*rval >= *current);
             }
@@ -830,7 +822,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         }
         else if(val->type() == ValueType::List && slice->type() == ValueType::Integer)
         {
-             returnval = value_cast<List>(val)->get(value_cast<IntVal>(slice)->get());
+            returnval = value_cast<List>(val)->get(value_cast<IntVal>(slice)->get());
         }
         else if(val->type() == ValueType::Tuple && slice->type() == ValueType::Integer)
         {
@@ -847,14 +839,14 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         LoopState for_loop_state = LoopState::TopLevel;
         auto start = m_data.pos();
- 
+
         while(!scope.is_terminated() && for_loop_state != LoopState::Break)
         {
             m_data.move_to(start);
 
             auto test = execute_next(scope, dummy_loop_state);
             bool cond = test && test->bool_test();
-            
+
             if(!cond)
             {
                 break;
@@ -900,9 +892,12 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             Scope body_scope(memory_manager(), scope);
             ValuePtr next = nullptr;
 
-            try {
+            try
+            {
                 next = iter->next();
-            } catch(stop_iteration_exception) {
+            }
+            catch(stop_iteration_exception)
+            {
                 break;
             }
 
@@ -946,7 +941,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         uint32_t num_loops = 0;
         m_data >> num_loops;
-        
+
         if(num_loops != 1)
         {
             throw std::runtime_error("Only simple list comprehensions are supported");
@@ -958,15 +953,15 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         if(type2 != NodeType::Comprehension)
         {
             throw std::runtime_error("invalid type");
-        }   
+        }
 
         auto for_loop_state = LoopState::TopLevel;
         auto target = read_name();
         auto list = memory_manager().create_list();
-        
+
         auto iter = value_cast<Iterator>(execute_next(scope, loop_state));
 
-        // no support for if statements yet 
+        // no support for if statements yet
         skip_next();
 
         auto end_pos = m_data.pos();
@@ -975,9 +970,12 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         {
             ValuePtr next;
 
-            try {
+            try
+            {
                 next = iter->next();
-            } catch(stop_iteration_exception) {
+            }
+            catch(stop_iteration_exception)
+            {
                 break;
             }
 
@@ -1013,7 +1011,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             }
 
             auto i_target = value_cast<IntVal>(target);
-            auto i_value  = value_cast<IntVal>(value);
+            auto i_value = value_cast<IntVal>(value);
             i_target->set(i_target->get() + i_value->get());
             break;
         }
@@ -1210,10 +1208,10 @@ void Interpreter::set_string(const std::string &name, const std::string &value)
 void Interpreter::set_list(const std::string &name, const std::vector<std::string> &list)
 {
     auto l = memory_manager().create_list();
-    
-    for(auto &e: list)
+
+    for(auto &e : list)
     {
-        //FIXME support other types
+        // FIXME support other types
         auto s = memory_manager().create_string(e);
         l->append(s);
     }
@@ -1221,6 +1219,4 @@ void Interpreter::set_list(const std::string &name, const std::vector<std::strin
     set_value(name, l);
 }
 
-}
-
-
+} // namespace cow

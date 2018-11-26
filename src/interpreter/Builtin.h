@@ -13,10 +13,7 @@ extern void print_program_output(const std::string &str);
 
 #include <glog/logging.h>
 
-inline void print_program_output(const std::string &str)
-{
-    LOG(INFO) << str;
-}
+inline void print_program_output(const std::string &str) { LOG(INFO) << str; }
 #endif
 
 namespace cow
@@ -36,19 +33,14 @@ enum class BuiltinType
 class Builtin : public Callable
 {
 public:
-    Builtin(MemoryManager &mem, BuiltinType type)
-        : Callable(mem), m_type(type)
-    {}
+    Builtin(MemoryManager &mem, BuiltinType type) : Callable(mem), m_type(type) {}
 
     ValuePtr duplicate(MemoryManager &mem) override
     {
-        return ValuePtr(new (mem) Builtin(mem, m_type));
+        return ValuePtr(new(mem) Builtin(mem, m_type));
     }
 
-    ValueType type() const override
-    {
-        return ValueType::Builtin;
-    }
+    ValueType type() const override { return ValueType::Builtin; }
 
     ValuePtr call(const std::vector<ValuePtr> &args) override
     {
@@ -79,7 +71,7 @@ public:
                 throw std::runtime_error("Invalid number of arguments");
             }
 
-            return ValuePtr(new (memory_manager()) RangeIterator(memory_manager(), min, max, step));
+            return ValuePtr(new(memory_manager()) RangeIterator(memory_manager(), min, max, step));
         }
         else if(m_type == BuiltinType::MakeString)
         {
@@ -89,7 +81,7 @@ public:
             if(!arg)
             {
                 return memory_manager().create_string("None");
-            }   
+            }
             else
             {
                 return memory_manager().create_string(arg->str());
@@ -107,14 +99,13 @@ public:
 
             if(arg1 == nullptr || arg1->type() != ValueType::Integer)
             {
-               
             }
-            
+
             if(arg2 == nullptr || arg2->type() != ValueType::Integer)
             {
-                throw std::runtime_error("First argument of min/max" );
+                throw std::runtime_error("First argument of min/max");
             }
-        
+
             int result;
             auto i1 = value_cast<IntVal>(arg1)->get();
             auto i2 = value_cast<IntVal>(arg2)->get();
@@ -128,7 +119,7 @@ public:
                 result = std::min(i1, i2);
             }
 
-            return memory_manager().create_integer(result); 
+            return memory_manager().create_integer(result);
         }
         else if(m_type == BuiltinType::MakeInt)
         {
@@ -143,7 +134,8 @@ public:
             {
                 std::string s = value_cast<StringVal>(arg)->get();
                 char *endptr = nullptr;
-                return wrap_value(new (memory_manager()) IntVal(memory_manager(), strtol(s.c_str(), &endptr, 10)));
+                return wrap_value(new(memory_manager())
+                                  IntVal(memory_manager(), strtol(s.c_str(), &endptr, 10)));
             }
             else
             {
@@ -155,7 +147,7 @@ public:
             check_num_args(args, 1);
 
             auto arg = args[0];
-            return wrap_value(new (memory_manager()) IntVal(memory_manager(), arg->size()));
+            return wrap_value(new(memory_manager()) IntVal(memory_manager(), arg->size()));
         }
         else if(m_type == BuiltinType::Print)
         {
@@ -178,4 +170,4 @@ private:
     const BuiltinType m_type;
 };
 
-}
+} // namespace cow

@@ -1,14 +1,13 @@
+#include <cassert>
 #include <cowlang/Object.h>
 #include <cowlang/execution_limits.h>
-#include <cassert>
 
 #include <iostream>
 
 namespace cow
 {
 
-DefaultMemoryManager::DefaultMemoryManager()
-    : m_buffer_pos(0)
+DefaultMemoryManager::DefaultMemoryManager() : m_buffer_pos(0)
 {
     auto buffer = new uint8_t[PAGE_SIZE];
     m_buffers.push_back(buffer);
@@ -16,37 +15,31 @@ DefaultMemoryManager::DefaultMemoryManager()
 
 DefaultMemoryManager::~DefaultMemoryManager()
 {
-    for(auto buffer: m_buffers)
+    for(auto buffer : m_buffers)
     {
         delete buffer;
     }
 }
 
-void* DummyMemoryManager::malloc(size_t size)
-{
-    return ::malloc(size);
-}
+void *DummyMemoryManager::malloc(size_t size) { return ::malloc(size); }
 
-void DummyMemoryManager::free(void *ptr)
-{
-    ::free(ptr);
-}
+void DummyMemoryManager::free(void *ptr) { ::free(ptr); }
 
-void* DefaultMemoryManager::assign_alloc(size_t page_no, size_t poffset, size_t size)
+void *DefaultMemoryManager::assign_alloc(size_t page_no, size_t poffset, size_t size)
 {
     if(poffset + size > PAGE_SIZE)
     {
         throw std::runtime_error("Invalid offset");
     }
 
-    auto ptr = reinterpret_cast<uint8_t*>(&m_buffers[page_no][poffset]);
+    auto ptr = reinterpret_cast<uint8_t *>(&m_buffers[page_no][poffset]);
     auto idx = reinterpret_cast<intptr_t>(ptr);
 
-    m_allocs.emplace(idx, AllocInfo{page_no, size});
+    m_allocs.emplace(idx, AllocInfo{ page_no, size });
     return ptr;
 }
 
-void* DefaultMemoryManager::malloc(size_t size)
+void *DefaultMemoryManager::malloc(size_t size)
 {
     if(size >= PAGE_SIZE)
     {
@@ -54,11 +47,11 @@ void* DefaultMemoryManager::malloc(size_t size)
     }
 
     uint32_t buf_pos = 0;
-    for(auto buffer: m_buffers)
+    for(auto buffer : m_buffers)
     {
         auto last_pos = 0;
-        
-        for(auto &[ptr, a]: m_allocs)
+
+        for(auto &[ptr, a] : m_allocs)
         {
             if(buf_pos != a.page)
             {
@@ -83,13 +76,13 @@ void* DefaultMemoryManager::malloc(size_t size)
 
     auto buffer_size = m_buffers.size() * PAGE_SIZE;
 
-    if(m_buffer_pos+size >= buffer_size)
+    if(m_buffer_pos + size >= buffer_size)
     {
         auto buffer = new uint8_t[PAGE_SIZE];
         m_buffers.push_back(buffer);
         m_buffer_pos = buffer_size;
-        
-        //TODO support execution limits
+
+        // TODO support execution limits
         //  throw execution_limit_exception("Out of memory!");
     }
 
@@ -117,4 +110,4 @@ void DefaultMemoryManager::free(void *ptr)
     }
 }
 
-}
+} // namespace cow

@@ -79,4 +79,19 @@ subdir('doc')
 install_subdir('include/cowlang', install_dir : 'include')
 
 tests = executable('cowlang-test', test_cpp_files, dependencies: [gtest, json_dep, pypa_dep], link_with: [libcowlang], include_directories: inc_dirs)
+
+clang_tidy_checks = '*,-hicpp-signed-bitwise,-readability-implicit-bool-conversion,-cppcoreguidelines-pro-*,-clang-diagnostic*,-llvm-include-order'
+
+# NOTE: gtest on ubuntu still uses deprecated functions so we can't lint the test files yet
+clangtidy = find_program('clang-tidy', required: false)
+if clangtidy.found()
+    run_target(
+        'tidy',
+        command: [
+            clangtidy,
+            '-checks=' + clang_tidy_checks,
+            '-warnings-as-errors=*',
+            '-p', meson.build_root()
+        ] + compiler_cpp_files + interpreter_cpp_files)
+endif
 test('cowlang-test', tests)

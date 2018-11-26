@@ -1,19 +1,19 @@
-#include <cowlang/List.h>
 #include <cowlang/Function.h>
+#include <cowlang/List.h>
 
 namespace cow
 {
 
 IteratorPtr List::iterate()
 {
-    return wrap_value(new (memory_manager()) ListIterator(memory_manager(), *this));
+    return wrap_value(new(memory_manager()) ListIterator(memory_manager(), *this));
 }
 
 ValuePtr List::duplicate(MemoryManager &mem)
 {
-    auto d = wrap_value(new (mem) List(mem));
+    auto d = wrap_value(new(mem) List(mem));
 
-    for(auto elem: m_elements)
+    for(auto elem : m_elements)
     {
         d->append(elem);
     }
@@ -27,16 +27,15 @@ ValuePtr List::get_member(const std::string &name)
 
     if(name == "append")
     {
-         return wrap_value( new (mem) Function(mem,
-              [&](const std::vector<ValuePtr> &args) -> ValuePtr {
-                if(args.size() != 1)
-                {
-                    throw std::runtime_error("Invalid number of arguments");
-                }
-            
-                this->append(args[0]);
-                return nullptr;
-            }));
+        return wrap_value(new(mem) Function(mem, [&](const std::vector<ValuePtr> &args) -> ValuePtr {
+            if(args.size() != 1)
+            {
+                throw std::runtime_error("Invalid number of arguments");
+            }
+
+            this->append(args[0]);
+            return nullptr;
+        }));
     }
     else
     {
@@ -54,22 +53,16 @@ ValuePtr List::get(uint32_t index)
     return m_elements[index];
 }
 
-uint32_t List::size() const
-{
-    return m_elements.size();
-}
+uint32_t List::size() const { return m_elements.size(); }
 
-const std::vector<ValuePtr>& List::elements() const
-{
-    return m_elements;
-}
+const std::vector<ValuePtr> &List::elements() const { return m_elements; }
 
 std::string List::str() const
 {
     std::string result = "[";
     bool first = true;
 
-    for(auto elem: m_elements)
+    for(auto elem : m_elements)
     {
         if(first)
         {
@@ -95,7 +88,7 @@ std::string List::str() const
 
 bool List::contains(const Value &value) const
 {
-    for(auto elem: m_elements)
+    for(auto elem : m_elements)
     {
         if(*elem == value)
             return true;
@@ -104,22 +97,15 @@ bool List::contains(const Value &value) const
     return false;
 }
 
-ValueType List::type() const
-{
-    return ValueType::List;
-}
+ValueType List::type() const { return ValueType::List; }
 
-void List::append(ValuePtr val)
-{
-    m_elements.push_back(val);
-}
+void List::append(ValuePtr val) { m_elements.push_back(val); }
 
-ListIterator::ListIterator(MemoryManager &mem, List &list)
-    : Generator(mem), m_list(list), m_pos(0)
+ListIterator::ListIterator(MemoryManager &mem, List &list) : Generator(mem), m_list(list), m_pos(0)
 {
 }
 
-ValuePtr ListIterator::next() 
+ValuePtr ListIterator::next()
 {
     if(m_pos >= m_list.size())
         throw stop_iteration_exception();
@@ -132,7 +118,7 @@ ValuePtr ListIterator::next()
 
 ValuePtr ListIterator::duplicate(MemoryManager &mem)
 {
-    return ValuePtr(new (mem) ListIterator(mem, m_list));
+    return ValuePtr(new(mem) ListIterator(mem, m_list));
 }
 
-}
+} // namespace cow

@@ -26,7 +26,7 @@ function clone-repo() {
 }
 
 cd $WORKDIR
-if clone-repo "libpypa" "git@github.com:vinzenz/libpypa.git"; then
+if clone-repo "libpypa" "https://github.com/vinzenz/libpypa.git"; then
     cd libpypa
     echo "Building pypa"
     ./autogen.sh

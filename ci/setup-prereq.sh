@@ -26,7 +26,7 @@ function clone-repo() {
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 cd $WORKDIR
-if clone-repo "bitstream" "git@github.com:kaimast/bitstream.git"; then
+if clone-repo "bitstream" "https://github.com/kaimast/bitstream.git"; then
     cd bitstream
     echo "Building bitstream"
     meson build -Dbuildtype=$BUILDTYPE --prefix=$INSTALL_DIR
@@ -36,7 +36,7 @@ if clone-repo "bitstream" "git@github.com:kaimast/bitstream.git"; then
 fi
 
 cd $WORKDIR
-if clone-repo "libdocument" "git@github.com:kaimast/libdocument.git"; then
+if clone-repo "libdocument" "https://github.com/kaimast/libdocument.git"; then
     cd libdocument
     echo "Building libdocument"
     meson build -Dbuildtype=$BUILDTYPE --prefix=$INSTALL_DIR

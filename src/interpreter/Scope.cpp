@@ -1,6 +1,6 @@
-#include <cowlang/Scope.h>
 #include <cowlang/Dictionary.h>
 #include <cowlang/List.h>
+#include <cowlang/Scope.h>
 
 #include "Builtin.h"
 
@@ -35,39 +35,39 @@ bool Scope::has_value(const std::string &id) const
 
 ValuePtr Scope::get_value(const std::string &id)
 {
-    Value* val = nullptr;
+    Value *val = nullptr;
 
     if(id == BUILTIN_STR_NONE)
     {
-        return std::shared_ptr<Value>{nullptr};
+        return std::shared_ptr<Value>{ nullptr };
     }
     else if(id == BUILTIN_STR_RANGE)
     {
-        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Range);
+        val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::Range);
     }
     else if(id == BUILTIN_STR_MAKE_INT)
     {
-        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::MakeInt);
+        val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::MakeInt);
     }
     else if(id == BUILTIN_STR_MAKE_STR)
     {
-        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::MakeString);
+        val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::MakeString);
     }
     else if(id == BUILTIN_STR_PRINT)
     {
-        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Print);
+        val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::Print);
     }
     else if(id == BUILTIN_STR_LENGTH)
     {
-        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Length);
+        val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::Length);
     }
     else if(id == BUILTIN_STR_MIN)
     {
-        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Min);
+        val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::Min);
     }
     else if(id == BUILTIN_STR_MAX)
     {
-        val = new (memory_manager()) Builtin(memory_manager(), BuiltinType::Max);
+        val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::Max);
     }
 
     if(val)
@@ -87,18 +87,9 @@ ValuePtr Scope::get_value(const std::string &id)
     return it->second;
 }
 
-void Scope::terminate()
-{
-    m_terminated = true;
-}
+void Scope::terminate() { m_terminated = true; }
 
-bool Scope::is_terminated() const
-{
-    return m_terminated;
-}
+bool Scope::is_terminated() const { return m_terminated; }
 
 
-
-}
-
-
+} // namespace cow

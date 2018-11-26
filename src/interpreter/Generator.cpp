@@ -4,51 +4,41 @@
 namespace cow
 {
 
-TuplePtr MemoryManager::create_tuple()
-{
-    return wrap_value<Tuple>(new (*this) Tuple(*this));
-}
+TuplePtr MemoryManager::create_tuple() { return wrap_value<Tuple>(new(*this) Tuple(*this)); }
 
 StringValPtr MemoryManager::create_string(const std::string &str)
 {
-    return wrap_value<StringVal>(new (*this) StringVal(*this, str));
+    return wrap_value<StringVal>(new(*this) StringVal(*this, str));
 }
 
 IntValPtr MemoryManager::create_integer(const int32_t value)
 {
-    return wrap_value<IntVal>(new (*this) IntVal(*this, value));
+    return wrap_value<IntVal>(new(*this) IntVal(*this, value));
 }
 
 BoolValPtr MemoryManager::create_boolean(const bool value)
 {
-    return wrap_value<BoolVal>(new (*this) BoolVal(*this, value));
+    return wrap_value<BoolVal>(new(*this) BoolVal(*this, value));
 }
 
 DictionaryPtr MemoryManager::create_dictionary()
 {
-    return wrap_value<Dictionary>(new (*this) Dictionary(*this));
+    return wrap_value<Dictionary>(new(*this) Dictionary(*this));
 }
 
-FloatValPtr MemoryManager::create_float(const double& value)
+FloatValPtr MemoryManager::create_float(const double &value)
 {
-    return wrap_value<FloatVal>(new (*this) FloatVal(*this, value));
+    return wrap_value<FloatVal>(new(*this) FloatVal(*this, value));
 }
 
-ValuePtr MemoryManager::create_none()
-{
-    return std::shared_ptr<Value>{ nullptr };
-}
+ValuePtr MemoryManager::create_none() { return std::shared_ptr<Value>{ nullptr }; }
 
-ListPtr MemoryManager::create_list()
-{
-    return wrap_value<List>(new (*this) List(*this));
-}
+ListPtr MemoryManager::create_list() { return wrap_value<List>(new(*this) List(*this)); }
 
 class DocConverter : public json::Iterator
 {
 public:
-    DocConverter(MemoryManager &mem)
-        : m_mem(mem) {}
+    DocConverter(MemoryManager &mem) : m_mem(mem) {}
 
     cow::ValuePtr get_result()
     {
@@ -92,7 +82,7 @@ public:
         add_value(key, val);
     }
 
-    void add_value(const std::string& key, ValuePtr value)
+    void add_value(const std::string &key, ValuePtr value)
     {
         if(key.empty())
         {
@@ -151,7 +141,7 @@ public:
 
     void handle_binary(const std::string &key, const uint8_t *data, uint32_t len) override
     {
-        //FIXME
+        // FIXME
         (void)data;
         (void)len;
 
@@ -202,4 +192,4 @@ ValuePtr MemoryManager::create_from_document(const json::Document &doc)
     return converter.get_result();
 }
 
-}
+} // namespace cow

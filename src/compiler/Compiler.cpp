@@ -1,11 +1,11 @@
-#include <stdbitstream.h>
 #include <cowlang/NodeType.h>
+#include <stdbitstream.h>
 
-#include "pypa/reader.hh"
+#include "pypa/ast/ast.hh"
 #include "pypa/filebuf.hh"
 #include "pypa/lexer/lexer.hh"
-#include "pypa/ast/ast.hh"
 #include "pypa/parser/parser.hh"
+#include "pypa/reader.hh"
 
 namespace cow
 {
@@ -13,30 +13,23 @@ namespace cow
 class StringReader : public pypa::Reader
 {
 public:
-    StringReader(const std::string &code)
-        : m_line_pos(0)
+    StringReader(const std::string &code) : m_line_pos(0)
     {
         size_t last_pos = 0;
         size_t pos = std::string::npos;
 
         while((pos = code.find_first_of('\n', last_pos)) != std::string::npos)
         {
-            m_code.push_back(code.substr(last_pos, pos+1 - last_pos));
-            last_pos = pos+1;
+            m_code.push_back(code.substr(last_pos, pos + 1 - last_pos));
+            last_pos = pos + 1;
         }
 
-        m_code.push_back(code.substr(last_pos, code.size()-last_pos));
+        m_code.push_back(code.substr(last_pos, code.size() - last_pos));
     }
 
-    uint32_t get_line_number() const override
-    {
-        return m_line_pos;
-    }
+    uint32_t get_line_number() const override { return m_line_pos; }
 
-    std::string get_line(size_t idx) override
-    {
-        return m_code[idx];
-    }
+    std::string get_line(size_t idx) override { return m_code[idx]; }
 
     std::string next_line() override
     {
@@ -48,10 +41,7 @@ public:
         return res;
     }
 
-    std::string get_filename() const override
-    {
-        return "code";
-    }
+    std::string get_filename() const override { return "code"; }
 
     bool set_encoding(const std::string &coding) override
     {
@@ -59,10 +49,7 @@ public:
         return true;
     }
 
-    bool eof() const override
-    {
-        return m_line_pos == m_code.size();
-    }
+    bool eof() const override { return m_line_pos == m_code.size(); }
 
 private:
     uint32_t m_line_pos;
@@ -72,14 +59,9 @@ private:
 class Compiler
 {
 public:
-    Compiler(const pypa::AstModulePtr ast)
-        : m_ast(ast)
-    {}
+    Compiler(const pypa::AstModulePtr ast) : m_ast(ast) {}
 
-    void run()
-    {
-        parse_next(*(m_ast->body));
-    }
+    void run() { parse_next(*(m_ast->body)); }
 
     bitstream get_result()
     {
@@ -93,28 +75,28 @@ public:
     }
 
 private:
-    void parse_next(const pypa::AstExpr& expr)
+    void parse_next(const pypa::AstExpr &expr)
     {
-        parse_next(reinterpret_cast<const pypa::Ast&>(expr));
+        parse_next(reinterpret_cast<const pypa::Ast &>(expr));
     }
 
-    void parse_expr_list(const pypa::AstExprList& list)
+    void parse_expr_list(const pypa::AstExprList &list)
     {
         uint32_t size = list.size();
         m_result << size;
 
-        for(auto item: list)
+        for(auto item : list)
         {
             parse_next(*item);
         }
     }
 
-    void parse_stmt_list(const pypa::AstStmtList& list)
+    void parse_stmt_list(const pypa::AstStmtList &list)
     {
         uint32_t size = list.size();
         m_result << size;
 
-        for(auto item: list)
+        for(auto item : list)
         {
             parse_next(*item);
         }
@@ -126,7 +108,7 @@ private:
         {
         case pypa::AstType::ImportFrom:
         {
-            auto &import = reinterpret_cast<const pypa::AstImportFrom&>(stmt);
+            auto &import = reinterpret_cast<const pypa::AstImportFrom &>(stmt);
             m_result << NodeType::ImportFrom;
 
             parse_next(*import.module);
@@ -135,20 +117,21 @@ private:
         }
         case pypa::AstType::Import:
         {
-            auto &import = reinterpret_cast<const pypa::AstImport&>(stmt);
+            auto &import = reinterpret_cast<const pypa::AstImport &>(stmt);
             m_result << NodeType::Import;
             parse_next(*import.names);
             break;
         }
         case pypa::AstType::Alias:
         {
-            auto &alias = reinterpret_cast<const pypa::AstAlias&>(stmt);
+            auto &alias = reinterpret_cast<const pypa::AstAlias &>(stmt);
             m_result << NodeType::Alias;
-            const std::string name = reinterpret_cast<const pypa::AstName&>(*alias.name).id.c_str();
+            const std::string name = reinterpret_cast<const pypa::AstName &>(*alias.name).id.c_str();
 
             if(alias.as_name)
             {
-                const std::string as_name = reinterpret_cast<const pypa::AstName&>(*alias.as_name).id.c_str();
+                const std::string as_name =
+                reinterpret_cast<const pypa::AstName &>(*alias.as_name).id.c_str();
                 m_result << name << as_name;
             }
             else
@@ -157,7 +140,7 @@ private:
         }
         case pypa::AstType::Name:
         {
-            auto &exp = reinterpret_cast<const pypa::AstName&>(stmt);
+            auto &exp = reinterpret_cast<const pypa::AstName &>(stmt);
             m_result << NodeType::Name;
 
             std::string str = exp.id.c_str();
@@ -166,7 +149,7 @@ private:
         }
         case pypa::AstType::Assign:
         {
-            auto &assign = reinterpret_cast<const pypa::AstAssign&>(stmt);
+            auto &assign = reinterpret_cast<const pypa::AstAssign &>(stmt);
             m_result << NodeType::Assign;
             parse_next(*assign.value);
             parse_expr_list(assign.targets);
@@ -174,7 +157,7 @@ private:
         }
         case pypa::AstType::Suite:
         {
-            auto &suite = reinterpret_cast<const pypa::AstSuite&>(stmt);
+            auto &suite = reinterpret_cast<const pypa::AstSuite &>(stmt);
             m_result << NodeType::StatementList;
             parse_stmt_list(suite.items);
             break;
@@ -182,21 +165,21 @@ private:
         case pypa::AstType::Str:
         case pypa::AstType::DocString:
         {
-            auto &str = reinterpret_cast<const pypa::AstStr&>(stmt);
+            auto &str = reinterpret_cast<const pypa::AstStr &>(stmt);
             m_result << NodeType::String;
             m_result << std::string(str.value.c_str());
             break;
         }
         case pypa::AstType::Return:
         {
-            auto &ret = reinterpret_cast<const pypa::AstReturn&>(stmt);
+            auto &ret = reinterpret_cast<const pypa::AstReturn &>(stmt);
             m_result << NodeType::Return;
             parse_next(*ret.value);
             break;
         }
         case pypa::AstType::Dict:
         {
-            auto &dict = reinterpret_cast<const pypa::AstDict&>(stmt);
+            auto &dict = reinterpret_cast<const pypa::AstDict &>(stmt);
 
             uint32_t size = dict.keys.size();
             m_result << NodeType::Dictionary << size;
@@ -209,7 +192,7 @@ private:
         }
         case pypa::AstType::Compare:
         {
-            auto &comp = reinterpret_cast<const pypa::AstCompare&>(stmt);
+            auto &comp = reinterpret_cast<const pypa::AstCompare &>(stmt);
             m_result << NodeType::Compare;
             parse_next(*comp.left);
 
@@ -225,7 +208,7 @@ private:
         }
         case pypa::AstType::Number:
         {
-            auto &num = reinterpret_cast<const pypa::AstNumber&>(stmt);
+            auto &num = reinterpret_cast<const pypa::AstNumber &>(stmt);
 
             if(num.num_type == pypa::AstNumber::Integer)
             {
@@ -239,7 +222,7 @@ private:
         }
         case pypa::AstType::If:
         {
-            auto &ifclause = reinterpret_cast<const pypa::AstIf&>(stmt);
+            auto &ifclause = reinterpret_cast<const pypa::AstIf &>(stmt);
             if(ifclause.orelse)
             {
                 m_result << NodeType::IfElse;
@@ -257,7 +240,7 @@ private:
         }
         case pypa::AstType::Call:
         {
-            auto &call = reinterpret_cast<const pypa::AstCall&>(stmt);
+            auto &call = reinterpret_cast<const pypa::AstCall &>(stmt);
             m_result << NodeType::Call;
             parse_next(*call.function);
             parse_expr_list(call.arglist.arguments);
@@ -265,7 +248,7 @@ private:
         }
         case pypa::AstType::Attribute:
         {
-            auto &attr = reinterpret_cast<const pypa::AstAttribute&>(stmt);
+            auto &attr = reinterpret_cast<const pypa::AstAttribute &>(stmt);
             m_result << NodeType::Attribute;
             parse_next(*attr.value);
             parse_next(*attr.attribute);
@@ -273,15 +256,15 @@ private:
         }
         case pypa::AstType::UnaryOp:
         {
-            auto &op = reinterpret_cast<const pypa::AstUnaryOp&>(stmt);
+            auto &op = reinterpret_cast<const pypa::AstUnaryOp &>(stmt);
             m_result << NodeType::UnaryOp;
             m_result << op.op;
             parse_next(*op.operand);
             break;
         }
         case pypa::AstType::BoolOp:
-       {
-            auto &op = reinterpret_cast<const pypa::AstBoolOp&>(stmt);
+        {
+            auto &op = reinterpret_cast<const pypa::AstBoolOp &>(stmt);
             m_result << NodeType::BoolOp;
             m_result << op.op;
             m_result << static_cast<uint32_t>(op.values.size());
@@ -292,7 +275,7 @@ private:
         }
         case pypa::AstType::BinOp:
         {
-            auto &op = reinterpret_cast<const pypa::AstBinOp&>(stmt);
+            auto &op = reinterpret_cast<const pypa::AstBinOp &>(stmt);
             m_result << NodeType::BinaryOp;
             m_result << op.op;
             parse_next(*op.left);
@@ -302,14 +285,14 @@ private:
         }
         case pypa::AstType::List:
         {
-            auto &list = reinterpret_cast<const pypa::AstList&>(stmt);
+            auto &list = reinterpret_cast<const pypa::AstList &>(stmt);
             m_result << NodeType::List;
             parse_expr_list(list.elements);
             break;
         }
         case pypa::AstType::Subscript:
         {
-            auto &subs = reinterpret_cast<const pypa::AstSubscript&>(stmt);
+            auto &subs = reinterpret_cast<const pypa::AstSubscript &>(stmt);
             m_result << NodeType::Subscript;
             parse_next(*subs.slice);
             parse_next(*subs.value);
@@ -317,14 +300,14 @@ private:
         }
         case pypa::AstType::Index:
         {
-            auto &idx = reinterpret_cast<const pypa::AstIndex&>(stmt);
+            auto &idx = reinterpret_cast<const pypa::AstIndex &>(stmt);
             m_result << NodeType::Index;
             parse_next(*idx.value);
             break;
         }
         case pypa::AstType::For:
         {
-            auto &loop = reinterpret_cast<const pypa::AstFor&>(stmt);
+            auto &loop = reinterpret_cast<const pypa::AstFor &>(stmt);
             m_result << NodeType::ForLoop;
             parse_next(*loop.target);
             parse_next(*loop.iter);
@@ -333,7 +316,7 @@ private:
         }
         case pypa::AstType::While:
         {
-            auto &loop = reinterpret_cast<const pypa::AstWhile&>(stmt);
+            auto &loop = reinterpret_cast<const pypa::AstWhile &>(stmt);
             m_result << NodeType::WhileLoop;
             parse_next(*loop.test);
             parse_next(*loop.body);
@@ -341,7 +324,7 @@ private:
         }
         case pypa::AstType::AugAssign:
         {
-            auto &ass = reinterpret_cast<const pypa::AstAugAssign&>(stmt);
+            auto &ass = reinterpret_cast<const pypa::AstAugAssign &>(stmt);
             m_result << NodeType::AugmentedAssign;
             m_result << ass.op;
             parse_next(*ass.target);
@@ -350,7 +333,7 @@ private:
         }
         case pypa::AstType::ExpressionStatement:
         {
-            auto &expr = reinterpret_cast<const pypa::AstExpressionStatement&>(stmt);
+            auto &expr = reinterpret_cast<const pypa::AstExpressionStatement &>(stmt);
             parse_next(*expr.expr);
             break;
         }
@@ -366,11 +349,11 @@ private:
         }
         case pypa::AstType::Tuple:
         {
-            auto &t = reinterpret_cast<const pypa::AstTuple&>(stmt);
+            auto &t = reinterpret_cast<const pypa::AstTuple &>(stmt);
             m_result << NodeType::Tuple;
             m_result << static_cast<uint32_t>(t.elements.size());
 
-            for(auto e: t.elements)
+            for(auto e : t.elements)
             {
                 parse_next(*e);
             }
@@ -383,7 +366,7 @@ private:
         }
         case pypa::AstType::ListComp:
         {
-            auto &c = reinterpret_cast<const pypa::AstListComp&>(stmt);
+            auto &c = reinterpret_cast<const pypa::AstListComp &>(stmt);
             m_result << NodeType::ListComp;
 
             parse_next(*c.element);
@@ -393,7 +376,7 @@ private:
         }
         case pypa::AstType::Comprehension:
         {
-            auto &c = reinterpret_cast<const pypa::AstComprehension&>(stmt);
+            auto &c = reinterpret_cast<const pypa::AstComprehension &>(stmt);
             m_result << NodeType::Comprehension;
 
             parse_next(*c.target);
@@ -420,7 +403,7 @@ bitstream compile_file(const std::string &filename)
     options.printerrors = true;
     options.printdbgerrors = true;
 
-    pypa::Lexer lexer(std::unique_ptr<pypa::Reader>{new pypa::FileBufReader(filename)});
+    pypa::Lexer lexer(std::unique_ptr<pypa::Reader>{ new pypa::FileBufReader(filename) });
 
     if(!pypa::parse(lexer, ast, symbols, options))
     {
@@ -442,7 +425,7 @@ bitstream compile_string(const std::string &code)
     options.printerrors = true;
     options.printdbgerrors = true;
 
-    pypa::Lexer lexer(std::unique_ptr<pypa::Reader>{new StringReader(code)});
+    pypa::Lexer lexer(std::unique_ptr<pypa::Reader>{ new StringReader(code) });
 
     if(!pypa::parse(lexer, ast, symbols, options))
     {
@@ -455,4 +438,4 @@ bitstream compile_string(const std::string &code)
     return compiler.get_result();
 }
 
-}
+} // namespace cow

@@ -1,5 +1,7 @@
 # The Cow Language
 
+[![Build Status](https://travis-ci.com/kaimast/cowlang.svg?branch=master)](https://travis-ci.com/kaimast/cowlang)
+
 Cow is a minimal Python interpreter that can be embedded into C++ programs.
 
 ## Features
@@ -13,3 +15,10 @@ Cow is a minimal Python interpreter that can be embedded into C++ programs.
 * libpypa (https://github.com/vinzenz/libpypa): A python parser, currently used in the compiler 
 * libdocument (https://github.com/kaimast/libdocument): A super fast JSON library
        
+## Building cowlang
+```
+meson build
+cd build
+ninja
+sudo ninja install
+```
