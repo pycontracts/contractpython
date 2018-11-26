@@ -34,7 +34,9 @@ public:
     std::string next_line() override
     {
         if(eof())
+        {
             return "";
+        }
 
         auto res = m_code[m_line_pos];
         m_line_pos += 1;
@@ -65,13 +67,7 @@ public:
 
     bitstream get_result()
     {
-        uint8_t *data = nullptr;
-        uint32_t len = 0;
-        m_result.detach(data, len);
-
-        bitstream res;
-        res.assign(data, len, false);
-        return res;
+        return std::move(m_result);
     }
 
 private:

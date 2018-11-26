@@ -34,7 +34,7 @@ DictKeyIterator::DictKeyIterator(MemoryManager &mem, Dictionary &dict)
 
 DictItemsPtr Dictionary::items()
 {
-    return wrap_value(new(memory_manager()) DictItems(memory_manager(), *this));
+    return make_value<DictItems>(memory_manager(), *this);
 }
 
 ValuePtr DictKeyIterator::next()

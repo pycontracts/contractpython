@@ -4,36 +4,36 @@
 namespace cow
 {
 
-TuplePtr MemoryManager::create_tuple() { return wrap_value<Tuple>(new(*this) Tuple(*this)); }
+TuplePtr MemoryManager::create_tuple() { return make_value<Tuple>(*this); }
 
 StringValPtr MemoryManager::create_string(const std::string &str)
 {
-    return wrap_value<StringVal>(new(*this) StringVal(*this, str));
+    return make_value<StringVal>(*this, str);
 }
 
 IntValPtr MemoryManager::create_integer(const int32_t value)
 {
-    return wrap_value<IntVal>(new(*this) IntVal(*this, value));
+    return make_value<IntVal>(*this, value);
 }
 
 BoolValPtr MemoryManager::create_boolean(const bool value)
 {
-    return wrap_value<BoolVal>(new(*this) BoolVal(*this, value));
+    return make_value<BoolVal>(*this, value);
 }
 
 DictionaryPtr MemoryManager::create_dictionary()
 {
-    return wrap_value<Dictionary>(new(*this) Dictionary(*this));
+    return make_value<Dictionary>(*this);
 }
 
 FloatValPtr MemoryManager::create_float(const double &value)
 {
-    return wrap_value<FloatVal>(new(*this) FloatVal(*this, value));
+    return make_value<FloatVal>(*this, value);
 }
 
 ValuePtr MemoryManager::create_none() { return std::shared_ptr<Value>{ nullptr }; }
 
-ListPtr MemoryManager::create_list() { return wrap_value<List>(new(*this) List(*this)); }
+ListPtr MemoryManager::create_list() { return make_value<List>(*this); }
 
 class DocConverter : public json::Iterator
 {

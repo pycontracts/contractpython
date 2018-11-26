@@ -42,7 +42,7 @@ public:
 
     virtual ~MemoryManager() {}
 
-    virtual void* malloc(size_t sz) = 0;
+    virtual void* malloc(size_t size) = 0;
     virtual void free(void* ptr) = 0;
 
     IntValPtr create_integer(const int32_t value);
