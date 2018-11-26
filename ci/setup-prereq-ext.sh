@@ -8,8 +8,8 @@ BUILDTYPE=release
 export CC=gcc-8
 export CXX=g++-8
 
-export LIBRARY_PATH=/usr/lib:/usr/local/lib:$INSTALL_DIR/lib
-export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:$INSTALL_DIR/lib
+export LIBRARY_PATH=/usr/lib:/usr/local/lib:$INSTALL_DIR/lib:$INSTALL_DIR/lib/x86_64-linux-gnu
+export LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:$INSTALL_DIR/lib:$INSTALL_DIR/lib/x86_64-linux-gnu
 
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 
