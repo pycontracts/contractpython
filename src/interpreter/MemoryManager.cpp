@@ -65,10 +65,8 @@ void *DefaultMemoryManager::malloc(size_t size)
             {
                 return assign_alloc(buf_pos, last_pos, size);
             }
-            else
-            {
-                last_pos = start + a.size;
-            }
+
+            last_pos = start + a.size;
         }
 
         buf_pos += 1;

@@ -28,10 +28,8 @@ py3_dep = dependency('python3')
 
 if py3_ext.language_version() == '3.5'
     python_dir = 'lib/python3.5/dist-packages'
-    boost_py3_dep = cpp.find_library('boost_python3')
 elif py3_ext.language_version() == '3.6'
     python_dir = 'lib/python3.6/dist-packages'
-    boost_py3_dep = cpp.find_library('boost_python3')
 else
     error('Unknown python version')
 endif
@@ -69,7 +67,7 @@ else
 endif
 
 py3_ext.extension_module('cowlang', 'src/python_bindings.cpp',
-    dependencies: [py3_dep, boost_py3_dep], install: true, include_directories: [inc_dirs],
+    dependencies: [py3_dep], install: true, include_directories: [inc_dirs],
     cpp_args: compile_args, install_dir: python_dir, link_with: [libcowlang]
 )
 

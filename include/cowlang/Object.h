@@ -22,14 +22,14 @@ class List;
 class BoolVal;
 class FloatVal;
 
-typedef std::shared_ptr<Value> ValuePtr;
-typedef std::shared_ptr<IntVal> IntValPtr;
-typedef std::shared_ptr<Dictionary> DictionaryPtr;
-typedef std::shared_ptr<List> ListPtr;
-typedef std::shared_ptr<StringVal> StringValPtr;
-typedef std::shared_ptr<Tuple> TuplePtr;
-typedef std::shared_ptr<BoolVal> BoolValPtr;
-typedef std::shared_ptr<FloatVal> FloatValPtr;
+using ValuePtr = std::shared_ptr<Value>;
+using IntValPtr = std::shared_ptr<IntVal>;
+using DictionaryPtr = std::shared_ptr<Dictionary>;
+using ListPtr = std::shared_ptr<List>;
+using StringValPtr = std::shared_ptr<StringVal>;
+using TuplePtr = std::shared_ptr<Tuple>;
+using BoolValPtr = std::shared_ptr<BoolVal>;
+using FloatValPtr = std::shared_ptr<FloatVal>;
 
 /**
  * Interface for memory management
@@ -50,7 +50,7 @@ public:
     StringValPtr create_string(const std::string &str);
     TuplePtr create_tuple();
     ValuePtr create_from_document(const json::Document &doc);
-    FloatValPtr create_float(const double &f);
+    FloatValPtr create_float(const double &value);
     BoolValPtr create_boolean(const bool value);
     ListPtr create_list();
     ValuePtr create_none();
@@ -64,7 +64,7 @@ public:
 
    static constexpr size_t PAGE_SIZE = 1024*1024;
 
-   void* malloc(size_t sz) override;
+   void* malloc(size_t size) override;
    void free(void* ptr) override;
 
 private:

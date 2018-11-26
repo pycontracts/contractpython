@@ -38,7 +38,7 @@ ListPtr MemoryManager::create_list() { return wrap_value<List>(new(*this) List(*
 class DocConverter : public json::Iterator
 {
 public:
-    DocConverter(MemoryManager &mem) : m_mem(mem) {}
+    explicit DocConverter(MemoryManager &mem) : m_mem(mem) {}
 
     cow::ValuePtr get_result()
     {
@@ -82,7 +82,7 @@ public:
         add_value(key, val);
     }
 
-    void add_value(const std::string &key, ValuePtr value)
+    void add_value(const std::string &key, const ValuePtr &value)
     {
         if(key.empty())
         {
@@ -150,10 +150,12 @@ public:
     }
 
 private:
-    void append_child(const std::string key, ValuePtr obj)
+    void append_child(const std::string key, const ValuePtr &obj)
     {
-        if(parse_stack.size() == 0)
+        if(parse_stack.empty())
+        {
             throw std::runtime_error("cannot append child at this point!");
+        }
 
         auto &top = parse_stack.top();
 

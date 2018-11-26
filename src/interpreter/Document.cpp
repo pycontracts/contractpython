@@ -7,7 +7,7 @@
 namespace cow
 {
 
-void value_to_bdoc(const std::string &key, ValuePtr value, json::Writer &writer)
+void value_to_bdoc(const std::string &key, const ValuePtr &value, json::Writer &writer)
 {
     switch(value->type())
     {
@@ -72,7 +72,7 @@ void value_to_bdoc(const std::string &key, ValuePtr value, json::Writer &writer)
     }
 }
 
-json::Document value_to_document(ValuePtr value)
+json::Document value_to_document(const ValuePtr& value)
 {
     json::Writer writer;
     value_to_bdoc("", value, writer);

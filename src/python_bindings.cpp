@@ -1,12 +1,18 @@
 #include "cowlang/cow.h"
 
-#include <boost/python.hpp>
-namespace py = boost::python;
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+namespace py = pybind11;
+
 using namespace cow;
 
-struct BitstreamConverter
+template <> struct py::detail::type_caster<bitstream>
 {
-    static PyObject *convert(const bitstream &bs)
+public:
+    PYBIND11_TYPE_CASTER(bitstream, _("bitstream"));
+
+    static handle cast(const bitstream &bs, return_value_policy /* policy */, handle /* parent */)
     {
         auto data = reinterpret_cast<const char*>(bs.data());
         auto size = static_cast<Py_ssize_t>(bs.size());
@@ -15,12 +21,7 @@ struct BitstreamConverter
     }
 };
 
-BOOST_PYTHON_MODULE(cowlang)
+PYBIND11_MODULE(cowlang, m)
 {
-    py::to_python_converter<bitstream, BitstreamConverter>();
-
-    py::docstring_options doc_options;
-    doc_options.disable_signatures();
-
-    py::def("compile_string", &compile_string, "");
+    m.def("compile_string", &compile_string, "");
 }
