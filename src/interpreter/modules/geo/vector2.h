@@ -14,7 +14,7 @@ public:
         : Value(mem), m_vec(v)
     {}
 
-    ValueType type() const
+    ValueType type() const override
     {
         return ValueType::geo_Vector2;
     }
@@ -31,7 +31,7 @@ public:
 
     std::string str() const override
     {
-        return std::to_string(m_vec);
+        return geo::to_string(m_vec);
     }
 
     ValuePtr get_member(const std::string &name) override

@@ -17,10 +17,12 @@ ValuePtr GeoModule::get_member(const std::string &name)
     if(name == "vector2")
     {
         return make_value<Function>(mem,
-                [&mem, this](const std::vector<ValuePtr> &args) -> ValuePtr
+                [&mem](const std::vector<ValuePtr> &args) -> ValuePtr
                 {
                     if(args.size() != 2)
+                    {
                         throw std::runtime_error("invalid number of arguments");
+                    }
 
                     auto x = unpack_float(args[0]);
                     auto y = unpack_float(args[1]); 
@@ -30,7 +32,9 @@ ValuePtr GeoModule::get_member(const std::string &name)
                 });
     }
     else
+    {
         throw std::runtime_error("Can't get member");
+    }
 }
 
 }
