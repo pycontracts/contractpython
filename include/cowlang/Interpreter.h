@@ -54,7 +54,7 @@ private:
 
     void load_from_module(Scope &scope, const std::string &module, const std::string &name, const std::string &as_name);
     void load_module(Scope &scope, const std::string &name, const std::string &as_name);
-    bitstream read_function_stub();
+    ValuePtr read_function_stub(Scope &scope);
     std::string read_name();
     std::vector<std::string> read_names();
 

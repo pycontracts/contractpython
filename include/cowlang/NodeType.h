@@ -36,6 +36,8 @@ enum class NodeType
     ImportFrom,
     Alias,
     FunctionDef,
+    FunctionStartDefaults,
+    FunctionStartStub,
     FunctionStart,
     FunctionEnd,
 };

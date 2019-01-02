@@ -83,7 +83,11 @@ private:
 
         for(auto item : list)
         {
-            parse_next(*item);
+            if(item==0){
+                m_result << NodeType::Pass;
+            }else{
+              parse_next(*item);
+            }
         }
     }
 
@@ -395,6 +399,17 @@ private:
             uint32_t dummy_zero = 0;
             m_result << dummy_zero;
             m_result << NodeType::FunctionStart;
+
+            // save arguments
+            parse_expr_list(c.args.arguments);
+            m_result << NodeType::FunctionStartDefaults;
+
+            // save defaults
+            parse_expr_list(c.args.defaults);
+            m_result << NodeType::FunctionStartStub;
+
+            // now, we dump the length + whole body of the function,
+            // followed by an end marker
             uint32_t size_start = m_result.pos();
             parse_next(*c.body);
             dummy_zero = m_result.pos() - size_start;

@@ -11,7 +11,7 @@ protected:
     Callable(MemoryManager &mem)
         :  Value(mem)
     {}
-    
+
 public:
     virtual ValuePtr call(const std::vector<ValuePtr>& args) = 0;
 
@@ -19,6 +19,7 @@ public:
     {
         return true;
     }
+
 };
 
 }

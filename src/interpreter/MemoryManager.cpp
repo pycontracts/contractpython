@@ -4,12 +4,16 @@
 
 #include <iostream>
 
+// Default value for maximum heap memory size -> 512MB!
+// If a program tries to allocate more, it will throw an OutOfMemoryError
+#define DEFAULT_MAXIMUM_HEAP_MEMORY 512*1024*1024
+
 namespace cow
 {
 
 DefaultMemoryManager::DefaultMemoryManager() : m_buffer_pos(0)
 {
-    auto buffer = new uint8_t[PAGE_SIZE];
+    uint8_t* buffer = (uint8_t*)::malloc(PAGE_SIZE);
     m_buffers.push_back(buffer);
 }
 
@@ -17,7 +21,7 @@ DefaultMemoryManager::~DefaultMemoryManager()
 {
     for(auto buffer : m_buffers)
     {
-        delete buffer;
+        ::free(buffer);
     }
 }
 
@@ -76,12 +80,16 @@ void *DefaultMemoryManager::malloc(size_t size)
 
     if(m_buffer_pos + size >= buffer_size)
     {
+
+        // support execution limits: if the next page would shoot over the mem limits ... bail!
+        if(buffer_size + PAGE_SIZE > DEFAULT_MAXIMUM_HEAP_MEMORY)
+            throw std::runtime_error("Out of memory: program tries to allocate too much memory!");
+
         auto buffer = new uint8_t[PAGE_SIZE];
         m_buffers.push_back(buffer);
         m_buffer_pos = buffer_size;
 
-        // TODO support execution limits
-        //  throw execution_limit_exception("Out of memory!");
+
     }
 
     auto new_pos = m_buffer_pos;

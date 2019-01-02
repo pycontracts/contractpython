@@ -272,7 +272,7 @@ private:
 class FloatVal : public PlainValue<double, ValueType::Float>
 {
 public:
-    FloatVal(MemoryManager &mem, const double &val) 
+    FloatVal(MemoryManager &mem, const double &val)
         : PlainValue(mem, val) {}
 
     ValuePtr duplicate(MemoryManager &mem) override
@@ -386,7 +386,7 @@ inline bitstream& operator<<(bitstream &bs, ValuePtr val)
         break;
     }
     case ValueType::String:
-    {   
+    {
         auto strval = value_cast<StringVal>(val);
         bs << ValueType::String << strval->get();
         break;
