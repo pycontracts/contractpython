@@ -4,16 +4,15 @@
 
 #include <cowlang/Value.h>
 #include <cowlang/unpack.h>
-
+#include <stdio.h>
+#include <iostream>
 #include "args.h"
 
 #ifdef IS_ENCLAVE
 extern void print_program_output(const std::string &str);
 #else
 
-#include <glog/logging.h>
-
-inline void print_program_output(const std::string &str) { LOG(INFO) << str; }
+inline void print_program_output(const std::string &str) { std::cout << str; }
 #endif
 
 namespace cow
@@ -151,12 +150,12 @@ public:
         }
         else if(m_type == BuiltinType::Print)
         {
+
+            // TODO: maybe support more sophisticated "vararg" shit
             check_num_args(args, 1);
             auto arg = args[0];
-
             check_is_string(arg);
-
-            print_program_output(("Program says: ") + value_cast<StringVal>(arg)->get());
+            print_program_output(value_cast<StringVal>(arg)->get() + "\n");
         }
         else
         {

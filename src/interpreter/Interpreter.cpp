@@ -1,6 +1,7 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <iostream>
 
 #include <cowlang/Callable.h>
 #include <cowlang/Interpreter.h>
@@ -68,6 +69,10 @@ Interpreter::Interpreter(const bitstream &data, MemoryManager &mem)
 }
 
 Interpreter::~Interpreter() { delete m_global_scope; }
+
+void Interpreter::re_assign_bitstream(const bitstream &data) {
+    m_data.assign(data.data(), data.size(), true);
+}
 
 ModulePtr Interpreter::get_module(const std::string &name)
 {
@@ -197,8 +202,39 @@ std::string Interpreter::read_name()
         throw std::runtime_error("Not a valid name");
 }
 
+bitstream Interpreter::read_function_stub()
+{
+    uint32_t total_stub_len;
+    NodeType type;
+
+    m_data >> total_stub_len;
+    m_data >> type;
+
+    bitstream innerfunction;
+
+    if(type == NodeType::FunctionStart)
+    {
+
+        // we skip the stub, and we expect to find the FunctionEnd marker
+        if(!m_data.move_to(m_data.pos() + total_stub_len, false)){
+            throw std::runtime_error("Are you kidding me, you pathetic little visual basic coder?");
+        }
+
+        m_data >> type;
+        if(type != NodeType::FunctionEnd){
+            throw std::runtime_error("1Are you kidding me, you stupid script kiddy?");
+        }
+
+        return innerfunction;
+    }
+    else
+        throw std::runtime_error("Are you kidding me, you stupid script kiddy?");
+}
+
 ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 {
+
+    // TODO: Recursion limit
     m_num_execution_steps += 1;
 
     if(m_execution_step_limit > 0 && m_num_execution_steps >= m_execution_step_limit)
@@ -1020,6 +1056,19 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         }
         break;
     }
+    case NodeType::FunctionDef:
+    {
+        auto t_name = read_name();
+        if(t_name.size() == 0)
+            throw std::runtime_error("Function name of length zero");
+
+        // Now, read the stub
+        read_function_stub();
+
+        std::cout<<"DEFINED " << t_name << std::endl;
+        scope.set_value(t_name, 0);
+        break;
+    }
     default:
         throw std::runtime_error("Unknown node type!");
     }
@@ -1189,6 +1238,7 @@ void Interpreter::skip_next()
     case NodeType::Break:
     case NodeType::Continue:
         break;
+
     default:
         throw std::runtime_error("Failed to skip unknown node type!");
     }

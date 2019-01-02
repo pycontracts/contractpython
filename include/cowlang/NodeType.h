@@ -34,7 +34,10 @@ enum class NodeType
     Break,
     Import,
     ImportFrom,
-    Alias
+    Alias,
+    FunctionDef,
+    FunctionStart,
+    FunctionEnd,
 };
 
 }

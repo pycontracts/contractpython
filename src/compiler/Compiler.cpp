@@ -87,6 +87,7 @@ private:
         }
     }
 
+
     void parse_stmt_list(const pypa::AstStmtList &list)
     {
         uint32_t size = list.size();
@@ -100,6 +101,7 @@ private:
 
     void parse_next(const pypa::Ast &stmt)
     {
+
         switch(stmt.type)
         {
         case pypa::AstType::ImportFrom:
@@ -380,6 +382,27 @@ private:
             parse_expr_list(c.ifs);
             break;
         }
+        case pypa::AstType::FunctionDef:
+        {
+            auto &c = reinterpret_cast<const pypa::AstFunctionDef &>(stmt);
+            m_result << NodeType::FunctionDef;
+
+            // store the name
+            parse_next(*c.name);
+
+            // store the stub with start and end markers
+            uint32_t dummy_pos = m_result.pos();
+            uint32_t dummy_zero = 0;
+            m_result << dummy_zero;
+            m_result << NodeType::FunctionStart;
+            uint32_t size_start = m_result.pos();
+            parse_next(*c.body);
+            dummy_zero = m_result.pos() - size_start;
+            uint32_t* fake_int = (uint32_t*)(m_result.data()+dummy_pos);
+            *fake_int = dummy_zero;
+            m_result << NodeType::FunctionEnd;
+            break;
+        }
         default:
             throw std::runtime_error("Unknown statement type!");
         }
@@ -387,17 +410,18 @@ private:
 
     const pypa::AstModulePtr m_ast;
 
-    bitstream m_result;
+    bitstream m_result; // main execution module
 };
 
-bitstream compile_file(const std::string &filename)
+bitstream compile_file(const std::string &filename, std::function<void(pypa::Error)>& e)
 {
     pypa::AstModulePtr ast;
     pypa::SymbolTablePtr symbols;
     pypa::ParserOptions options;
     options.python3only = true;
-    options.printerrors = true;
-    options.printdbgerrors = true;
+    options.printerrors = false;
+    options.printdbgerrors = false;
+    options.error_handler = e;
 
     pypa::Lexer lexer(std::unique_ptr<pypa::Reader>{ new pypa::FileBufReader(filename) });
 
@@ -419,7 +443,30 @@ bitstream compile_string(const std::string &code)
     pypa::ParserOptions options;
     options.python3only = true;
     options.printerrors = true;
-    options.printdbgerrors = true;
+    options.printdbgerrors = false;
+
+    pypa::Lexer lexer(std::unique_ptr<pypa::Reader>{ new StringReader(code) });
+
+    if(!pypa::parse(lexer, ast, symbols, options))
+    {
+        throw std::runtime_error("Parsing failed");
+    }
+
+    Compiler compiler(ast);
+    compiler.run();
+
+    return compiler.get_result();
+}
+
+bitstream compile_string(const std::string &code, std::function<void(pypa::Error)>& e)
+{
+    pypa::AstModulePtr ast;
+    pypa::SymbolTablePtr symbols;
+    pypa::ParserOptions options;
+    options.python3only = true;
+    options.printerrors = false;
+    options.printdbgerrors = false;
+    options.error_handler = e;
 
     pypa::Lexer lexer(std::unique_ptr<pypa::Reader>{ new StringReader(code) });
 

@@ -23,5 +23,4 @@ public:
 
 PYBIND11_MODULE(cowlang, m)
 {
-    m.def("compile_string", &compile_string, "");
 }
