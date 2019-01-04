@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Value.h"
+#include "Scope.h"
 
 namespace cow
 {
@@ -13,7 +14,7 @@ protected:
     {}
 
 public:
-    virtual ValuePtr call(const std::vector<ValuePtr>& args) = 0;
+    virtual ValuePtr call(const std::vector<ValuePtr>& arg, Scope& scope) = 0;
 
     bool is_callable() const override
     {

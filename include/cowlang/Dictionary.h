@@ -3,6 +3,7 @@
 #include "Value.h"
 #include "Iterator.h"
 #include "Callable.h"
+#include "Scope.h"
 
 namespace cow
 {
@@ -36,7 +37,7 @@ public:
         return ValueType::DictItems;
     }
 
-    ValuePtr call(const std::vector<ValuePtr>& args) override
+    ValuePtr call(const std::vector<ValuePtr>& args, Scope& scope) override
     {
         if(args.size() != 0)
             throw std::runtime_error("invalid number of arguments");

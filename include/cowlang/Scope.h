@@ -5,7 +5,6 @@
 #include "List.h"
 #include "Tuple.h"
 #include "Value.h"
-#include "Dictionary.h"
 
 namespace cow
 {

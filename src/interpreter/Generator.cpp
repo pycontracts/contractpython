@@ -1,5 +1,6 @@
 #include <cowlang/Object.h>
 #include <cowlang/Scope.h>
+#include <cowlang/Dictionary.h>
 
 namespace cow
 {

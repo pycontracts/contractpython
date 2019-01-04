@@ -8,6 +8,7 @@
 #include "Value.h"
 #include "Tuple.h"
 #include "Scope.h"
+#include "Dictionary.h"
 
 namespace cow
 {
@@ -58,7 +59,7 @@ private:
 
     void load_from_module(Scope &scope, const std::string &module, const std::string &name, const std::string &as_name);
     void load_module(Scope &scope, const std::string &name, const std::string &as_name);
-    ValuePtr read_function_stub(Interpreter& i, Scope &scope);
+    ValuePtr read_function_stub(Interpreter& i);
     std::string read_name();
     std::vector<std::string> read_names();
 

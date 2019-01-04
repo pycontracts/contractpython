@@ -2,12 +2,11 @@
 #include <memory>
 #include <sstream>
 #include <iostream>
-
-#include <cowlang/Callable.h>
 #include <cowlang/Interpreter.h>
+#include <cowlang/Dictionary.h>
 #include <cowlang/Scope.h>
+#include <cowlang/Callable.h>
 #include <cowlang/CallableVMFunction.h>
-
 #include "RangeIterator.h"
 #include "modules/modules.h"
 
@@ -81,7 +80,7 @@ Interpreter::Interpreter(const bitstream &data, MemoryManager &mem, Interpreter&
 Interpreter::~Interpreter() { if(!do_not_free_scope) delete m_global_scope; }
 
 
-ValuePtr Interpreter::read_function_stub(Interpreter& i, Scope &scope)
+ValuePtr Interpreter::read_function_stub(Interpreter& inti)
 {
 
     LoopState dummy_loop_state = LoopState::None;
@@ -127,7 +126,7 @@ ValuePtr Interpreter::read_function_stub(Interpreter& i, Scope &scope)
         bool non_standard = false;
         for(uint32_t i = 0; i < num_defaults; ++i)
         {
-            auto arg = execute_next(scope, dummy_loop_state);
+            auto arg = execute_next(inti.get_scope(), dummy_loop_state);
             if(arg != nullptr) non_standard = true;
             if(arg == nullptr && non_standard){
                 throw std::runtime_error("Non-default argument follows default argument");
@@ -160,7 +159,7 @@ ValuePtr Interpreter::read_function_stub(Interpreter& i, Scope &scope)
             throw std::runtime_error("Are you kidding me, you stupid script kiddy? [wrong type order]");
         }
 
-        ValuePtr pcl = wrap_value<CallableVMFunction>(new(memory_manager()) CallableVMFunction(memory_manager(), innerfunction, args, defaults, *this));
+        ValuePtr pcl = wrap_value<CallableVMFunction>(new(memory_manager()) CallableVMFunction(memory_manager(), innerfunction, args, defaults));
         return pcl;
     }
     else
@@ -870,7 +869,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             args.push_back(arg);
         }
 
-        returnval = value_cast<Callable>(callable)->call(args);
+        returnval = value_cast<Callable>(callable)->call(args, scope);
 
         break;
     }
@@ -1151,7 +1150,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             throw std::runtime_error("Function name of length zero");
 
         // Now, read the stub and get the stack jump point
-        ValuePtr jump_point = read_function_stub(*this, scope);
+        ValuePtr jump_point = read_function_stub(*this);
 
         scope.set_value(t_name, jump_point);
         break;

@@ -1,7 +1,7 @@
 #include <cowlang/Dictionary.h>
 #include <cowlang/List.h>
 #include <cowlang/Scope.h>
-
+#include <cowlang/Value.h>
 #include "Builtin.h"
 
 namespace cow

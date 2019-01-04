@@ -164,5 +164,22 @@ TEST(Functions, argument_altering_global_scope_with_global_keyword_no_prior_assi
     EXPECT_EQ(3, unpack_integer(pyint.execute()));
 }
 
+TEST(Functions, nested_scopes)
+{
+    const std::string code = "tester = 1\n"
+                             "def test(a=3,b=3):\n"
+                             "  tester = 2\n"
+                             "  def test2():\n"
+                             "    return tester\n"
+                             "  return test2()\n"
+                             "return test(1,2)";
+
+    auto doc = compile_string(code);
+
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
+    EXPECT_EQ(2, unpack_integer(pyint.execute()));
+}
 
 }

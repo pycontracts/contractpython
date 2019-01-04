@@ -23,7 +23,7 @@ public:
         return wrap_value(new (mem) Function(mem, m_func));
     }
 
-    ValuePtr call(const std::vector<ValuePtr>& args) override
+    ValuePtr call(const std::vector<ValuePtr>& args, Scope& scope) override
     {
         return m_func(args);
     }
