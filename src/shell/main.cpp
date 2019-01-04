@@ -345,7 +345,18 @@ int main (int argc, char *argv[]) {
             std::cout << termcolor::bold << "| -x flag: ./contractpython -x file.py                            |   deterministic random integer    |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "|                                                                 |   based on RC4 seeded with        |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "| The compiled byte code will be saved as: file.py.bitstream      |   the values from above           |" << termcolor::reset << std::endl;
-            std::cout << termcolor::bold << "|                                                                 |                                   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 | revert() aborts the contract      |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 |   execution and reestablishes the |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| For testing: after you exit this shell, the entire send         |   old state. GAS costs still apply|" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| table and the permanent storage dict (see right side)           | suicide(address) kills the        |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| are dumped. If you want to clear the entire state at any time,  |   contract and sends the balance  |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| you can just run the clear() command.                           |   to 'address'                    |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 | balance() contains the contract   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| Each session has an instruction limit to avoid infinite         |   balance in the smallest denom.  |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| loops and resource intentive iterations inside the contracts.   | send(address, value) allows the   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| The limits are configurable via the -g flag, and can be also    |   to send 'value' to 'address'    |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| reset by either clear() [whole session is cleared]              | store [dict] is a dictionary which|" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| or by clear_limits() [only the instruction limits are cleared]  |   is permanent accross calls      |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "+-----------------------------------------------------------------+-----------------------------------+" << termcolor::reset << std::endl << std::endl << "Press CTRL+D to exit ..." << std::endl;
             handle_readline(pyint);
         }
