@@ -24,8 +24,6 @@ void Scope::set_value(const std::string &name, ValuePtr value)
         return;
     }
 
-
-
     // FIXME actually update references...
     auto it = m_values.find(name);
     if(it != m_values.end())
