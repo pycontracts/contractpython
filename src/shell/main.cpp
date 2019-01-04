@@ -339,12 +339,12 @@ int main (int argc, char *argv[]) {
             std::cout << termcolor::bold << "| current transaction id) using command line arguments.           | contract() is the address of the  |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "| Run ./contractpython -h in order to find out more.              |   contract                        |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "|                                                                 | value() is the value (in the      |" << termcolor::reset << std::endl;
-            std::cout << termcolor::bold << "|                                                                 |   smallest denomination possible) |" << termcolor::reset << std::endl;
-            std::cout << termcolor::bold << "|                                                                 |   that was sent to this contract  |" << termcolor::reset << std::endl;
-            std::cout << termcolor::bold << "|                                                                 | random() gives back a perfectly   |" << termcolor::reset << std::endl;
-            std::cout << termcolor::bold << "|                                                                 |   deterministic random integer    |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| If you do not need an interactive shell, but rather want to     |   smallest denomination possible) |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| compile a python script into byte code in order to submit it    |   that was sent to this contract  |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| to the blockchain, make sure to run contractpython with the     | random() gives back a perfectly   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| -x flag: ./contractpython -x file.py                            |   deterministic random integer    |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "|                                                                 |   based on RC4 seeded with        |" << termcolor::reset << std::endl;
-            std::cout << termcolor::bold << "|                                                                 |   the values from above           |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| The compiled byte code will be saved as: file.py.bitstream      |   the values from above           |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "|                                                                 |                                   |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "+-----------------------------------------------------------------+-----------------------------------+" << termcolor::reset << std::endl << std::endl << "Press CTRL+D to exit ..." << std::endl;
             handle_readline(pyint);
