@@ -1,4 +1,4 @@
-inc_dir_pypy = include_directories('/usr/local/include', 'src/', get_option('prefix')+'/include', '../bitstream/include','../libdocument/include')
+inc_dir_pypy = include_directories('src/', '../bitstream/include','../libdocument/include')
 
 compile_args = ['-std=c++17', '-Wextra', '-Wno-implicit-exception-spec-mismatch'] # Remove me once clang issue is fixed in SGX SDK
 

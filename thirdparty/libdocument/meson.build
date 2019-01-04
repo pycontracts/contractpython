@@ -1,4 +1,4 @@
-inc_dirs = include_directories('/usr/local/include', 'include/', get_option('prefix')+'/include', '../bitstream/include', '../pybind11/include')
+inc_dirs = include_directories('include/', '../bitstream/include', '../pybind11/include')
 json_inc = include_directories('include/')
 
 gtest = dependency('gtest')

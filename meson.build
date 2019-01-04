@@ -1,7 +1,7 @@
 project('cowlang', 'cpp', version: '1.0')
 
-inc_dirs_global = include_directories(get_option('prefix') + '/include', '/usr/local/include', 'include/')
-prefix_library_path=[get_option('prefix')+'/lib/x86_64-linux-gnu', get_option('prefix')+'/lib', '/usr/local/lib', '/usr/local/lib/x86_64-linux-gnu']
+inc_dirs_global = include_directories('include/')
+prefix_library_path=[get_option('prefix')+'/lib/x86_64-linux-gnu', '/usr/local/lib/x86_64-linux-gnu']
 
 # Third party libraries
 subdir('./thirdparty/bitstream')
@@ -26,27 +26,11 @@ if get_option('use_geo') == true
 endif
 
 cpp = meson.get_compiler('cpp')
-py3_ext = import('python3')
-py3_dep = dependency('python3')
-
-if py3_ext.language_version() == '3.5'
-    python_dir = 'lib/python3.5/dist-packages'
-elif py3_ext.language_version() == '3.6'
-    python_dir = 'lib/python3.6/dist-packages'
-else
-    error('Unknown python version')
-endif
 
 libcowlang = static_library('libcowlang', [compiler_cpp_files, interpreter_cpp_files], include_directories: [inc_dir_pypy, inc_dirs_global, json_inc, bitstream_local_incdir, pybind_inc], dependencies: [json_dep, pypa_dep], install: true, cpp_args: compile_args, name_prefix: '')
 
 cpp = meson.get_compiler('cpp')
 readline = cpp.find_library('readline', required: true)
-
-
-py3_ext.extension_module('cowlang', 'src/python_bindings.cpp',
-    dependencies: [py3_dep], install: true, include_directories: [inc_dir_pypy, inc_dirs_global, json_inc, bitstream_local_incdir, pybind_inc],
-    cpp_args: compile_args, install_dir: python_dir, link_with: [libcowlang]
-)
 
 
 subdir('doc')
