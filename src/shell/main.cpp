@@ -353,7 +353,7 @@ int main (int argc, char *argv[]) {
             std::cout << termcolor::bold << "| you can just run the clear() command.                           |   to 'address'                    |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "|                                                                 | balance() contains the contract   |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "| Each session has an instruction limit to avoid infinite         |   balance in the smallest denom.  |" << termcolor::reset << std::endl;
-            std::cout << termcolor::bold << "| loops and resource intentive iterations inside the contracts.   | send(address, value) allows the   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| loops and resource intentsive iterations inside the contracts.  | send(address, value) allows the   |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "| The limits are configurable via the -g flag, and can be also    |   to send 'value' to 'address'    |" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "| reset by either clear() [whole session is cleared]              | store [dict] is a dictionary which|" << termcolor::reset << std::endl;
             std::cout << termcolor::bold << "| or by clear_limits() [only the instruction limits are cleared]  |   is permanent accross calls      |" << termcolor::reset << std::endl;
