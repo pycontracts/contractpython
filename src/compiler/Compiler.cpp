@@ -386,6 +386,17 @@ private:
             parse_expr_list(c.ifs);
             break;
         }
+        case pypa::AstType::Global:
+        {
+            auto &c = reinterpret_cast<const pypa::AstGlobal &>(stmt);
+            m_result << NodeType::Global;
+            // store the name
+            m_result << (uint32_t)c.names.size();
+            for(auto& nm : c.names){
+              parse_next(*nm);
+            }
+            break;
+        }
         case pypa::AstType::FunctionDef:
         {
             auto &c = reinterpret_cast<const pypa::AstFunctionDef &>(stmt);

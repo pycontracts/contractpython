@@ -28,14 +28,19 @@ public:
     ValuePtr get_value(const std::string &id);
     void set_value(const std::string &name, ValuePtr value);
     bool has_value(const std::string &name) const;
+    void set_global_tag(const std::string &name);
     void terminate();
     bool is_terminated() const;
+
+    void require_global() { m_require_global = true; };
 
 private:
     Scope *m_parent;
     bool m_terminated = false;
+    bool m_require_global = false;
 
     std::unordered_map<std::string, ValuePtr> m_values;
+    std::set<std::string> m_global_tags;
 };
 
 }

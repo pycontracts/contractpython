@@ -40,6 +40,7 @@ enum class NodeType
     FunctionStartStub,
     FunctionStart,
     FunctionEnd,
+    Global
 };
 
 }

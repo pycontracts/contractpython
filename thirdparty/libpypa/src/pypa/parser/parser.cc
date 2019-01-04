@@ -954,38 +954,7 @@ bool arglist(State & s, AstArguments & ast) {
         }
     }
     expect(s, TokenKind::Comma);
-    while(expect(s, TokenKind::Star)) {
-        if(!test(s, ast.args)) {
-            syntax_error(s, ast, "Expected expression after `*`");
-            return false;
-        }
-        if(!expect(s, TokenKind::Comma)) {
-            break;
-        }
-    }
-    while(!is(s, TokenKind::DoubleStar) && argument(s, item)) {
-        if(item->type != AstType::Keyword) {
-            syntax_error(s, ast, "Expected keyword argument");
-            return false;
-        }
-        ast.keywords.push_back(item);
-        if(!expect(s, TokenKind::Comma)) {
-            break;
-        }
-    }
-    expect(s, TokenKind::Comma);
-    if(expect(s, TokenKind::DoubleStar)) {
-        if(!test(s, ast.kwargs)) {
-            syntax_error(s, ast, "Expected expression after `**`");
-            return false;
-        }
-    }
 
-    for(auto & d : ast.keywords) {
-        // Even though we're saying store, it'll set Load for the value
-        // and Store for the key
-        visit(context_assign{AstContext::Store}, d);
-    }
 
     return guard.commit();
 }
@@ -2248,7 +2217,7 @@ bool varargslist(State & s, AstArguments & ast) {
     //   ||fpdef [expect(s, TokenKind::Equal) test] (expect(s, TokenKind::Comma) fpdef [expect(s, TokenKind::Equal) test])* [expect(s, TokenKind::Comma)])
 
     // args, args=default, *args, **args
-    while(!is(s, TokenKind::DoubleStar) && !is(s, TokenKind::Star)) {
+    while(true) {
         AstExpr arg;
         if(!fpdef(s, arg)) {
             break;
@@ -2268,28 +2237,7 @@ bool varargslist(State & s, AstArguments & ast) {
             break;
         }
     }
-    if(expect(s, TokenKind::Star)) {
-        if(!get_name(s, ast.args)) {
-            syntax_error(s, ast, "Expected identifier after `*`");
-            return false;
-        }
-        expect(s, TokenKind::Comma);
-    }
 
-    if(expect(s, TokenKind::DoubleStar)) {
-        if(!get_name(s, ast.kwargs)) {
-            syntax_error(s, ast, "Expected identifier after `**`");
-            return false;
-        }
-    }
-    visit(context_assign{AstContext::Param}, ast.args);
-    for(auto & a : ast.arguments) {
-        visit(context_assign{AstContext::Param}, a);
-    }
-    for(auto & k : ast.keywords) {
-        visit(context_assign{AstContext::Param}, k);
-    }
-    visit(context_assign{AstContext::Param}, ast.kwargs);
     return guard.commit();
 }
 

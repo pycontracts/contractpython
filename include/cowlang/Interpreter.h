@@ -25,10 +25,14 @@ public:
      *      The compiled syntax tree of the program
      */
     Interpreter(const bitstream &data, MemoryManager &mem);
+    Interpreter(const bitstream &data, MemoryManager &mem, Interpreter& scope_borrower);
     ~Interpreter();
 
     void re_assign_bitstream(const bitstream &data);
     ValuePtr execute();
+    ValuePtr execute_in_scope(Scope &scope);
+    Scope& get_scope() { return *m_global_scope; };
+
 
     void set_value(const std::string &name, ValuePtr value);
 
@@ -54,12 +58,13 @@ private:
 
     void load_from_module(Scope &scope, const std::string &module, const std::string &name, const std::string &as_name);
     void load_module(Scope &scope, const std::string &name, const std::string &as_name);
-    ValuePtr read_function_stub(Scope &scope);
+    ValuePtr read_function_stub(Interpreter& i, Scope &scope);
     std::string read_name();
     std::vector<std::string> read_names();
 
     bitstream m_data;
     MemoryManager &m_mem;
+    bool do_not_free_scope;
 
     Scope *m_global_scope;
 

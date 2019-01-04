@@ -7,13 +7,24 @@
 namespace cow
 {
 
+void Scope::set_global_tag(const std::string &name){
+    m_global_tags.insert(name);
+}
+
 void Scope::set_value(const std::string &name, ValuePtr value)
 {
-    if(m_parent && m_parent->has_value(name))
+    if(!m_require_global && m_parent && m_parent->has_value(name))
     {
         m_parent->set_value(name, value);
         return;
     }
+    if(m_require_global && m_global_tags.find(name)!=m_global_tags.end() && m_parent)
+    {
+        m_parent->set_value(name, value);
+        return;
+    }
+
+
 
     // FIXME actually update references...
     auto it = m_values.find(name);
@@ -85,7 +96,7 @@ ValuePtr Scope::get_value(const std::string &name)
         {
             return m_parent->get_value(name);
         }
-        
+
         throw std::runtime_error("No such value: " + name);
     }
 

@@ -65,14 +65,23 @@ enum class UnaryOpType
 Interpreter::Interpreter(const bitstream &data, MemoryManager &mem)
 : m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0)
 {
+    do_not_free_scope = false;
     m_global_scope = new(memory_manager()) Scope(memory_manager());
     m_data.assign(data.data(), data.size(), true);
 }
 
-Interpreter::~Interpreter() { delete m_global_scope; }
+Interpreter::Interpreter(const bitstream &data, MemoryManager &mem, Interpreter& scope_borrower)
+: m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0)
+{
+    do_not_free_scope = true;
+    m_global_scope = scope_borrower.m_global_scope;
+    m_data.assign(data.data(), data.size(), true);
+}
+
+Interpreter::~Interpreter() { if(!do_not_free_scope) delete m_global_scope; }
 
 
-ValuePtr Interpreter::read_function_stub(Scope &scope)
+ValuePtr Interpreter::read_function_stub(Interpreter& i, Scope &scope)
 {
 
     LoopState dummy_loop_state = LoopState::None;
@@ -151,7 +160,7 @@ ValuePtr Interpreter::read_function_stub(Scope &scope)
             throw std::runtime_error("Are you kidding me, you stupid script kiddy? [wrong type order]");
         }
 
-        ValuePtr pcl = wrap_value<CallableVMFunction>(new(memory_manager()) CallableVMFunction(memory_manager(), innerfunction, args, defaults));
+        ValuePtr pcl = wrap_value<CallableVMFunction>(new(memory_manager()) CallableVMFunction(memory_manager(), innerfunction, args, defaults, *this));
         return pcl;
     }
     else
@@ -232,6 +241,13 @@ ValuePtr Interpreter::execute()
     ValuePtr val = execute_next(*m_global_scope, loop_state);
     return val;
 }
+
+ValuePtr Interpreter::execute_in_scope(Scope &scope){
+    LoopState loop_state = LoopState::None;
+    ValuePtr val = execute_next(scope, loop_state);
+    return val;
+}
+
 
 std::vector<std::string> Interpreter::read_names()
 {
@@ -439,6 +455,16 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             }
         }
 
+        break;
+    }
+    case NodeType::Global:
+    {
+        uint32_t size = 0;
+        m_data >> size;
+        for(uint32_t i = 0; i < size; ++i){
+            auto name = read_name();
+            scope.set_global_tag(name);
+        }
         break;
     }
     case NodeType::StatementList:
@@ -1125,7 +1151,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             throw std::runtime_error("Function name of length zero");
 
         // Now, read the stub and get the stack jump point
-        ValuePtr jump_point = read_function_stub(scope);
+        ValuePtr jump_point = read_function_stub(*this, scope);
 
         scope.set_value(t_name, jump_point);
         break;
