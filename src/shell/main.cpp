@@ -11,6 +11,8 @@
 #include "pypa/parser/error.hh"
 #include <unistd.h>
 
+#include <termcolor.h>
+
 using namespace cow;
 
 // attribute flags
@@ -194,9 +196,9 @@ void handle_src_file(std::string& filename, Interpreter& pyint){
         error_buffer.seekg(0, std::ios::end);
         int size = error_buffer.tellg();
         if(size>0)
-            std::cerr << error_buffer.str();
+            std::cerr << termcolor::red << error_buffer.str() << termcolor::reset;
         else
-            std::cerr << "RuntimeError: " << e.what() << std::endl;
+            std::cerr << termcolor::red << "RuntimeError: " << e.what() << termcolor::reset << std::endl;
 
         error_buffer.clear();
     }
@@ -215,9 +217,9 @@ void compile_src_file(std::string& filename){
         error_buffer.seekg(0, std::ios::end);
         int size = error_buffer.tellg();
         if(size>0)
-            std::cerr << error_buffer.str();
+            std::cerr << termcolor::red << error_buffer.str() << termcolor::reset;
         else
-            std::cerr << "CompileError: " << e.what() << std::endl;
+            std::cerr << termcolor::red << "CompileError: " << e.what() << termcolor::reset << std::endl;
 
         error_buffer.clear();
     }
@@ -258,9 +260,9 @@ void handle_readline(Interpreter& pyint) {
             error_buffer.seekg(0, std::ios::end);
             int size = error_buffer.tellg();
             if(size>0)
-                std::cerr << error_buffer.str();
+                std::cerr << termcolor::red << error_buffer.str() << termcolor::reset;
             else
-                std::cerr << "RuntimeError: " << e.what() << std::endl;
+                std::cerr << termcolor::red << "RuntimeError: " << e.what() << termcolor::reset << std::endl;
 
             error_buffer.clear();
         }
@@ -302,7 +304,7 @@ int main (int argc, char *argv[]) {
                         only_compile = true;
                     break;
                 case '?':  // unknown option...
-                    std::cerr << "Unknown option: '" << char(optopt) << "'!" << std::endl;
+                    std::cerr << termcolor::red << "Unknown option: '" << char(optopt) << "'!" << termcolor::reset << std::endl;
                     exit(1);
             }
         }
@@ -311,8 +313,42 @@ int main (int argc, char *argv[]) {
         Interpreter pyint(doc, mem_manager);
         pyint.execute();
 
-        if(input=="")
+        if(input==""){
+            std:: cout << termcolor::cyan << "        ______            __                  __  ____        __  __                   ___ ____ " << std::endl;
+            std:: cout << "       / ________  ____  / /__________ ______/ /_/ __ \\__  __/ /_/ /_  ____  ____     <  // __ \\" << std::endl;
+            std:: cout << "      / /   / __ \\/ __ \\/ __/ ___/ __ `/ ___/ __/ /_/ / / / / __/ __ \\/ __ \\/ __ \\    / // / / /" << std::endl;
+            std:: cout << "     / /___/ /_/ / / / / /_/ /  / /_/ / /__/ /_/ ____/ /_/ / /_/ / / / /_/ / / / /   / _/ /_/ / " << std::endl;
+            std:: cout << "     \\____/\\____/_/ /_/\\__/_/   \\__,_/\\___/\\__/_/    \\__, /\\__/_/ /_/\\____/_/ /_/   /_(_\\____/  " << std::endl;
+            std:: cout << "                                                     /____/                                      " << termcolor::reset << std::endl << std::endl;
+
+            std::cout << termcolor::bold << "+-----------------------------------------------------------------+-----------------------------------+" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| Welcome to ContractPython 1.0, an embeddable Python interpreter | Module 'blockchain'               |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 | -------------------               |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| specifically designed for the use in blockchain projects.       | txid() is the current tx id       |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 | block() is the hash of the block  |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 |   the current transaction was     |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| Generally, you can use ContractPython just like any other       |   included into                   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| Python interpreter. Due to security reasons, only a very        | prevblock() is the hash of the    |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| limited number of importable modules are available. Please      |   current block's parent          |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| consult the table on the right side for the modules             | time() is the current block's     |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| included in this distribution.                                  |   unix timestamp                  |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 | prevtime() is the prev. block's   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "+                                                                 +   unix timestamp                  +" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| ContractPython allows you to configure virtual                  | sender() is the address of the    |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| \"blockchain parameters\" (such as the current block or the       |   sender of the current tx        |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| current transaction id) using command line arguments.           | contract() is the address of the  |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "| Run ./contractpython -h in order to find out more.              |   contract                        |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 | value() is the value (in the      |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 |   smallest denomination possible) |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 |   that was sent to this contract  |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 | random() gives back a perfectly   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 |   deterministic random integer    |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 |   based on RC4 seeded with        |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 |   the values from above           |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "|                                                                 |                                   |" << termcolor::reset << std::endl;
+            std::cout << termcolor::bold << "+-----------------------------------------------------------------+-----------------------------------+" << termcolor::reset << std::endl << std::endl << "Press CTRL+D to exit ..." << std::endl;
             handle_readline(pyint);
+        }
         else{
             if(only_compile)
                 compile_src_file(input);
