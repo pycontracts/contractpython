@@ -412,6 +412,7 @@ private:
             // followed by an end marker
             uint32_t size_start = m_result.pos();
             parse_next(*c.body);
+            //dummy_zero = EndianSwapper::SwapByte<uint32_t, sizeof(uint32_t)>::Swap(m_result.pos() - size_start);
             dummy_zero = m_result.pos() - size_start;
             uint32_t* fake_int = (uint32_t*)(m_result.data()+dummy_pos);
             *fake_int = dummy_zero;

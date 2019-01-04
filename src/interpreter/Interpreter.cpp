@@ -71,6 +71,93 @@ Interpreter::Interpreter(const bitstream &data, MemoryManager &mem)
 
 Interpreter::~Interpreter() { delete m_global_scope; }
 
+
+ValuePtr Interpreter::read_function_stub(Scope &scope)
+{
+
+    LoopState dummy_loop_state = LoopState::None;
+
+    uint32_t total_stub_len;
+    NodeType type;
+
+
+    m_data >> total_stub_len;
+    m_data >> type;
+
+    if(type == NodeType::FunctionStart)
+    {
+
+        // cycle until we find FunctionStartDefaults (arg parsing)
+        uint32_t num_args = 0;
+        m_data >> num_args;
+
+        std::vector<std::string> args;
+        std::vector<ValuePtr> defaults;
+
+        for(uint32_t i = 0; i < num_args; ++i)
+        {
+            //auto arg = execute_next(scope, dummy_loop_state);
+            //args.push_back(arg);
+            auto arg = read_name();
+            args.push_back(arg);
+        }
+
+        m_data >> type;
+        if(type != NodeType::FunctionStartDefaults) {
+            throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
+        }
+
+        // cycle until we find FunctionStartDefaults (arg parsing)
+        uint32_t num_defaults = 0;
+        m_data >> num_defaults;
+
+        if(num_defaults != num_args) {
+            throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
+        }
+
+        bool non_standard = false;
+        for(uint32_t i = 0; i < num_defaults; ++i)
+        {
+            auto arg = execute_next(scope, dummy_loop_state);
+            if(arg != nullptr) non_standard = true;
+            if(arg == nullptr && non_standard){
+                throw std::runtime_error("Non-default argument follows default argument");
+            }
+            defaults.push_back(arg);
+        }
+
+        m_data >> type;
+        if(type != NodeType::FunctionStartStub) {
+            throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
+        }
+
+        // do we deal with scriptkiddies?
+        // We better be safe than sorry, you can do a lot of bad stuff when you smash the stack
+
+        if(m_data.remaining_size()<total_stub_len){
+            throw std::runtime_error("Are you kidding me, you stupid script kiddy? [stub smashing]");
+        }
+
+        bitstream innerfunction(m_data.current(), total_stub_len);
+
+        // we skip the stub, and we expect to find the FunctionEnd marker
+        if(!m_data.move_to(m_data.pos() + total_stub_len, false)){
+            throw std::runtime_error("Are you kidding me, you stupid script kiddy? [stub smashing checks]");
+        }
+
+        m_data >> type;
+
+        if(type != NodeType::FunctionEnd){
+            throw std::runtime_error("Are you kidding me, you stupid script kiddy? [wrong type order]");
+        }
+
+        ValuePtr pcl = wrap_value<CallableVMFunction>(new(memory_manager()) CallableVMFunction(memory_manager(), innerfunction, args, defaults));
+        return pcl;
+    }
+    else
+        throw std::runtime_error("Are you kidding me, you stupid script kiddy? [coder is insane]");
+}
+
 void Interpreter::re_assign_bitstream(const bitstream &data) {
     m_data.assign(data.data(), data.size(), true);
 }
@@ -203,90 +290,6 @@ std::string Interpreter::read_name()
         throw std::runtime_error("Not a valid name");
 }
 
-ValuePtr Interpreter::read_function_stub(Scope &scope)
-{
-
-    LoopState dummy_loop_state = LoopState::None;
-
-    uint32_t total_stub_len;
-    NodeType type;
-
-    m_data >> total_stub_len;
-    m_data >> type;
-
-    if(type == NodeType::FunctionStart)
-    {
-
-        // cycle until we find FunctionStartDefaults (arg parsing)
-        uint32_t num_args = 0;
-        m_data >> num_args;
-
-        std::vector<std::string> args;
-        std::vector<ValuePtr> defaults;
-
-        for(uint32_t i = 0; i < num_args; ++i)
-        {
-            //auto arg = execute_next(scope, dummy_loop_state);
-            //args.push_back(arg);
-            auto arg = read_name();
-            args.push_back(arg);
-        }
-
-        m_data >> type;
-        if(type != NodeType::FunctionStartDefaults) {
-            throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
-        }
-
-        // cycle until we find FunctionStartDefaults (arg parsing)
-        uint32_t num_defaults = 0;
-        m_data >> num_defaults;
-
-        if(num_defaults != num_args) {
-            throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
-        }
-
-        bool non_standard = false;
-        for(uint32_t i = 0; i < num_defaults; ++i)
-        {
-            auto arg = execute_next(scope, dummy_loop_state);
-            if(arg != nullptr) non_standard = true;
-            if(arg == nullptr && non_standard){
-                throw std::runtime_error("Non-default argument follows default argument");
-            }
-            defaults.push_back(arg);
-        }
-
-        m_data >> type;
-        if(type != NodeType::FunctionStartStub) {
-            throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
-        }
-
-        // do we deal with scriptkiddies?
-        // We better be safe than sorry, you can do a lot of bad stuff when you smash the stack
-
-        if(m_data.remaining_size()<total_stub_len){
-            throw std::runtime_error("Are you kidding me, you stupid script kiddy?");
-        }
-
-        bitstream innerfunction(m_data.current(), total_stub_len);
-
-        // we skip the stub, and we expect to find the FunctionEnd marker
-        if(!m_data.move_to(m_data.pos() + total_stub_len, false)){
-            throw std::runtime_error("Are you kidding me, you stupid script kiddy?");
-        }
-
-        m_data >> type;
-
-        if(type != NodeType::FunctionEnd){
-            throw std::runtime_error("Are you kidding me, you stupid script kiddy?");
-        }
-
-        ValuePtr pcl = wrap_value<CallableVMFunction>(new(memory_manager()) CallableVMFunction(memory_manager(), innerfunction, args, defaults));
-        return pcl;
-    }
-    else
-        throw std::runtime_error("Are you kidding me, you stupid script kiddy?");
-}
 
 ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 {
@@ -304,6 +307,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
     NodeType type;
     m_data >> type;
+
 
     LoopState dummy_loop_state = LoopState::None;
 

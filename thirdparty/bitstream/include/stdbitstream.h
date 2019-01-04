@@ -75,10 +75,12 @@ inline bitstream& operator<<(bitstream &bs, const std::string& str)
 {
     uint32_t length = str.size();
     bs << length;
+    
 
     if(length > 0)
     {
         bs.write_raw_data(reinterpret_cast<const uint8_t*>(str.c_str()), length);
+
     }
 
     return bs;
@@ -98,6 +100,7 @@ inline bitstream& operator>>(bitstream &bs, std::string& data)
 
         data += c;
     }
+
 
     return bs;
 }

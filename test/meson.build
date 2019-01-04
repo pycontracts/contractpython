@@ -5,5 +5,6 @@ test_cpp_files = files(
     'main.cpp',
     'loop.cpp',
     'tuple.cpp',
+    'functions.cpp',
     'MemoryManager.cpp'
 )
