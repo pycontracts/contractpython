@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-
+#include <inttypes.h>
 #include <cowlang/cow.h>
 #include <cowlang/unpack.h>
 #include <readline/readline.h>
@@ -345,29 +345,79 @@ void handle_readline(Interpreter& pyint) {
 
 }
 
+
 int usage(char **argv) {
     printf(
     "usage: %s [<opts>] [<filename> | <contract address> | <empty>]\n"
-    "Options:\n"
-    "-g[N] : add N gas to the engine [default: 5000000]\n"
-    "-p[N] : set gasprice, maximum instructions will be gas / gasprice [default: 100]\n"
-    "-n[N] : set network type (0=main, 1=testnet, 2=regtest) [default: 0]\n"
-    "-m[N] : memory limit in PAGES (page size is 1MB) [default: 3]\n"
-    "\n"
-    "Implementation specific options (-X):\n", argv[0]);
+    "\nOptions:\n\n"
+    "-g [N]         : add N gas to the engine [default: 5000000]\n"
+    "-G [N]         : set gasprice, maximum instructions will be gas / gasprice [default: 100]\n"
+    "-n [N]         : set network type (0=main, 1=testnet, 2=regtest) [default: 0]\n"
+    "-m [N]         : memory limit in PAGES (page size is 1MB) [default: 3]\n"
+    "\nBlockchain parameters (only used when last parameter is not a contract address):\n\n"
+    "-b [<hash>]    : current block's hash in hex format\n"
+    "                 [default: %s]\n"
+    "-B [<hash>]    : previous block's hash in hex format\n"
+    "                 [default: %s]\n"
+    "-t [N]         : current block's UNIX timestamp [default: %u]\n"
+    "-T [N]         : previous block's UNIX timestamp [default: %u]\n"
+    "-s [<address>] : the sender of the current transaction\n"
+    "                 [default: %s]\n"
+    "-a [<address>] : the current address of the contract\n"
+    "                 [default: %s]\n"
+    "-v [N]         : the amount that was sent in this transaction [default: %" PRIu64 "]\n"
+    "-V [N]         : the contract's current balance [default: %" PRIu64 "]\n"
+    "\n", argv[0], cow::current_block.c_str(), cow::previous_block.c_str(), cow::current_time, cow::previous_time, cow::sender.c_str(), cow::contract_address.c_str(), cow::value, cow::contract_balance );
 
     return 1;
 }
 
-void pre_process_options(int argc, char **argv) {
+int pre_process_options(int argc, char **argv) {
+    int skip = 0;
     for (int a = 1; a < argc; a++) {
         if (argv[a][0] == '-') {
-            if (strcmp(argv[a], "-g") == 0) {
+            skip++;
+            if (strcmp(argv[a], "-h") == 0) {
+                exit(usage(argv));
+            }
+            else if (strcmp(argv[a], "-b") == 0) {
+                cow::current_block = argv[a + 1];
+                skip++;
+            }
+            else if (strcmp(argv[a], "-B") == 0) {
+                cow::previous_block = argv[a + 1];
+                skip++;
+            }
+            else if (strcmp(argv[a], "-t") == 0) {
+                cow::current_time = atoi(argv[a + 1]);
+                skip++;
+            }
+            else if (strcmp(argv[a], "-T") == 0) {
+                cow::previous_time = atoi(argv[a + 1]);
+                skip++;
+            }
+            else if (strcmp(argv[a], "-s") == 0) {
+                cow::sender = argv[a + 1];
+            }
+            else if (strcmp(argv[a], "-a") == 0) {
+                cow::contract_address = argv[a + 1];
+                skip++;
+            }
+            else if (strcmp(argv[a], "-v") == 0) {
+                cow::value = atol(argv[a + 1]);
+                skip++;
+            }
+            else if (strcmp(argv[a], "-V") == 0) {
+                cow::contract_balance = atol(argv[a + 1]);
+                skip++;
+            }
+            else if (strcmp(argv[a], "-g") == 0) {
                 gas = atoi(argv[a + 1]);
             } else if (strcmp(argv[a], "-p") == 0) {
                 gasprice = atoi(argv[a + 1]);
             } else if (strcmp(argv[a], "-n") == 0) {
                 uint32_t _net = atoi(argv[a + 1]);
+                skip++;
                 if(_net > 2){
                     exit(usage(argv));
                 }
@@ -376,10 +426,12 @@ void pre_process_options(int argc, char **argv) {
                 if(net == 2) net = REGTEST;
             } else if (strcmp(argv[a], "-m") == 0) {
                 pagelimit = atoi(argv[a + 1]);
+                skip++;
                 DEFAULT_MAXIMUM_HEAP_PAGES = pagelimit;
             }
         }
     }
+    return skip;
 }
 
 int main (int argc, char *argv[]) {
@@ -391,11 +443,11 @@ int main (int argc, char *argv[]) {
         DefaultMemoryManager mem_manager;
 
         // parte options
-        pre_process_options(argc, argv);
+        int skip = pre_process_options(argc, argv);
 
         // Retrieve the (non-option) argument:
         std::string input = "";
-        if ( (argc <= 1) || (argv[argc-1] == NULL) || (argv[argc-1][0] == '-') ) {  // there is NO input...
+        if ( (argc <= 1) || (argc - 1 == skip)) {  // there is NO input...
         }
         else {  // there is an input...
             input = argv[argc-1];
@@ -404,18 +456,6 @@ int main (int argc, char *argv[]) {
         // Shut GetOpt error messages down (return '?'):
         int opt;
         opterr = 0;
-
-        // Retrieve the options:
-        while ( (opt = getopt(argc, argv, "x")) != -1 ) {  // for each option...
-            switch ( opt ) {
-                case 'x':
-                        only_compile = true;
-                    break;
-                case '?':  // unknown option...
-                    std::cerr << termcolor::on_white << termcolor::red << "Unknown option: '" << char(optopt) << "'!" << termcolor::reset << std::endl;
-                    exit(1);
-            }
-        }
 
         auto doc = compile_string("");
         Interpreter pyint(doc, mem_manager);
@@ -427,7 +467,7 @@ int main (int argc, char *argv[]) {
 
         if(input==""){
             std::cout << termcolor::bold << "\nWelcome to " << __VERSION__ << std::endl;
-            std::cout << termcolor::reset << termcolor::cyan << "Press CTRL+D to exit\n      CTRL+H to read the developer's help\n      CTRL+U to read the contract user's help" << termcolor::reset << std::endl << std::endl;
+            std::cout << termcolor::reset << termcolor::cyan << "Press CTRL+D to exit" << termcolor::reset << std::endl << std::endl;
 
             handle_readline(pyint);
         }
