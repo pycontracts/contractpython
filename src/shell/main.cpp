@@ -351,6 +351,8 @@ int usage(char **argv) {
     "-n [N]         : set network type (0=main, 1=testnet, 2=regtest) [default: 0]\n"
     "-m [N]         : memory limit in PAGES (page size is 1MB) [default: 3]\n"
     "\nBlockchain parameters (only used when last parameter is not a contract address):\n\n"
+    "-t [<hash>]    : current txid\n"
+    "                 [default: %s]\n"
     "-b [<hash>]    : current block's hash in hex format\n"
     "                 [default: %s]\n"
     "-B [<hash>]    : previous block's hash in hex format\n"
@@ -363,7 +365,7 @@ int usage(char **argv) {
     "                 [default: %s]\n"
     "-v [N]         : the amount that was sent in this transaction [default: %" PRIu64 "]\n"
     "-V [N]         : the contract's current balance [default: %" PRIu64 "]\n"
-    "\n", argv[0], cow::current_block.c_str(), cow::previous_block.c_str(), cow::current_time, cow::previous_time, cow::sender.c_str(), cow::contract_address.c_str(), cow::value, cow::contract_balance );
+    "\n", argv[0], cow::txid.c_str(), cow::current_block.c_str(), cow::previous_block.c_str(), cow::current_time, cow::previous_time, cow::sender.c_str(), cow::contract_address.c_str(), cow::value, cow::contract_balance );
 
     return 1;
 }
