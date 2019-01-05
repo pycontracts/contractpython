@@ -8,12 +8,7 @@
 #include <iostream>
 #include "args.h"
 
-#ifdef IS_ENCLAVE
 extern void print_program_output(const std::string &str);
-#else
-
-inline void print_program_output(const std::string &str) { std::cout << str; }
-#endif
 
 namespace cow
 {
