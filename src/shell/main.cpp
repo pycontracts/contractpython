@@ -18,7 +18,7 @@
 using namespace cow;
 
 namespace cow {
-extern int DEFAULT_MAXIMUM_HEAP_PAGES;
+extern size_t DEFAULT_MAXIMUM_HEAP_PAGES;
 }
 
 // attribute flags
@@ -89,7 +89,7 @@ printsize(uint32_t size, bool bytes = true)
 
 
 bool unichar_isident(char c) {
-    return c < 128 && ((attr[c] & (FL_ALPHA | FL_DIGIT)) != 0 || c == '_');
+    return c < 128 && ((attr[(int)c] & (FL_ALPHA | FL_DIGIT)) != 0 || c == '_');
 }
 
 
@@ -291,10 +291,6 @@ void handle_readline(Interpreter& pyint) {
 
     rl_bind_key('\t', rl_insert);
     using_history();  /* initialize history */
-    if(rl_bind_keyseq ("C-h", help_generic) != 0){
-        std::cerr << "Could not bind the key sequence for the help texts\n";
-    }
-
 
     for (;;) {
         std::string line = "";
@@ -453,10 +449,6 @@ int main (int argc, char *argv[]) {
             input = argv[argc-1];
         }
 
-        // Shut GetOpt error messages down (return '?'):
-        int opt;
-        opterr = 0;
-
         auto doc = compile_string("");
         Interpreter pyint(doc, mem_manager);
         uint64_t limit = gas;
@@ -465,7 +457,7 @@ int main (int argc, char *argv[]) {
         register_blockchain_module(pyint);
 
         if(input==""){
-            std::cout << termcolor::bold << "\nWelcome to " << __VERSION__ << std::endl;
+            std::cout << termcolor::bold << "\nWelcome to " << __VERSIONSTRING__ << std::endl;
             std::cout << termcolor::reset << termcolor::cyan << "Press CTRL+D to exit" << termcolor::reset << std::endl << std::endl;
 
             handle_readline(pyint);

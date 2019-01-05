@@ -279,10 +279,10 @@ public:
     { return wrap_value(new (mem) FloatVal(mem, m_value)); }
 };
 
-class IntVal : public PlainValue<int32_t, ValueType::Integer>
+class IntVal : public PlainValue<int64_t, ValueType::Integer>
 {
 public:
-    IntVal(MemoryManager &mem, const int32_t &val)
+    IntVal(MemoryManager &mem, const int64_t &val)
         : PlainValue(mem, val) {}
 
     ValuePtr duplicate(MemoryManager &mem) override

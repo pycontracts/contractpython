@@ -8,7 +8,7 @@
 namespace cow
 {
 
-int DEFAULT_MAXIMUM_HEAP_PAGES = 3;
+size_t DEFAULT_MAXIMUM_HEAP_PAGES = 3;
 
 DefaultMemoryManager::DefaultMemoryManager() : m_buffer_pos(0)
 {

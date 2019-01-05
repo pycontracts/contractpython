@@ -56,7 +56,7 @@ public:
     FileBufReader(const std::string & file_name);
     ~FileBufReader() override {}
 
-    bool set_encoding(const std::string & coding) override { return true; }
+    bool set_encoding(const std::string & coding) override { (void)coding; return true; }
     std::string next_line() override;
     std::string get_line(size_t idx) override;
     unsigned get_line_number() const override { return buf_.line(); }

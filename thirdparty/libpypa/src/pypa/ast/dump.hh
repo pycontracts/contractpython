@@ -60,51 +60,63 @@ namespace pypa {
         }
 
         inline void dump_member_value(int depth, String const & v) {
+            (void)depth;
             printf("%s\n", v.c_str());
         }
 
         inline void dump_member_value(int depth, char const * v) {
+            (void)depth;
             printf("RAW BUFFER: %p\n", static_cast<void const*>(v));
         }
 
         inline void dump_member_value(int depth, bool v) {
+            (void)depth;
             printf("%s\n", v ? "True" : "False");
         }
 
         inline void dump_member_value(int depth, int const & v) {
+            (void)depth;
             printf("%d\n", int(v));
         }
 
         inline void dump_member_value(int depth, int64_t const & v) {
+            (void)depth;
             long long int p = v;
             printf("%lld\n", p);
         }
 
         inline void dump_member_value(int depth, double const & v) {
+            (void)depth;
             printf("%g\n", v);
         }
 
         inline void dump_member_value(int depth, AstBoolOpType const & v) {
+            (void)depth;
             printf("%s\n", to_string(v));
         }
 
         inline void dump_member_value(int depth, AstUnaryOpType const & v) {
+            (void)depth;
             printf("%s\n", to_string(v));
         }
 
         inline void dump_member_value(int depth, AstCompareOpType const & v) {
+            (void)depth;
             printf("%s\n", to_string(v));
         }
 
         inline void dump_member_value(int depth, AstBinOpType const & v) {
+            (void)depth;
             printf("%s\n", to_string(v));
         }
 
         inline void dump_member_value(int depth, AstModuleKind const & v) {
+            (void)depth;
             printf("%s\n", to_string(v));
         }
 
         inline void dump_member_value(int depth, AstContext const & v) {
+            (void)depth;
             printf("%s\n", to_string(v));
         }
 

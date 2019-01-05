@@ -45,7 +45,7 @@ public:
         }
 
         if(args.size()<minimum_arguments || args.size()>maximum_arguments){
-            throw std::runtime_error("You did not proved the correct number of arguments to the function");
+            throw std::runtime_error("You did not provide the correct number of arguments to the function");
         }else{
             for(size_t i=0; i < args.size(); ++i){
                 body_scope.set_value(m_args[i], args[i]);

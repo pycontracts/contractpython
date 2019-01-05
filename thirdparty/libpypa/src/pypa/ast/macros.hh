@@ -87,7 +87,7 @@
             if(p) dump(depth, *p);                                                  \
         }                                                                           \
         static void dump(int depth, Ast##TYPEID const & t) {                        \
-            printf("\n");                                                           \
+            printf("\n"); (void)t; (void)depth;                                     \
             pypa::detail::print_padding(depth);                                     \
             printf("[%s]\n", AstIDByType<Ast##TYPEID>::name());
 
@@ -121,7 +121,7 @@
         }                                                                       \
         template<typename T, typename F>                                        \
         static void apply(T t, F f) {                                           \
-            typedef typename AstTypeByID<AstType::TYPEID>::Type Type;           \
+            __attribute__((unused)) typedef typename AstTypeByID<AstType::TYPEID>::Type Type;           \
             if(!f(t)) return;
 
 
