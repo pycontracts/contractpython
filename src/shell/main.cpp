@@ -463,7 +463,6 @@ int main (int argc, char *argv[]) {
         limit /= gasprice;
         pyint.set_execution_step_limit((uint32_t)limit);
         register_blockchain_module(pyint);
-        pyint.execute();
 
         if(input==""){
             std::cout << termcolor::bold << "\nWelcome to " << __VERSION__ << std::endl;
