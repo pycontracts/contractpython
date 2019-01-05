@@ -210,7 +210,10 @@ void Interpreter::load_from_module(Scope &scope, const std::string &mname, const
     scope.set_value(as_name == "" ? name : as_name, module->get_member(name));
 }
 
-uint32_t Interpreter::num_execution_steps() const { return m_num_execution_steps; }
+const uint32_t Interpreter::num_execution_steps() const { return m_num_execution_steps; }
+const uint32_t Interpreter::max_execution_steps() const { return m_execution_step_limit; }
+const uint32_t Interpreter::num_mem() const { return m_mem.get_mem(); }
+const uint32_t Interpreter::max_mem() const { return m_mem.get_max_mem(); }
 
 void Interpreter::set_execution_step_limit(uint32_t limit)
 {

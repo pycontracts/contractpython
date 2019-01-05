@@ -11,6 +11,7 @@ subdir('./thirdparty/libpypa')
 
 subdir('./src/compiler')
 subdir('./src/interpreter')
+subdir('./src/modules')
 subdir('./src/shell')
 subdir('./test')
 
@@ -27,7 +28,7 @@ endif
 
 cpp = meson.get_compiler('cpp')
 
-libcowlang = static_library('libcowlang', [compiler_cpp_files, interpreter_cpp_files], include_directories: [inc_dir_pypy, inc_dirs_global, json_inc, bitstream_local_incdir, pybind_inc], dependencies: [json_dep, pypa_dep], install: true, cpp_args: compile_args, name_prefix: '')
+libcowlang = static_library('libcowlang', [module_cpp_files, compiler_cpp_files, interpreter_cpp_files], include_directories: [inc_dir_pypy, inc_dirs_global, json_inc, bitstream_local_incdir, pybind_inc], dependencies: [json_dep, pypa_dep], install: true, cpp_args: compile_args, name_prefix: '')
 
 cpp = meson.get_compiler('cpp')
 readline = cpp.find_library('readline', required: true)

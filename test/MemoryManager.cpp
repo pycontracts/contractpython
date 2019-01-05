@@ -30,7 +30,7 @@ TEST(MemoryManager, simple_realloc)
     }
 
     EXPECT_EQ(1, sum);
-    
+
     mem.free(ptr);
 }
 
@@ -53,7 +53,7 @@ TEST(MemoryManager, malloc_free)
     }
 
     EXPECT_EQ(1, sum);
-    
+
     mem.free(ptr);
 }
 
@@ -73,7 +73,7 @@ TEST(MemoryManager, malloc_few)
 
     for(uint32_t i = 0; i < NUM; ++i)
     {
-        auto val = reinterpret_cast<uint8_t*>(ptrs[i])[2]; 
+        auto val = reinterpret_cast<uint8_t*>(ptrs[i])[2];
         EXPECT_EQ(i, val);
 
         mem.free(ptrs[i]);
@@ -96,7 +96,7 @@ TEST(MemoryManager, malloc_many)
 
     for(uint32_t i = 0; i < NUM; ++i)
     {
-        auto val = reinterpret_cast<uint8_t*>(ptrs[i])[2]; 
+        auto val = reinterpret_cast<uint8_t*>(ptrs[i])[2];
         EXPECT_EQ(i % 255, val);
         mem.free(ptrs[i]);
     }

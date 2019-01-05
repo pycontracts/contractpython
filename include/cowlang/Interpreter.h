@@ -41,7 +41,11 @@ public:
     void set_list(const std::string& name, const std::vector<std::string> &list);
     void set_string(const std::string& name, const std::string &value);
 
-    uint32_t num_execution_steps() const;
+    const uint32_t num_execution_steps() const;
+    const uint32_t max_execution_steps() const;
+    const uint32_t num_mem() const;
+    const uint32_t max_mem() const;
+
     void set_execution_step_limit(uint32_t limit);
 
     MemoryManager& memory_manager()

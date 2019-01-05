@@ -31,6 +31,10 @@ using TuplePtr = std::shared_ptr<Tuple>;
 using BoolValPtr = std::shared_ptr<BoolVal>;
 using FloatValPtr = std::shared_ptr<FloatVal>;
 
+// Default value for maximum heap memory size -> 512MB!
+// If a program tries to allocate more, it will throw an OutOfMemoryError
+#define DEFAULT_MAXIMUM_HEAP_PAGES 3
+
 /**
  * Interface for memory management
  */
@@ -44,6 +48,8 @@ public:
 
     virtual void* malloc(size_t size) = 0;
     virtual void free(void* ptr) = 0;
+    virtual const uint32_t get_max_mem() = 0;
+    virtual const uint32_t get_mem() = 0;
 
     IntValPtr create_integer(const int32_t value);
     DictionaryPtr create_dictionary();
@@ -54,6 +60,8 @@ public:
     BoolValPtr create_boolean(const bool value);
     ListPtr create_list();
     ValuePtr create_none();
+
+
 };
 
 class DefaultMemoryManager : public MemoryManager
@@ -66,6 +74,9 @@ public:
 
    void* malloc(size_t size) override;
    void free(void* ptr) override;
+
+   const uint32_t get_max_mem() override;
+   const uint32_t get_mem() override;
 
 private:
     void* assign_alloc(size_t page_no, size_t poffset, size_t size);
@@ -96,6 +107,8 @@ public:
 
     void* malloc(size_t sz) override;
     void free(void* ptr) override;
+    const uint32_t get_max_mem() override;
+    const uint32_t get_mem() override;
 };
 
 class Object

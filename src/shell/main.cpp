@@ -10,6 +10,7 @@
 #include "pypa/parser/parser.hh"
 #include "pypa/parser/error.hh"
 #include <unistd.h>
+#include <modules/blockchain_module.h>
 
 #include <termcolor.h>
 #include <helpmessages.h>
@@ -55,6 +56,24 @@ const uint8_t attr[] = {
     AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
     AT_LO, AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0
 };
+
+std::string
+printsize(uint32_t size, bool bytes = true)
+{
+    static const char *SIZES[] = { "B", "K", "M", "G" };
+    size_t div = 0;
+    size_t rem = 0;
+    while (size >= 1024 && div < (sizeof SIZES / sizeof *SIZES)) {
+        rem = (size % 1024);
+        div++;
+        size /= 1024;
+    }
+    char result[1024];
+    sprintf(result,"%.1f%s", (float)size + (float)rem / 1024.0, (div==0 && !bytes)?"":SIZES[div]);
+    return result;
+}
+
+
 
 bool unichar_isident(char c) {
     return c < 128 && ((attr[c] & (FL_ALPHA | FL_DIGIT)) != 0 || c == '_');
@@ -242,7 +261,14 @@ std::string get_prompt(const char* prompt){
 }
 
 void print_instruction_limit(Interpreter& pyint){
-    std::cout << termcolor::on_grey << termcolor::yellow << termcolor::bold << "[instruction limit: 51K] " << termcolor::reset;
+    const uint32_t current_ins = pyint.num_execution_steps();
+    const uint32_t max_ins = pyint.max_execution_steps();;
+    const uint32_t current_mem = pyint.num_mem();
+    const uint32_t max_mem = pyint.max_mem();
+
+    std::cout << termcolor::on_grey << termcolor::yellow << termcolor::bold << "limits: " << "["
+              << termcolor::magenta << "instruction limit: " << printsize(current_ins, false) << " / " << printsize(max_ins, false) << termcolor::yellow
+              << " | " << termcolor::blue << "memory used " << printsize(current_mem) << " / " << printsize(max_mem) << " " << termcolor::yellow << "] " << termcolor::reset << std::endl;
 }
 
 void handle_readline(Interpreter& pyint) {
@@ -340,6 +366,7 @@ int main (int argc, char *argv[]) {
 
         auto doc = compile_string("");
         Interpreter pyint(doc, mem_manager);
+        register_blockchain_module(pyint);
         pyint.execute();
 
         if(input==""){
