@@ -17,6 +17,10 @@
 
 using namespace cow;
 
+namespace cow {
+extern int DEFAULT_MAXIMUM_HEAP_PAGES;
+}
+
 // attribute flags
 #define FL_PRINT (0x01)
 #define FL_SPACE (0x02)
@@ -56,6 +60,15 @@ const uint8_t attr[] = {
     AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
     AT_LO, AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0
 };
+
+// Command line parsing
+bool only_compile = false;
+enum net_type {MAIN, TEST, REGTEST};
+net_type net = MAIN;
+uint32_t gas = 5000000;
+uint32_t gasprice = 100;
+uint32_t pagelimit = DEFAULT_MAXIMUM_HEAP_PAGES;
+
 
 std::string
 printsize(uint32_t size, bool bytes = true)
@@ -211,6 +224,19 @@ void handle_error(pypa::Error e){
 }
 std::function<void(pypa::Error)> err_func(handle_error);
 
+
+void print_instruction_limit(Interpreter& pyint){
+    const uint32_t current_ins = pyint.num_execution_steps();
+    const uint32_t max_ins = pyint.max_execution_steps();;
+    const uint32_t current_mem = pyint.num_mem();
+    const uint32_t max_mem = pyint.max_mem();
+
+    std::cout << termcolor::on_grey << termcolor::yellow << termcolor::bold << "limits: " << "["
+              << termcolor::magenta << "instruction limit: " << printsize(current_ins, false) << " / " << printsize(max_ins, false) << termcolor::yellow
+              << " | " << termcolor::blue << "memory used " << printsize(current_mem) << " / " << printsize(max_mem) << " " << termcolor::yellow << "] " << termcolor::reset << std::endl;
+}
+
+
 void handle_src_file(std::string& filename, Interpreter& pyint){
     HANDLE_WITH_FULL_HEADER = 1;
     try {
@@ -233,6 +259,7 @@ void handle_src_file(std::string& filename, Interpreter& pyint){
 
         error_buffer.str("");
     }
+    print_instruction_limit(pyint);
 }
 
 void compile_src_file(std::string& filename){
@@ -258,17 +285,6 @@ void compile_src_file(std::string& filename){
 
 std::string get_prompt(const char* prompt){
     return prompt;
-}
-
-void print_instruction_limit(Interpreter& pyint){
-    const uint32_t current_ins = pyint.num_execution_steps();
-    const uint32_t max_ins = pyint.max_execution_steps();;
-    const uint32_t current_mem = pyint.num_mem();
-    const uint32_t max_mem = pyint.max_mem();
-
-    std::cout << termcolor::on_grey << termcolor::yellow << termcolor::bold << "limits: " << "["
-              << termcolor::magenta << "instruction limit: " << printsize(current_ins, false) << " / " << printsize(max_ins, false) << termcolor::yellow
-              << " | " << termcolor::blue << "memory used " << printsize(current_mem) << " / " << printsize(max_mem) << " " << termcolor::yellow << "] " << termcolor::reset << std::endl;
 }
 
 void handle_readline(Interpreter& pyint) {
@@ -329,6 +345,43 @@ void handle_readline(Interpreter& pyint) {
 
 }
 
+int usage(char **argv) {
+    printf(
+    "usage: %s [<opts>] [<filename> | <contract address> | <empty>]\n"
+    "Options:\n"
+    "-g[N] : add N gas to the engine [default: 5000000]\n"
+    "-p[N] : set gasprice, maximum instructions will be gas / gasprice [default: 100]\n"
+    "-n[N] : set network type (0=main, 1=testnet, 2=regtest) [default: 0]\n"
+    "-m[N] : memory limit in PAGES (page size is 1MB) [default: 3]\n"
+    "\n"
+    "Implementation specific options (-X):\n", argv[0]);
+
+    return 1;
+}
+
+void pre_process_options(int argc, char **argv) {
+    for (int a = 1; a < argc; a++) {
+        if (argv[a][0] == '-') {
+            if (strcmp(argv[a], "-g") == 0) {
+                gas = atoi(argv[a + 1]);
+            } else if (strcmp(argv[a], "-p") == 0) {
+                gasprice = atoi(argv[a + 1]);
+            } else if (strcmp(argv[a], "-n") == 0) {
+                uint32_t _net = atoi(argv[a + 1]);
+                if(_net > 2){
+                    exit(usage(argv));
+                }
+                if(net == 0) net = MAIN;
+                if(net == 1) net = TEST;
+                if(net == 2) net = REGTEST;
+            } else if (strcmp(argv[a], "-m") == 0) {
+                pagelimit = atoi(argv[a + 1]);
+                DEFAULT_MAXIMUM_HEAP_PAGES = pagelimit;
+            }
+        }
+    }
+}
+
 int main (int argc, char *argv[]) {
 
     // scoped block for proper garbage collection
@@ -337,8 +390,8 @@ int main (int argc, char *argv[]) {
         // this basically is a virtual, size-limited heap
         DefaultMemoryManager mem_manager;
 
-        // Command line parsing
-        bool only_compile = false;
+        // parte options
+        pre_process_options(argc, argv);
 
         // Retrieve the (non-option) argument:
         std::string input = "";
@@ -366,6 +419,9 @@ int main (int argc, char *argv[]) {
 
         auto doc = compile_string("");
         Interpreter pyint(doc, mem_manager);
+        uint64_t limit = gas;
+        limit /= gasprice;
+        pyint.set_execution_step_limit((uint32_t)limit);
         register_blockchain_module(pyint);
         pyint.execute();
 
@@ -378,8 +434,9 @@ int main (int argc, char *argv[]) {
         else{
             if(only_compile)
                 compile_src_file(input);
-            else
+            else {
                 handle_src_file(input, pyint);
+            }
         }
 
 

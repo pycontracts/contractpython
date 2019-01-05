@@ -33,7 +33,7 @@ using FloatValPtr = std::shared_ptr<FloatVal>;
 
 // Default value for maximum heap memory size -> 512MB!
 // If a program tries to allocate more, it will throw an OutOfMemoryError
-#define DEFAULT_MAXIMUM_HEAP_PAGES 3
+extern int DEFAULT_MAXIMUM_HEAP_PAGES;
 
 /**
  * Interface for memory management

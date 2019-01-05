@@ -1,6 +1,7 @@
 #include <cowlang/Object.h>
 #include <gtest/gtest.h>
 
+
 namespace cow
 {
 

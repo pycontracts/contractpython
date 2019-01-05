@@ -8,6 +8,8 @@
 namespace cow
 {
 
+int DEFAULT_MAXIMUM_HEAP_PAGES = 3;
+
 DefaultMemoryManager::DefaultMemoryManager() : m_buffer_pos(0)
 {
     uint8_t* buffer = (uint8_t*)::malloc(PAGE_SIZE);

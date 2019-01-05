@@ -29,7 +29,7 @@ public:
 
     uint32_t get_line_number() const override { return m_line_pos; }
 
-    std::string get_line(size_t idx) override { return m_code[idx]; }
+    std::string get_line(size_t idx) override { if(m_code.size()-1 < idx) throw std::runtime_error("mailicious input"); return m_code[idx]; }
 
     std::string next_line() override
     {
