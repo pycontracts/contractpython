@@ -9,6 +9,7 @@
 #include "Tuple.h"
 #include "Scope.h"
 #include "Dictionary.h"
+extern bool devmode;
 
 namespace cow
 {

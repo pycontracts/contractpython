@@ -21,7 +21,9 @@ enum class BuiltinType
     Min,
     Max,
     Print,
-    Length
+    Length,
+    Clear,
+    ClearLimits,
 };
 
 class Builtin : public Callable
@@ -151,6 +153,19 @@ public:
             auto arg = args[0];
             check_is_string(arg);
             print_program_output(value_cast<StringVal>(arg)->get() + "\n");
+        }
+        else if(m_type == BuiltinType::Clear)
+        {
+            if(!devmode) throw std::runtime_error("you are trying to call restricted functions");
+
+            print_program_output("The entire scratch sheet has been reset"\n");
+        }
+        else if(m_type == BuiltinType::ClearLimits)
+        {
+            if(!devmode) throw std::runtime_error("you are trying to call restricted functions");
+
+            print_program_output("The instruction limits have been reset"\n");
+
         }
         else
         {

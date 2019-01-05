@@ -10,6 +10,8 @@
 #include "RangeIterator.h"
 #include "modules/modules.h"
 
+bool devmode = false;
+
 namespace cow
 {
 
