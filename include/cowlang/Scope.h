@@ -20,6 +20,8 @@ public:
     static constexpr const char* BUILTIN_STR_LENGTH = "len";
     static constexpr const char* BUILTIN_STR_MAX = "max";
     static constexpr const char* BUILTIN_STR_MIN = "min";
+    static constexpr const char* BUILTIN_STR_CLEAR = "clear";
+    static constexpr const char* BUILTIN_STR_CLEARLIMITS = "clearlimits";
 
     Scope(MemoryManager &mem) : Object(mem), m_parent(nullptr) {}
     Scope(MemoryManager &mem, Scope &parent) : Object(mem), m_parent(&parent) {}

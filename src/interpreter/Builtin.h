@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RangeIterator.h"
+#include <cowlang/cow.h>
 
 #include <cowlang/Value.h>
 #include <cowlang/unpack.h>
@@ -22,8 +23,6 @@ enum class BuiltinType
     Max,
     Print,
     Length,
-    Clear,
-    ClearLimits,
 };
 
 class Builtin : public Callable
@@ -147,25 +146,26 @@ public:
         }
         else if(m_type == BuiltinType::Print)
         {
+            check_num_minargs(args, 1);
+            for(size_t i = 0; i<args.size(); ++i) {
+                std::string prefix = "";
+                if( i > 0 ) prefix = " ";
 
-            // TODO: maybe support more sophisticated "vararg" shit
-            check_num_args(args, 1);
-            auto arg = args[0];
-            check_is_string(arg);
-            print_program_output(value_cast<StringVal>(arg)->get() + "\n");
-        }
-        else if(m_type == BuiltinType::Clear)
-        {
-            if(!devmode) throw std::runtime_error("you are trying to call restricted functions");
-
-            print_program_output("The entire scratch sheet has been reset"\n");
-        }
-        else if(m_type == BuiltinType::ClearLimits)
-        {
-            if(!devmode) throw std::runtime_error("you are trying to call restricted functions");
-
-            print_program_output("The instruction limits have been reset"\n");
-
+                auto arg = args[i];
+                if(relaxed_check_is_string(arg))
+                    print_program_output(prefix + value_cast<StringVal>(arg)->get());
+                else {
+                    if(!arg)
+                    {
+                        print_program_output(prefix + value_cast<StringVal>(memory_manager().create_string("None"))->get());
+                    }
+                    else
+                    {
+                        print_program_output(prefix + value_cast<StringVal>(memory_manager().create_string(arg->str()))->get());
+                    }
+                }
+            }
+            print_program_output("\n");
         }
         else
         {

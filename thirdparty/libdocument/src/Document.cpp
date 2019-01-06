@@ -57,12 +57,6 @@ inline void skip_child(bitstream &view)
     }
 }
 
-#ifndef IS_ENCLAVE
-Document::Document(std::ifstream &file)
-{
-    m_content << file;
-}
-#endif
 
 Document::Document(const std::string &str)
 {

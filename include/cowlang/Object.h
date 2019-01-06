@@ -109,6 +109,7 @@ public:
     void free(void* ptr) override;
     const uint32_t get_max_mem() override;
     const uint32_t get_mem() override;
+
 };
 
 class Object
@@ -132,6 +133,7 @@ public:
     {
         return m_mem;
     }
+
 
 protected:
     Object(MemoryManager &mem)

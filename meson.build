@@ -8,6 +8,8 @@ subdir('./thirdparty/bitstream')
 subdir('./thirdparty/libdocument')
 subdir('./thirdparty/pybind11')
 subdir('./thirdparty/libpypa')
+subdir('./thirdparty/snappy')
+subdir('./thirdparty/snappystream')
 
 subdir('./src/compiler')
 subdir('./src/interpreter')
@@ -28,7 +30,7 @@ endif
 
 cpp = meson.get_compiler('cpp')
 
-libcowlang = static_library('libcowlang', [module_cpp_files, compiler_cpp_files, interpreter_cpp_files], include_directories: [inc_dir_pypy, inc_dirs_global, json_inc, bitstream_local_incdir, pybind_inc], dependencies: [json_dep, pypa_dep], install: true, cpp_args: compile_args, name_prefix: '')
+libcowlang = static_library('libcowlang', [module_cpp_files, compiler_cpp_files, interpreter_cpp_files], include_directories: [inc_dir_pypy, inc_dirs_global, json_inc, bitstream_local_incdir, pybind_inc, inc_dir_snappy, inc_dir_snappystr], dependencies: [json_dep, pypa_dep], install: true, cpp_args: compile_args, name_prefix: '')
 
 cpp = meson.get_compiler('cpp')
 readline = cpp.find_library('readline', required: true)
@@ -41,7 +43,7 @@ tests = executable('cowlang-test', test_cpp_files, dependencies: [gtest, json_de
 clang_tidy_checks = '-hicpp-signed-bitwise,-readability-implicit-bool-conversion,-cppcoreguidelines-pro-*,-clang-diagnostic*,-llvm-include-order'
 
 # Now, build the command line interpreter
-contractpython = executable('contractpython', shell_cpp_files, dependencies: [gtest, json_dep, pypa_dep, readline], link_with: [libcowlang], include_directories: [inc_dir_pypy, inc_dirs_global, json_inc, bitstream_local_incdir, pybind_inc])
+contractpython = executable('contractpython', shell_cpp_files, dependencies: [gtest, json_dep, pypa_dep, readline], link_with: [libcowlang, snappy_lib], include_directories: [inc_dir_pypy, inc_dirs_global, json_inc, bitstream_local_incdir, pybind_inc, inc_dir_snappy, inc_dir_snappystr])
 
 # NOTE: gtest on ubuntu still uses deprecated functions so we can't lint the test files yet
 clangtidy = find_program('clang-tidy', required: false)

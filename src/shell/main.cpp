@@ -346,6 +346,7 @@ int usage(char **argv) {
     printf(
     "usage: %s [<opts>] [<filename> | <contract address> | <empty>]\n"
     "\nOptions:\n\n"
+    "-x             : compile python file into bitstream\n"
     "-g [N]         : add N gas to the engine [default: 5000000]\n"
     "-G [N]         : set gasprice, maximum instructions will be gas / gasprice [default: 100]\n"
     "-n [N]         : set network type (0=main, 1=testnet, 2=regtest) [default: 0]\n"
@@ -381,6 +382,9 @@ int pre_process_options(int argc, char **argv) {
             else if (strcmp(argv[a], "-b") == 0) {
                 cow::current_block = argv[a + 1];
                 skip++;
+            }
+            else if (strcmp(argv[a], "-x") == 0) {
+                only_compile = true;
             }
             else if (strcmp(argv[a], "-B") == 0) {
                 cow::previous_block = argv[a + 1];
@@ -436,6 +440,11 @@ int main (int argc, char *argv[]) {
 
     // scoped block for proper garbage collection
     {
+
+        // activate devmode, e.g., certain interactive features like Clear() and ClearLimits()
+        devmode = true;
+        contractmode = false; // special flag if using the "contract interaction shell"
+
         // initialize default mem mem_manager
         // this basically is a virtual, size-limited heap
         DefaultMemoryManager mem_manager;

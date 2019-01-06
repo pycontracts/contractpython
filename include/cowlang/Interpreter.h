@@ -10,6 +10,7 @@
 #include "Scope.h"
 #include "Dictionary.h"
 extern bool devmode;
+extern bool contractmode;
 
 namespace cow
 {

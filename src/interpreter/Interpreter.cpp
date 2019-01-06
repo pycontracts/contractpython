@@ -11,6 +11,7 @@
 #include "modules/modules.h"
 
 bool devmode = false;
+bool contractmode = false;
 
 namespace cow
 {

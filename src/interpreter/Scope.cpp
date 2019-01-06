@@ -81,6 +81,7 @@ ValuePtr Scope::get_value(const std::string &name)
     {
         val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::Max);
     }
+    
 
     if(val)
     {
