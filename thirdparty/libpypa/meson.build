@@ -1,4 +1,4 @@
-inc_dir_pypy = include_directories('src/', '../bitstream/include','../libdocument/include')
+inc_dir_pypy = include_directories('src/')
 
 compile_args = ['-std=c++17', '-Wextra', '-Wno-implicit-exception-spec-mismatch'] # Remove me once clang issue is fixed in SGX SDK
 
@@ -26,6 +26,5 @@ cpp_files = files(
                  'src/double-conversion/src/strtod.cc',
                  'src/double-conversion/src/bignum.cc')
 
-pypa = static_library('pypa', cpp_files, dependencies: [gmp_dep], include_directories: inc_dir_pypy, install: false, cpp_args: compile_args)
+pypa = static_library('pypa', cpp_files, dependencies: [gmp_dep], include_directories: [inc_dir_pypy,inc_dir_snappy,inc_dirs_global], install: false, cpp_args: compile_args)
 pypa_dep = declare_dependency(link_with: pypa)
-

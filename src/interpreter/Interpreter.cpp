@@ -1,14 +1,14 @@
+#include "RangeIterator.h"
+#include "modules/modules.h"
+#include <cowlang/Callable.h>
+#include <cowlang/CallableVMFunction.h>
+#include <cowlang/Dictionary.h>
+#include <cowlang/InterpreterTypes.h>
+#include <cowlang/Scope.h>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
-#include <iostream>
-#include <cowlang/Interpreter.h>
-#include <cowlang/Dictionary.h>
-#include <cowlang/Scope.h>
-#include <cowlang/Callable.h>
-#include <cowlang/CallableVMFunction.h>
-#include "RangeIterator.h"
-#include "modules/modules.h"
 
 bool devmode = false;
 bool contractmode = false;
@@ -16,74 +16,29 @@ bool contractmode = false;
 namespace cow
 {
 
-enum class CompareOpType
-{
-    Undefined,
-    Equals,
-    In,
-    Is,
-    IsNot,
-    Less,
-    LessEqual,
-    More,
-    MoreEqual,
-    NotEqual,
-    NotIn,
-};
-
-enum class BoolOpType
-{
-    Undefined,
-    And,
-    Or
-};
-
-enum class BinaryOpType
-{
-    Undefined,
-    Add,
-    BitAnd,
-    BitOr,
-    BitXor,
-    Div,
-    FloorDiv,
-    LeftShift,
-    Mod,
-    Mult,
-    Power,
-    RightShift,
-    Sub
-};
-
-enum class UnaryOpType
-{
-    Undefined,
-    Add,
-    Invert,
-    Not,
-    Sub,
-};
 
 Interpreter::Interpreter(const bitstream &data, MemoryManager &mem)
-: m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0)
+: m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0), m_data(data)
 {
     do_not_free_scope = false;
     m_global_scope = new(memory_manager()) Scope(memory_manager());
-    m_data.assign(data.data(), data.size(), true);
 }
 
-Interpreter::Interpreter(const bitstream &data, MemoryManager &mem, Interpreter& scope_borrower)
-: m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0)
+Interpreter::Interpreter(const bitstream &data, MemoryManager &mem, Interpreter &scope_borrower)
+: m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0), m_data(data)
 {
     do_not_free_scope = true;
     m_global_scope = scope_borrower.m_global_scope;
-    m_data.assign(data.data(), data.size(), true);
 }
 
-Interpreter::~Interpreter() { if(!do_not_free_scope) delete m_global_scope; }
+Interpreter::~Interpreter()
+{
+    if(!do_not_free_scope)
+        delete m_global_scope;
+}
 
 
-ValuePtr Interpreter::read_function_stub(Interpreter& inti)
+ValuePtr Interpreter::read_function_stub(Interpreter &inti)
 {
 
     LoopState dummy_loop_state = LoopState::None;
@@ -107,14 +62,15 @@ ValuePtr Interpreter::read_function_stub(Interpreter& inti)
 
         for(uint32_t i = 0; i < num_args; ++i)
         {
-            //auto arg = execute_next(scope, dummy_loop_state);
-            //args.push_back(arg);
+            // auto arg = execute_next(scope, dummy_loop_state);
+            // args.push_back(arg);
             auto arg = read_name();
             args.push_back(arg);
         }
 
         m_data >> type;
-        if(type != NodeType::FunctionStartDefaults) {
+        if(type != NodeType::FunctionStartDefaults)
+        {
             throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
         }
 
@@ -122,7 +78,8 @@ ValuePtr Interpreter::read_function_stub(Interpreter& inti)
         uint32_t num_defaults = 0;
         m_data >> num_defaults;
 
-        if(num_defaults != num_args) {
+        if(num_defaults != num_args)
+        {
             throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
         }
 
@@ -130,47 +87,45 @@ ValuePtr Interpreter::read_function_stub(Interpreter& inti)
         for(uint32_t i = 0; i < num_defaults; ++i)
         {
             auto arg = execute_next(inti.get_scope(), dummy_loop_state);
-            if(arg != nullptr) non_standard = true;
-            if(arg == nullptr && non_standard){
+            if(arg != nullptr)
+                non_standard = true;
+            if(arg == nullptr && non_standard)
+            {
                 throw std::runtime_error("Non-default argument follows default argument");
             }
             defaults.push_back(arg);
         }
 
         m_data >> type;
-        if(type != NodeType::FunctionStartStub) {
+        if(type != NodeType::FunctionStartStub)
+        {
             throw std::runtime_error("Stop hacking the bytecode, you pathetic little worm!");
         }
 
-        // do we deal with scriptkiddies?
-        // We better be safe than sorry, you can do a lot of bad stuff when you smash the stack
 
-        if(m_data.remaining_size()<total_stub_len){
-            throw std::runtime_error("Are you kidding me, you stupid script kiddy? [stub smashing]");
-        }
-
-        bitstream innerfunction(m_data.current(), total_stub_len);
-
-        // we skip the stub, and we expect to find the FunctionEnd marker
-        if(!m_data.move_to(m_data.pos() + total_stub_len, false)){
-            throw std::runtime_error("Are you kidding me, you stupid script kiddy? [stub smashing checks]");
-        }
+        std::string stub = m_data.Read(total_stub_len);
+        bitstream innerfunction(stub);
 
         m_data >> type;
 
-        if(type != NodeType::FunctionEnd){
-            throw std::runtime_error("Are you kidding me, you stupid script kiddy? [wrong type order]");
+        if(type != NodeType::FunctionEnd)
+        {
+            throw std::runtime_error(
+            "Are you kidding me, you stupid script kiddy? [wrong type order]");
         }
 
-        ValuePtr pcl = wrap_value<CallableVMFunction>(new(memory_manager()) CallableVMFunction(memory_manager(), innerfunction, args, defaults));
+        ValuePtr pcl = wrap_value<CallableVMFunction>(
+        new(memory_manager()) CallableVMFunction(memory_manager(), innerfunction, args, defaults));
         return pcl;
     }
     else
         throw std::runtime_error("Are you kidding me, you stupid script kiddy? [coder is insane]");
 }
 
-void Interpreter::re_assign_bitstream(const bitstream &data) {
-    m_data.assign(data.data(), data.size(), true);
+void Interpreter::re_assign_bitstream(const bitstream &data)
+{
+    const std::string raw = data.store();
+    m_data.assign((uint8_t *)raw.data(), raw.size());
 }
 
 ModulePtr Interpreter::get_module(const std::string &name)
@@ -247,7 +202,8 @@ ValuePtr Interpreter::execute()
     return val;
 }
 
-ValuePtr Interpreter::execute_in_scope(Scope &scope){
+ValuePtr Interpreter::execute_in_scope(Scope &scope)
+{
     LoopState loop_state = LoopState::None;
     ValuePtr val = execute_next(scope, loop_state);
     return val;
@@ -260,7 +216,6 @@ std::vector<std::string> Interpreter::read_names()
 
     NodeType type;
     m_data >> type;
-
     if(type == NodeType::Name)
     {
         std::string str;
@@ -285,7 +240,7 @@ std::vector<std::string> Interpreter::read_names()
         result.push_back(read_name());
     }
     else
-        throw std::runtime_error("Not a valid name");
+        throw std::runtime_error("Not a valid name [m]");
 
     return result;
 }
@@ -294,7 +249,6 @@ std::string Interpreter::read_name()
 {
     NodeType type;
     m_data >> type;
-
     if(type == NodeType::Name)
     {
         std::string str;
@@ -466,7 +420,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         uint32_t size = 0;
         m_data >> size;
-        for(uint32_t i = 0; i < size; ++i){
+        for(uint32_t i = 0; i < size; ++i)
+        {
             auto name = read_name();
             scope.set_global_tag(name);
         }

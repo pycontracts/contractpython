@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include <unordered_map>
 
 #include "List.h"
@@ -12,16 +13,16 @@ namespace cow
 class Scope : public Object
 {
 public:
-    static constexpr const char* BUILTIN_STR_NONE = "None";
-    static constexpr const char* BUILTIN_STR_RANGE = "range";
-    static constexpr const char* BUILTIN_STR_MAKE_INT = "int";
-    static constexpr const char* BUILTIN_STR_MAKE_STR = "str";
-    static constexpr const char* BUILTIN_STR_PRINT = "print";
-    static constexpr const char* BUILTIN_STR_LENGTH = "len";
-    static constexpr const char* BUILTIN_STR_MAX = "max";
-    static constexpr const char* BUILTIN_STR_MIN = "min";
-    static constexpr const char* BUILTIN_STR_CLEAR = "clear";
-    static constexpr const char* BUILTIN_STR_CLEARLIMITS = "clearlimits";
+    static constexpr const char *BUILTIN_STR_NONE = "None";
+    static constexpr const char *BUILTIN_STR_RANGE = "range";
+    static constexpr const char *BUILTIN_STR_MAKE_INT = "int";
+    static constexpr const char *BUILTIN_STR_MAKE_STR = "str";
+    static constexpr const char *BUILTIN_STR_PRINT = "print";
+    static constexpr const char *BUILTIN_STR_LENGTH = "len";
+    static constexpr const char *BUILTIN_STR_MAX = "max";
+    static constexpr const char *BUILTIN_STR_MIN = "min";
+    static constexpr const char *BUILTIN_STR_CLEAR = "clear";
+    static constexpr const char *BUILTIN_STR_CLEARLIMITS = "clearlimits";
 
     Scope(MemoryManager &mem) : Object(mem), m_parent(nullptr) {}
     Scope(MemoryManager &mem, Scope &parent) : Object(mem), m_parent(&parent) {}
@@ -44,4 +45,4 @@ private:
     std::set<std::string> m_global_tags;
 };
 
-}
+} // namespace cow

@@ -2,8 +2,8 @@
 
 #include "Geo.h"
 
-#include <cowlang/unpack.h>
 #include "geo/vector2.h"
+#include <cowlang/unpack.h>
 
 using namespace cow;
 
@@ -16,20 +16,18 @@ ValuePtr GeoModule::get_member(const std::string &name)
 
     if(name == "vector2")
     {
-        return make_value<Function>(mem,
-                [&mem](const std::vector<ValuePtr> &args) -> ValuePtr
-                {
-                    if(args.size() != 2)
-                    {
-                        throw std::runtime_error("invalid number of arguments");
-                    }
+        return make_value<Function>(mem, [&mem](const std::vector<ValuePtr> &args) -> ValuePtr {
+            if(args.size() != 2)
+            {
+                throw std::runtime_error("invalid number of arguments");
+            }
 
-                    auto x = unpack_float(args[0]);
-                    auto y = unpack_float(args[1]); 
-                    geo::vector2d vec(x,y);
+            auto x = unpack_float(args[0]);
+            auto y = unpack_float(args[1]);
+            geo::vector2d vec(x, y);
 
-                    return make_value<cow::vector2>(mem, vec);
-                });
+            return make_value<cow::vector2>(mem, vec);
+        });
     }
     else
     {
@@ -37,6 +35,6 @@ ValuePtr GeoModule::get_member(const std::string &name)
     }
 }
 
-}
+} // namespace cow
 
 #endif

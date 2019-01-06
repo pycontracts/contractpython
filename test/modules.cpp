@@ -19,9 +19,8 @@ public:
     {
         auto &mem = memory_manager();
 
-        return make_value<Function>(mem,
-              [&](const std::vector<ValuePtr> &args) -> ValuePtr {
-                    return wrap_value(new (mem) IntVal(mem, 42));
+        return make_value<Function>(mem, [&](const std::vector<ValuePtr> &args) -> ValuePtr {
+            return wrap_value(new(mem) IntVal(mem, 42));
         });
     }
 };
@@ -35,29 +34,27 @@ public:
     {
         auto &mem = memory_manager();
 
-        return make_value<Function>(mem, 
-              [&](const std::vector<ValuePtr> &args) -> ValuePtr {
-                  auto i = value_cast<IntVal>(args[0]);
-                  return wrap_value(new (mem) IntVal(mem,i->get() * 2));
+        return make_value<Function>(mem, [&](const std::vector<ValuePtr> &args) -> ValuePtr {
+            auto i = value_cast<IntVal>(args[0]);
+            return wrap_value(new(mem) IntVal(mem, i->get() * 2));
         });
     }
 };
 
 TEST(ModuleTest, call_cpp_with_argument)
 {
-    const std::string code =
-            "from foo import double\n"
-            "f = double(21)\n"
-            "if f == 42:\n"
-            "	return True\n"
-            "else:\n"
-            "	return False";
+    const std::string code = "from foo import double\n"
+                             "f = double(21)\n"
+                             "if f == 42:\n"
+                             "	return True\n"
+                             "else:\n"
+                             "	return False";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
     Interpreter pyint(doc, mem);
 
-    auto v = wrap_value(new (pyint.memory_manager()) Foo2Obj(pyint.memory_manager()));
+    auto v = wrap_value(new(pyint.memory_manager()) Foo2Obj(pyint.memory_manager()));
     pyint.set_module("foo", v);
 
     auto res = pyint.execute();
@@ -66,23 +63,20 @@ TEST(ModuleTest, call_cpp_with_argument)
 
 TEST(ModuleTest, call_cpp)
 {
-    const std::string code =
-            "import foo\n"
-            "f = foo.get()\n"
-            "if f == 42:\n"
-            "	return True\n"
-            "else:\n"
-            "	return False";
+    const std::string code = "import foo\n"
+                             "f = foo.get()\n"
+                             "if f == 42:\n"
+                             "	return True\n"
+                             "else:\n"
+                             "	return False";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
     Interpreter pyint(doc, mem);
-    
-    auto v = wrap_value(new (pyint.memory_manager()) FooObj(pyint.memory_manager()));
+
+    auto v = wrap_value(new(pyint.memory_manager()) FooObj(pyint.memory_manager()));
     pyint.set_module("foo", v);
 
     auto res = pyint.execute();
     EXPECT_TRUE(unpack_bool(res));
 }
-
-

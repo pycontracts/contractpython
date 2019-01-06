@@ -1,15 +1,13 @@
+#include "Builtin.h"
 #include <cowlang/Dictionary.h>
 #include <cowlang/List.h>
 #include <cowlang/Scope.h>
 #include <cowlang/Value.h>
-#include "Builtin.h"
 
 namespace cow
 {
 
-void Scope::set_global_tag(const std::string &name){
-    m_global_tags.insert(name);
-}
+void Scope::set_global_tag(const std::string &name) { m_global_tags.insert(name); }
 
 void Scope::set_value(const std::string &name, ValuePtr value)
 {
@@ -18,7 +16,7 @@ void Scope::set_value(const std::string &name, ValuePtr value)
         m_parent->set_value(name, value);
         return;
     }
-    if(m_require_global && m_global_tags.find(name)!=m_global_tags.end() && m_parent)
+    if(m_require_global && m_global_tags.find(name) != m_global_tags.end() && m_parent)
     {
         m_parent->set_value(name, value);
         return;
@@ -81,7 +79,7 @@ ValuePtr Scope::get_value(const std::string &name)
     {
         val = new(memory_manager()) Builtin(memory_manager(), BuiltinType::Max);
     }
-    
+
 
     if(val)
     {

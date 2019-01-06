@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Value.h"
-#include "Iterator.h"
 #include "Callable.h"
+#include "Iterator.h"
 #include "Scope.h"
+#include "Value.h"
 
 namespace cow
 {
@@ -25,19 +25,14 @@ private:
     std::map<std::string, ValuePtr>::iterator m_it;
 };
 
-class DictItems : public Callable //public IterateableValue, public Callable
+class DictItems : public Callable // public IterateableValue, public Callable
 {
 public:
-   DictItems(MemoryManager &mem, Dictionary &dict)
-        : Callable(mem), m_dict(dict)
-    {}
+    DictItems(MemoryManager &mem, Dictionary &dict) : Callable(mem), m_dict(dict) {}
 
-    ValueType type() const override
-    {
-        return ValueType::DictItems;
-    }
+    ValueType type() const override { return ValueType::DictItems; }
 
-    ValuePtr call(const std::vector<ValuePtr>& args, Scope& scope) override
+    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope) override
     {
         if(args.size() != 0)
             throw std::runtime_error("invalid number of arguments");
@@ -49,7 +44,7 @@ public:
 
     IteratorPtr iterate();
 
-//    uint32_t size() const override;
+    //    uint32_t size() const override;
 
 private:
     Dictionary &m_dict;
@@ -74,9 +69,7 @@ private:
 class Dictionary : public IterateableValue
 {
 public:
-    Dictionary(MemoryManager &mem)
-        : IterateableValue(mem)
-    {}
+    Dictionary(MemoryManager &mem) : IterateableValue(mem) {}
 
     IteratorPtr iterate() override;
 
@@ -104,12 +97,12 @@ public:
 
     ValuePtr duplicate(MemoryManager &mem) override;
 
-    std::map<std::string, ValuePtr>& elements();
+    std::map<std::string, ValuePtr> &elements();
 
-    const std::map<std::string, ValuePtr>& elements() const;
+    const std::map<std::string, ValuePtr> &elements() const;
 
 private:
     std::map<std::string, ValuePtr> m_elements;
 };
 
-}
+} // namespace cow

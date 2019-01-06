@@ -11,7 +11,7 @@ typedef std::shared_ptr<List> ListPtr;
 class ListIterator : public Generator
 {
 public:
-    ListIterator(MemoryManager& mem, List &list);
+    ListIterator(MemoryManager &mem, List &list);
 
     ValuePtr next() override;
 
@@ -25,9 +25,7 @@ private:
 class List : public IterateableValue
 {
 public:
-    List(MemoryManager &mem)
-        : IterateableValue(mem)
-    {}
+    List(MemoryManager &mem) : IterateableValue(mem) {}
 
     IteratorPtr iterate() override;
 
@@ -47,10 +45,10 @@ public:
 
     void append(ValuePtr val);
 
-    const std::vector<ValuePtr>& elements() const;
+    const std::vector<ValuePtr> &elements() const;
 
 private:
     std::vector<ValuePtr> m_elements;
 };
 
-}
+} // namespace cow

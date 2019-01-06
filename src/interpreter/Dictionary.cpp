@@ -32,10 +32,7 @@ DictKeyIterator::DictKeyIterator(MemoryManager &mem, Dictionary &dict)
 {
 }
 
-DictItemsPtr Dictionary::items()
-{
-    return make_value<DictItems>(memory_manager(), *this);
-}
+DictItemsPtr Dictionary::items() { return make_value<DictItems>(memory_manager(), *this); }
 
 ValuePtr DictKeyIterator::next()
 {

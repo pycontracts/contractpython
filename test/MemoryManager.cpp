@@ -18,7 +18,7 @@ TEST(MemoryManager, simple_realloc)
     mem.free(ptr);
     ptr = mem.malloc(size);
 
-    auto buf = reinterpret_cast<uint8_t*>(ptr);
+    auto buf = reinterpret_cast<uint8_t *>(ptr);
 
     memset(buf, 0, size);
     buf[5] = 1;
@@ -41,7 +41,7 @@ TEST(MemoryManager, malloc_free)
     const size_t size = 420;
 
     auto ptr = mem.malloc(size);
-    auto buf = reinterpret_cast<uint8_t*>(ptr);
+    auto buf = reinterpret_cast<uint8_t *>(ptr);
 
     memset(buf, 0, size);
     buf[5] = 1;
@@ -64,7 +64,7 @@ TEST(MemoryManager, malloc_few)
     constexpr size_t SIZE = 50;
     constexpr size_t NUM = 4;
 
-    void* ptrs[NUM];
+    void *ptrs[NUM];
 
     for(uint32_t i = 0; i < NUM; ++i)
     {
@@ -74,7 +74,7 @@ TEST(MemoryManager, malloc_few)
 
     for(uint32_t i = 0; i < NUM; ++i)
     {
-        auto val = reinterpret_cast<uint8_t*>(ptrs[i])[2];
+        auto val = reinterpret_cast<uint8_t *>(ptrs[i])[2];
         EXPECT_EQ(i, val);
 
         mem.free(ptrs[i]);
@@ -87,7 +87,7 @@ TEST(MemoryManager, malloc_many)
     constexpr size_t SIZE = 50;
     constexpr size_t NUM = 1000;
 
-    void* ptrs[NUM];
+    void *ptrs[NUM];
 
     for(uint32_t i = 0; i < NUM; ++i)
     {
@@ -97,7 +97,7 @@ TEST(MemoryManager, malloc_many)
 
     for(uint32_t i = 0; i < NUM; ++i)
     {
-        auto val = reinterpret_cast<uint8_t*>(ptrs[i])[2];
+        auto val = reinterpret_cast<uint8_t *>(ptrs[i])[2];
         EXPECT_EQ(i % 255, val);
         mem.free(ptrs[i]);
     }
@@ -109,7 +109,7 @@ TEST(MemoryManager, realloc)
     constexpr size_t SIZE = 50;
     constexpr size_t NUM = 10;
 
-    void* ptrs[NUM];
+    void *ptrs[NUM];
 
     for(uint32_t i = 0; i < NUM; ++i)
     {
@@ -127,10 +127,10 @@ TEST(MemoryManager, realloc)
     }
 
     auto ptr = mem.malloc(SIZE);
-    auto buf = reinterpret_cast<uint8_t*>(ptr);
+    auto buf = reinterpret_cast<uint8_t *>(ptr);
     buf[12] = 'F';
 
     EXPECT_EQ('F', buf[12]);
 }
 
-}
+} // namespace cow

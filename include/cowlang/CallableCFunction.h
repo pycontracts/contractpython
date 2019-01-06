@@ -3,9 +3,9 @@
 
 #include <functional>
 
-#include "Value.h"
 #include "Callable.h"
 #include "Scope.h"
+#include "Value.h"
 
 namespace cow
 {
@@ -16,16 +16,17 @@ namespace cow
 class CallableCFunction : public Callable
 {
 public:
-    CallableCFunction(MemoryManager &mem, std::vector<std::string>& args, std::function<ValuePtr(Scope& s)> _func)
-        : Callable(mem), m_args(args), func(_func)
-    {}
+    CallableCFunction(MemoryManager &mem, std::vector<std::string> &args, std::function<ValuePtr(Scope &s)> _func)
+    : Callable(mem), m_args(args), func(_func)
+    {
+    }
 
     ValuePtr duplicate(MemoryManager &mem) override
     {
-        return wrap_value(new (mem) CallableCFunction(mem, m_args, func));
+        return wrap_value(new(mem) CallableCFunction(mem, m_args, func));
     }
 
-    ValuePtr call(const std::vector<ValuePtr>& args, Scope& scope) override
+    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope) override
     {
         ValuePtr returnval = nullptr;
         // call with own context
@@ -36,10 +37,15 @@ public:
         uint32_t minimum_arguments = 0;
         uint32_t maximum_arguments = m_args.size();
 
-        if(args.size()<minimum_arguments || args.size()>maximum_arguments){
-            throw std::runtime_error("You did not provide the correct number of arguments to the function");
-        }else{
-            for(size_t i=0; i < args.size(); ++i){
+        if(args.size() < minimum_arguments || args.size() > maximum_arguments)
+        {
+            throw std::runtime_error(
+            "You did not provide the correct number of arguments to the function");
+        }
+        else
+        {
+            for(size_t i = 0; i < args.size(); ++i)
+            {
                 body_scope.set_value(m_args[i], args[i]);
             }
         }
@@ -53,9 +59,9 @@ public:
 
 private:
     std::vector<std::string> m_args;
-    std::function<ValuePtr(Scope& s)> func;
+    std::function<ValuePtr(Scope &s)> func;
 };
 
-}
+} // namespace cow
 
 #endif

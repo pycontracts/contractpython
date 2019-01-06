@@ -44,4 +44,4 @@ inline std::string unpack_string(ValuePtr val)
     auto sval = value_cast<StringVal>(val);
     return sval->get();
 }
-}
+} // namespace cow

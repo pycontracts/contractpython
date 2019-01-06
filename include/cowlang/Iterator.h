@@ -5,24 +5,20 @@
 namespace cow
 {
 
-class stop_iteration_exception {};
+class stop_iteration_exception
+{
+};
 
 class Iterator : public Value
 {
 public:
     virtual ~Iterator() {}
 
-    bool is_generator() const override
-    {
-        return false;
-    }
+    bool is_generator() const override { return false; }
 
     virtual ValuePtr next() = 0;
 
-    ValueType type() const override
-    {
-        return ValueType::Iterator;
-    }
+    ValueType type() const override { return ValueType::Iterator; }
 
 protected:
     using Value::Value;
@@ -33,10 +29,7 @@ typedef std::shared_ptr<Iterator> IteratorPtr;
 class Generator : public Iterator
 {
 public:
-    bool is_generator() const
-    {
-        return true;
-    }
+    bool is_generator() const { return true; }
 
 protected:
     using Iterator::Iterator;
@@ -47,10 +40,7 @@ class IterateableValue : public Value
 public:
     virtual ~IterateableValue() {}
 
-    bool can_iterate() const override
-    {
-        return true;
-    }
+    bool can_iterate() const override { return true; }
 
     virtual uint32_t size() const override = 0;
 
@@ -61,5 +51,4 @@ protected:
 };
 
 
-}
-
+} // namespace cow

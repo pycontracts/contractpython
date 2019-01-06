@@ -10,29 +10,15 @@ namespace cow
 class vector2 : public Value
 {
 public:
-    vector2(MemoryManager &mem, const geo::vector2d &v)
-        : Value(mem), m_vec(v)
-    {}
+    vector2(MemoryManager &mem, const geo::vector2d &v) : Value(mem), m_vec(v) {}
 
-    ValueType type() const override
-    {
-        return ValueType::geo_Vector2;
-    }
+    ValueType type() const override { return ValueType::geo_Vector2; }
 
-    ValuePtr duplicate(MemoryManager &mem) override
-    {
-        return make_value<vector2>(mem, m_vec);
-    }
+    ValuePtr duplicate(MemoryManager &mem) override { return make_value<vector2>(mem, m_vec); }
 
-    const geo::vector2d& get() const
-    {
-        return m_vec;
-    }
+    const geo::vector2d &get() const { return m_vec; }
 
-    std::string str() const override
-    {
-        return geo::to_string(m_vec);
-    }
+    std::string str() const override { return geo::to_string(m_vec); }
 
     ValuePtr get_member(const std::string &name) override
     {
@@ -56,6 +42,6 @@ private:
     geo::vector2d m_vec;
 };
 
-}
+} // namespace cow
 
 #endif

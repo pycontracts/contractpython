@@ -10,13 +10,11 @@ namespace cow
 class GeoModule : public cow::Module
 {
 public:
-    GeoModule(cow::MemoryManager &mem) 
-        : cow::Module(mem)
-    {}
+    GeoModule(cow::MemoryManager &mem) : cow::Module(mem) {}
 
     cow::ValuePtr get_member(const std::string &name) override;
 };
 
-}
+} // namespace cow
 
 #endif

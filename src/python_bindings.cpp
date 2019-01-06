@@ -14,13 +14,11 @@ public:
 
     static handle cast(const bitstream &bs, return_value_policy /* policy */, handle /* parent */)
     {
-        auto data = reinterpret_cast<const char*>(bs.data());
+        auto data = reinterpret_cast<const char *>(bs.data());
         auto size = static_cast<Py_ssize_t>(bs.size());
 
         return PyByteArray_FromStringAndSize(data, size);
     }
 };
 
-PYBIND11_MODULE(cowlang, m)
-{
-}
+PYBIND11_MODULE(cowlang, m) {}

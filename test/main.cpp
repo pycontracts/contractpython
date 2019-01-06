@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
-void print_program_output(const std::string &str){
+void print_program_output(const std::string &str)
+{
     // no output in tests
 }
 

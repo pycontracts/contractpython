@@ -3,11 +3,11 @@
 #include "RangeIterator.h"
 #include <cowlang/cow.h>
 
+#include "args.h"
 #include <cowlang/Value.h>
 #include <cowlang/unpack.h>
-#include <stdio.h>
 #include <iostream>
-#include "args.h"
+#include <stdio.h>
 
 extern void print_program_output(const std::string &str);
 
@@ -37,7 +37,7 @@ public:
 
     ValueType type() const override { return ValueType::Builtin; }
 
-    ValuePtr call(const std::vector<ValuePtr> &args, Scope& scope) override
+    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope) override
     {
         if(m_type == BuiltinType::Range)
         {
@@ -147,21 +147,26 @@ public:
         else if(m_type == BuiltinType::Print)
         {
             check_num_minargs(args, 1);
-            for(size_t i = 0; i<args.size(); ++i) {
+            for(size_t i = 0; i < args.size(); ++i)
+            {
                 std::string prefix = "";
-                if( i > 0 ) prefix = " ";
+                if(i > 0)
+                    prefix = " ";
 
                 auto arg = args[i];
                 if(relaxed_check_is_string(arg))
                     print_program_output(prefix + value_cast<StringVal>(arg)->get());
-                else {
+                else
+                {
                     if(!arg)
                     {
-                        print_program_output(prefix + value_cast<StringVal>(memory_manager().create_string("None"))->get());
+                        print_program_output(
+                        prefix + value_cast<StringVal>(memory_manager().create_string("None"))->get());
                     }
                     else
                     {
-                        print_program_output(prefix + value_cast<StringVal>(memory_manager().create_string(arg->str()))->get());
+                        print_program_output(
+                        prefix + value_cast<StringVal>(memory_manager().create_string(arg->str()))->get());
                     }
                 }
             }

@@ -28,19 +28,21 @@
 #ifndef GAY_PRECISION_H_
 #define GAY_PRECISION_H_
 
-namespace double_conversion {
+namespace double_conversion
+{
 
-struct PrecomputedPrecision {
-  double v;
-  int number_digits;
-  const char* representation;
-  int decimal_point;
+struct PrecomputedPrecision
+{
+    double v;
+    int number_digits;
+    const char *representation;
+    int decimal_point;
 };
 
 // Returns precomputed values of dtoa. The strings have been generated using
 // Gay's dtoa in mode "precision".
 Vector<const PrecomputedPrecision> PrecomputedPrecisionRepresentations();
 
-}  // namespace double_conversion
+} // namespace double_conversion
 
-#endif  // GAY_PRECISION_H_
+#endif // GAY_PRECISION_H_

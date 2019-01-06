@@ -1,5 +1,5 @@
+#include <bitstream.h>
 #include <cowlang/NodeType.h>
-#include <stdbitstream.h>
 
 #include "pypa/ast/ast.hh"
 #include "pypa/filebuf.hh"
@@ -29,7 +29,12 @@ public:
 
     uint32_t get_line_number() const override { return m_line_pos; }
 
-    std::string get_line(size_t idx) override { if(m_code.size()-1 < idx) throw std::runtime_error("mailicious input"); return m_code[idx]; }
+    std::string get_line(size_t idx) override
+    {
+        if(m_code.size() - 1 < idx)
+            throw std::runtime_error("mailicious input");
+        return m_code[idx];
+    }
 
     std::string next_line() override
     {
@@ -65,10 +70,7 @@ public:
 
     void run() { parse_next(*(m_ast->body)); }
 
-    bitstream get_result()
-    {
-        return std::move(m_result);
-    }
+    bitstream get_result() { return std::move(m_result); }
 
 private:
     void parse_next(const pypa::AstExpr &expr)
@@ -83,10 +85,13 @@ private:
 
         for(auto item : list)
         {
-            if(item==0){
+            if(item == 0)
+            {
                 m_result << NodeType::Pass;
-            }else{
-              parse_next(*item);
+            }
+            else
+            {
+                parse_next(*item);
             }
         }
     }
@@ -392,8 +397,9 @@ private:
             m_result << NodeType::Global;
             // store the name
             m_result << (uint32_t)c.names.size();
-            for(auto& nm : c.names){
-              parse_next(*nm);
+            for(auto &nm : c.names)
+            {
+                parse_next(*nm);
             }
             break;
         }
@@ -406,9 +412,9 @@ private:
             parse_next(*c.name);
 
             // store the stub with start and end markers
-            uint32_t dummy_pos = m_result.pos();
-            uint32_t dummy_zero = 0;
-            m_result << dummy_zero;
+            uint32_t dummy_pos = m_result.pos_write();
+            // ???? (write 0 and overwrite later??)
+            m_result << (uint32_t)0;
             m_result << NodeType::FunctionStart;
 
             // save arguments
@@ -421,12 +427,16 @@ private:
 
             // now, we dump the length + whole body of the function,
             // followed by an end marker
-            uint32_t size_start = m_result.pos();
+            uint32_t size_start = m_result.pos_write();
             parse_next(*c.body);
-            //dummy_zero = EndianSwapper::SwapByte<uint32_t, sizeof(uint32_t)>::Swap(m_result.pos() - size_start);
-            dummy_zero = m_result.pos() - size_start;
-            uint32_t* fake_int = (uint32_t*)(m_result.data()+dummy_pos);
-            *fake_int = dummy_zero;
+            uint32_t size_end = m_result.pos_write();
+
+            uint32_t dummy_zero = size_end - size_start;
+
+            m_result.move_to_write(dummy_pos);
+            m_result << dummy_zero;
+            m_result.move_to_end_write();
+
             m_result << NodeType::FunctionEnd;
             break;
         }
@@ -440,7 +450,7 @@ private:
     bitstream m_result; // main execution module
 };
 
-bitstream compile_file(const std::string &filename, std::function<void(pypa::Error)>& e)
+bitstream compile_file(const std::string &filename, std::function<void(pypa::Error)> &e)
 {
     pypa::AstModulePtr ast;
     pypa::SymbolTablePtr symbols;
@@ -485,7 +495,7 @@ bitstream compile_string(const std::string &code)
     return compiler.get_result();
 }
 
-bitstream compile_string(const std::string &code, std::function<void(pypa::Error)>& e)
+bitstream compile_string(const std::string &code, std::function<void(pypa::Error)> &e)
 {
     pypa::AstModulePtr ast;
     pypa::SymbolTablePtr symbols;

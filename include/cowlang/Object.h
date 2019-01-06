@@ -1,8 +1,8 @@
 #pragma once
 
 #include <map>
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace json
 {
@@ -46,8 +46,8 @@ public:
 
     virtual ~MemoryManager() {}
 
-    virtual void* malloc(size_t size) = 0;
-    virtual void free(void* ptr) = 0;
+    virtual void *malloc(size_t size) = 0;
+    virtual void free(void *ptr) = 0;
     virtual const uint32_t get_max_mem() = 0;
     virtual const uint32_t get_mem() = 0;
 
@@ -60,28 +60,26 @@ public:
     BoolValPtr create_boolean(const bool value);
     ListPtr create_list();
     ValuePtr create_none();
-
-
 };
 
 class DefaultMemoryManager : public MemoryManager
 {
 public:
-   DefaultMemoryManager();
-   ~DefaultMemoryManager();
+    DefaultMemoryManager();
+    ~DefaultMemoryManager();
 
-   static constexpr size_t PAGE_SIZE = 1024*1024;
+    static constexpr size_t PAGE_SIZE = 1024 * 1024;
 
-   void* malloc(size_t size) override;
-   void free(void* ptr) override;
+    void *malloc(size_t size) override;
+    void free(void *ptr) override;
 
-   const uint32_t get_max_mem() override;
-   const uint32_t get_mem() override;
+    const uint32_t get_max_mem() override;
+    const uint32_t get_mem() override;
 
 private:
-    void* assign_alloc(size_t page_no, size_t poffset, size_t size);
+    void *assign_alloc(size_t page_no, size_t poffset, size_t size);
 
-    std::vector<uint8_t*> m_buffers;
+    std::vector<uint8_t *> m_buffers;
     size_t m_buffer_pos;
 
     struct AllocInfo
@@ -92,9 +90,8 @@ private:
 
     void resize(size_t new_size);
 
-    //Needs to be ordered
+    // Needs to be ordered
     std::map<intptr_t, AllocInfo> m_allocs;
-
 };
 
 /**
@@ -105,11 +102,10 @@ class DummyMemoryManager : public MemoryManager
 public:
     DummyMemoryManager() = default;
 
-    void* malloc(size_t sz) override;
-    void free(void* ptr) override;
+    void *malloc(size_t sz) override;
+    void free(void *ptr) override;
     const uint32_t get_max_mem() override;
     const uint32_t get_mem() override;
-
 };
 
 class Object
@@ -117,7 +113,7 @@ class Object
 public:
     virtual ~Object() {}
 
-    static void* operator new(std::size_t sz, MemoryManager &mem_mgr)
+    static void *operator new(std::size_t sz, MemoryManager &mem_mgr)
     {
         auto ptr = mem_mgr.malloc(sz);
         return ptr;
@@ -125,22 +121,17 @@ public:
 
     static void operator delete(void *ptr)
     {
-        auto obj = reinterpret_cast<Object*>(ptr);
+        auto obj = reinterpret_cast<Object *>(ptr);
         obj->m_mem.free(ptr);
     }
 
-    MemoryManager& memory_manager()
-    {
-        return m_mem;
-    }
+    MemoryManager &memory_manager() { return m_mem; }
 
 
 protected:
-    Object(MemoryManager &mem)
-        : m_mem(mem)
-    {}
+    Object(MemoryManager &mem) : m_mem(mem) {}
 
     MemoryManager &m_mem;
 };
 
-}
+} // namespace cow

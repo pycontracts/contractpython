@@ -74,11 +74,10 @@ TEST(BasicTest, greater_than)
 
 TEST(BasicTest, while_loop)
 {
-    const std::string code =
-            "i = 0\n"
-            "while i < 3:\n"
-            "   i += 1\n"
-            "return i == 3";
+    const std::string code = "i = 0\n"
+                             "while i < 3:\n"
+                             "   i += 1\n"
+                             "return i == 3";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -90,10 +89,9 @@ TEST(BasicTest, while_loop)
 
 TEST(BasicTest, rand)
 {
-    const std::string code =
-            "import rand\n"
-            "r = rand.randint(0,10)\n"
-            "return r >= 0 and r <= 10\n";
+    const std::string code = "import rand\n"
+                             "r = rand.randint(0,10)\n"
+                             "return r >= 0 and r <= 10\n";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -105,10 +103,9 @@ TEST(BasicTest, rand)
 
 TEST(BasicTest, rand2)
 {
-    const std::string code =
-            "from rand import randint\n"
-            "r = randint(0,10)\n"
-            "return r >= 0 and r <= 10\n";
+    const std::string code = "from rand import randint\n"
+                             "r = randint(0,10)\n"
+                             "return r >= 0 and r <= 10\n";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -120,11 +117,10 @@ TEST(BasicTest, rand2)
 
 TEST(BasicTest, array)
 {
-    const std::string code =
-            "arr = [5,4,1337,2]\n"
-            "if arr[2] == 1337:\n"
-            "	return True\n"
-            "return False";
+    const std::string code = "arr = [5,4,1337,2]\n"
+                             "if arr[2] == 1337:\n"
+                             "	return True\n"
+                             "return False";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -136,13 +132,12 @@ TEST(BasicTest, array)
 
 TEST(BasicTest, array_append)
 {
-    const std::string code =
-            "arr = [5,4]\n"
-            "arr.append(1337)\n"
-            "arr.append(2)\n"
-            "if arr[2] == 1337:\n"
-            "	return True\n"
-            "return False";
+    const std::string code = "arr = [5,4]\n"
+                             "arr.append(1337)\n"
+                             "arr.append(2)\n"
+                             "if arr[2] == 1337:\n"
+                             "	return True\n"
+                             "return False";
 
     auto doc = compile_string(code);
 
@@ -154,9 +149,8 @@ TEST(BasicTest, array_append)
 }
 TEST(BasicTest, dictionary)
 {
-    const std::string code =
-            "i = {'value':42}\n"
-            "return i['value']";
+    const std::string code = "i = {'value':42}\n"
+                             "return i['value']";
 
     auto doc = compile_string(code);
 
@@ -169,12 +163,11 @@ TEST(BasicTest, dictionary)
 
 TEST(BasicTest, if_none)
 {
-    const std::string code =
-            "i = None\n"
-            "if i:\n"
-            "	return False\n"
-            "\n"
-            "return True";
+    const std::string code = "i = None\n"
+                             "if i:\n"
+                             "	return False\n"
+                             "\n"
+                             "return True";
 
     auto doc = compile_string(code);
 
@@ -187,12 +180,11 @@ TEST(BasicTest, if_none)
 
 TEST(BasicTest, if_else_none)
 {
-    const std::string code =
-            "i = None\n"
-            "if i:\n"
-            "	return False\n"
-            "else:\n"
-            "	return True";
+    const std::string code = "i = None\n"
+                             "if i:\n"
+                             "	return False\n"
+                             "else:\n"
+                             "	return True";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -203,15 +195,13 @@ TEST(BasicTest, if_else_none)
 }
 
 
-
 TEST(BasicTest, if_clause)
 {
-    const std::string code =
-            "i = 42\n"
-            "if i == 43:\n"
-            "	return False\n"
-            "else:\n"
-            "	return True";
+    const std::string code = "i = 42\n"
+                             "if i == 43:\n"
+                             "	return False\n"
+                             "else:\n"
+                             "	return True";
 
     auto doc = compile_string(code);
 
@@ -224,11 +214,10 @@ TEST(BasicTest, if_clause)
 
 TEST(BasicTest, str_eq)
 {
-    const std::string code =
-            "a = 'foo'\n"
-            "b = 'foo'\n"
-            "eq = (a == b)\n"
-            "return eq";
+    const std::string code = "a = 'foo'\n"
+                             "b = 'foo'\n"
+                             "eq = (a == b)\n"
+                             "return eq";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -241,11 +230,10 @@ TEST(BasicTest, str_eq)
 
 TEST(BasicTest, none_value)
 {
-    const std::string code =
-            "a = None\n"
-            "if not a:\n"
-            "   return False\n"
-            "return True";
+    const std::string code = "a = None\n"
+                             "if not a:\n"
+                             "   return False\n"
+                             "return True";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -258,10 +246,9 @@ TEST(BasicTest, none_value)
 
 TEST(BasicTest, logical_and)
 {
-    const std::string code =
-            "a = False\n"
-            "b = True\n"
-            "return (not a) and b";
+    const std::string code = "a = False\n"
+                             "b = True\n"
+                             "return (not a) and b";
 
     auto doc = compile_string(code);
 
@@ -274,10 +261,9 @@ TEST(BasicTest, logical_and)
 
 TEST(BasicTest, create_by_assign)
 {
-    const std::string code =
-            "a = 1\n"
-            "b = a+1\n"
-            "return b";
+    const std::string code = "a = 1\n"
+                             "b = a+1\n"
+                             "return b";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -290,11 +276,10 @@ TEST(BasicTest, create_by_assign)
 
 TEST(BasicTest, range2)
 {
-    const std::string code =
-            "i = 0\n"
-            "for j in range(4,10):\n"
-            "   i += j\n"
-            "return i";
+    const std::string code = "i = 0\n"
+                             "for j in range(4,10):\n"
+                             "   i += j\n"
+                             "return i";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -307,11 +292,10 @@ TEST(BasicTest, range2)
 
 TEST(BasicTest, range3)
 {
-    const std::string code =
-            "i = 0\n"
-            "for j in range(1,5,2):\n"
-            "   i += j\n"
-            "return i";
+    const std::string code = "i = 0\n"
+                             "for j in range(1,5,2):\n"
+                             "   i += j\n"
+                             "return i";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -324,14 +308,13 @@ TEST(BasicTest, range3)
 
 TEST(BasicTest, iterate_dict)
 {
-    const std::string code =
-           "res  = 0\n"
-           "dict = {'a':1, 'b':2}\n"
-           "for t in dict.items():\n"
-           "    k,v = t\n"
-           "    if k == 'b':\n"
-           "       res = v\n"
-           "return res == 2";
+    const std::string code = "res  = 0\n"
+                             "dict = {'a':1, 'b':2}\n"
+                             "for t in dict.items():\n"
+                             "    k,v = t\n"
+                             "    if k == 'b':\n"
+                             "       res = v\n"
+                             "return res == 2";
 
     auto doc = compile_string(code);
 
@@ -345,17 +328,16 @@ TEST(BasicTest, iterate_dict)
 
 TEST(BasicTest, or_op)
 {
-    const std::string code =
-           "dict = None\n"
-           "if not dict or dict['b'] == 1:\n"
-           "    return True\n"
-           "else:\n"
-           "    return False";
+    const std::string code = "dict = None\n"
+                             "if not dict or dict['b'] == 1:\n"
+                             "    return True\n"
+                             "else:\n"
+                             "    return False";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
     Interpreter pyint(doc, mem);
- 
+
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -363,18 +345,17 @@ TEST(BasicTest, or_op)
 
 TEST(BasicTest, iterate_dict2)
 {
-    const std::string code =
-           "res  = 0\n"
-           "dict = {'a':1, 'b':2}\n"
-           "for k,v in dict.items():\n"
-           "    if k == 'b':\n"
-           "       res = v\n"
-           "return res == 2";
+    const std::string code = "res  = 0\n"
+                             "dict = {'a':1, 'b':2}\n"
+                             "for k,v in dict.items():\n"
+                             "    if k == 'b':\n"
+                             "       res = v\n"
+                             "return res == 2";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
     Interpreter pyint(doc, mem);
- 
+
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -382,14 +363,13 @@ TEST(BasicTest, iterate_dict2)
 
 TEST(BasicTest, not)
 {
-    const std::string code =
-            "b = False\n"
-            "return not b";
+    const std::string code = "b = False\n"
+                             "return not b";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
     Interpreter pyint(doc, mem);
- 
+
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -397,15 +377,14 @@ TEST(BasicTest, not)
 
 TEST(BasicTest, pre_set_list)
 {
-    const std::string code =
-            "return b[1] == 'foo'";
+    const std::string code = "return b[1] == 'foo'";
 
     auto doc = compile_string(code);
 
     DummyMemoryManager mem;
     Interpreter pyint(doc, mem);
- 
-    pyint.set_list("b", {"bar", "foo"});
+
+    pyint.set_list("b", { "bar", "foo" });
     auto res = pyint.execute();
 
     EXPECT_TRUE(unpack_bool(res));
@@ -413,9 +392,8 @@ TEST(BasicTest, pre_set_list)
 
 TEST(BasicTest, set_variable)
 {
-    const std::string code =
-            "b = False \n"
-            "return b";
+    const std::string code = "b = False \n"
+                             "return b";
 
     auto doc = compile_string(code);
 
@@ -426,39 +404,16 @@ TEST(BasicTest, set_variable)
     EXPECT_FALSE(unpack_bool(res));
 }
 
-TEST(BasicTest, document_to_value)
-{
-    DummyMemoryManager mem;
-    
-    json::Document doc("{ \"a\": 1, \"b\": 2}");
-
-    auto val = mem.create_from_document(doc);
-
-    auto dic = value_cast<Dictionary>(val);
-
-    EXPECT_EQ(dic->size(), 2);
-}
-
-TEST(BasicTest, empty_document_to_value)
-{
-    DummyMemoryManager mem;
-    
-    json::Document doc;
-
-    auto val = mem.create_from_document(doc);
-
-    EXPECT_EQ(nullptr, val);
-}
 
 TEST(BasicTest, pre_set_value)
 {
     std::string code = "if op_type == 'put':\n"
-                      "    return False\n"
-                      "else:\n"
-                      "	   return True";
+                       "    return False\n"
+                       "else:\n"
+                       "	   return True";
 
     auto doc = compile_string(code);
-    
+
     DummyMemoryManager mem;
     Interpreter pyint(doc, mem);
 

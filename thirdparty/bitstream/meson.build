@@ -5,10 +5,5 @@ gtest_dep = dependency('gtest')
 
 compile_args = ['-Wextra', '-std=c++17', '-Werror']
 
-install_headers('include/bitstream.h', 'include/stdbitstream.h')
-
-subdir('test')
-
-tests = executable('bitstream-test', unit_test_cpp_files, include_directories: [bitstream_local_incdir], dependencies: [gtest_dep], cpp_args: compile_args)
-
+install_headers('include/bitstream.h')
 

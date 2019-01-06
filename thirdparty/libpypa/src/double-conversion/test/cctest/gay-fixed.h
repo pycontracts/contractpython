@@ -28,19 +28,21 @@
 #ifndef GAY_FIXED_H_
 #define GAY_FIXED_H_
 
-namespace double_conversion {
+namespace double_conversion
+{
 
-struct PrecomputedFixed {
-  double v;
-  int number_digits;
-  const char* representation;
-  int decimal_point;
+struct PrecomputedFixed
+{
+    double v;
+    int number_digits;
+    const char *representation;
+    int decimal_point;
 };
 
 // Returns precomputed values of dtoa. The strings have been generated using
 // Gay's dtoa in mode "fixed".
 Vector<const PrecomputedFixed> PrecomputedFixedRepresentations();
 
-}  // namespace double_conversion
+} // namespace double_conversion
 
-#endif  // GAY_FIXED_H_
+#endif // GAY_FIXED_H_

@@ -182,4 +182,4 @@ TEST(Functions, nested_scopes)
     EXPECT_EQ(2, unpack_integer(pyint.execute()));
 }
 
-}
+} // namespace cow

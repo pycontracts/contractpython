@@ -9,22 +9,20 @@ namespace cow
 
 class Module;
 typedef std::shared_ptr<Module> ModulePtr;
-    
+
 class Module : public Value
 {
 public:
-    Module(MemoryManager &mem)
-        : Value(mem)
-    {}
+    Module(MemoryManager &mem) : Value(mem) {}
 
     virtual ~Module() {}
 
     ValueType type() const override { return ValueType::Module; }
 
-    ValuePtr duplicate(MemoryManager&) override
+    ValuePtr duplicate(MemoryManager &) override
     {
-        return nullptr; //not supported
+        return nullptr; // not supported
     }
 };
 
-}
+} // namespace cow

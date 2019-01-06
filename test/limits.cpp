@@ -15,7 +15,7 @@ TEST(Limits, above_limit)
                              "  pass";
 
     auto doc = compile_string(code);
-    
+
     DummyMemoryManager mem;
     Interpreter pyint(doc, mem);
 
@@ -55,4 +55,4 @@ TEST(Limits, out_of_memory)
     ASSERT_THROW(pyint.execute(), execution_limit_exception);
 }*/
 
-}
+} // namespace cow

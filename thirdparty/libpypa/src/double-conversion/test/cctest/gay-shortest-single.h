@@ -28,17 +28,18 @@
 #ifndef GAY_SHORTEST_SINGLE_H_
 #define GAY_SHORTEST_SINGLE_H_
 
-namespace double_conversion {
+namespace double_conversion
+{
 
-struct PrecomputedShortestSingle {
-  float v;
-  const char* representation;
-  int decimal_point;
+struct PrecomputedShortestSingle
+{
+    float v;
+    const char *representation;
+    int decimal_point;
 };
 
-Vector<const PrecomputedShortestSingle>
-    PrecomputedShortestSingleRepresentations();
+Vector<const PrecomputedShortestSingle> PrecomputedShortestSingleRepresentations();
 
-}  // namespace double_conversion
+} // namespace double_conversion
 
-#endif  // GAY_SHORTEST_SINGLE_H_
+#endif // GAY_SHORTEST_SINGLE_H_

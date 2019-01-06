@@ -1,36 +1,39 @@
-#include <cowlang/cow.h>
-#include <cowlang/unpack.h>
-#include <cowlang/Interpreter.h>
-#include <cowlang/Dictionary.h>
-#include <cowlang/Scope.h>
+#include <assert.h>
 #include <cowlang/Callable.h>
 #include <cowlang/CallableCFunction.h>
-#include <modules/blockchain_module.h>
-#include <stddef.h>
-#include <assert.h>
+#include <cowlang/Dictionary.h>
+#include <cowlang/Interpreter.h>
+#include <cowlang/Scope.h>
+#include <cowlang/cow.h>
+#include <cowlang/unpack.h>
 #include <float.h>
 #include <limits.h>
 #include <math.h>
+#include <modules/blockchain_module.h>
+#include <stddef.h>
+#include <string.h>
 #include <time.h>
 
 #define s(i) _s[i]
 /* Swap bytes that A and B point to. */
-#define SWAP_BYTE(A, B)                         \
-        do {                                    \
-                unsigned char swap_temp = *(A); \
-                *(A) = *(B);                    \
-                *(B) = swap_temp;               \
-        } while (0)
-
+#define SWAP_BYTE(A, B)                 \
+    do                                  \
+    {                                   \
+        unsigned char swap_temp = *(A); \
+        *(A) = *(B);                    \
+        *(B) = swap_temp;               \
+    } while(0)
 
 
 std::vector<std::string> empty;
 #define EMPTY_ARGS empty
 
-#define ADD_FUNCTION(x, m_args, y) \
-        function_map[x] = wrap_value(new (mem) CallableCFunction(mem, m_args, std::bind(&BlockchainModule::y, this, std::placeholders::_1)));
+#define ADD_FUNCTION(x, m_args, y)    \
+    function_map[x] = wrap_value(new( \
+    mem) CallableCFunction(mem, m_args, std::bind(&BlockchainModule::y, this, std::placeholders::_1)));
 
-namespace cow {
+namespace cow
+{
 
 /* These are hardcoded default values for easy testing */
 std::string txid = "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d";
@@ -40,16 +43,17 @@ uint32_t current_time = 1546659311;
 uint32_t previous_time = 1546659307;
 std::string sender = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa";
 std::string contract_address = "1XPTgDRhN8RFnzniWCddobD9iKZatrvH4";
-uint64_t value = (uint64_t)50*COIN;
-uint64_t contract_balance = (uint64_t)300*COIN;
+uint64_t value = (uint64_t)50 * COIN;
+uint64_t contract_balance = (uint64_t)300 * COIN;
 
-BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem){
+BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem)
+{
     // preseed RC4
-    for (int i = 0; i < 256; i++)
-      s(i) = i;
+    for(int i = 0; i < 256; i++)
+        s(i) = i;
     seeded = 0;
 
-    //ADD_FUNCTION("fourtytwo", EMPTY_ARGS, fourtytwo);
+    // ADD_FUNCTION("fourtytwo", EMPTY_ARGS, fourtytwo);
     ADD_FUNCTION("txid", EMPTY_ARGS, get_txid);
     ADD_FUNCTION("current_block", EMPTY_ARGS, get_current_block);
     ADD_FUNCTION("previous_block", EMPTY_ARGS, get_previous_block);
@@ -62,98 +66,104 @@ BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem){
     ADD_FUNCTION("random", EMPTY_ARGS, get_random);
 }
 
-ValuePtr BlockchainModule::fourtytwo(Scope& scope)
+ValuePtr BlockchainModule::fourtytwo(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) IntVal(mem, 42));
+    return wrap_value(new(mem) IntVal(mem, 42));
 }
 
-ValuePtr BlockchainModule::get_current_block(Scope& scope)
+ValuePtr BlockchainModule::get_current_block(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) StringVal(mem, current_block));
+    return wrap_value(new(mem) StringVal(mem, current_block));
 }
 
-ValuePtr BlockchainModule::get_txid(Scope& scope)
+ValuePtr BlockchainModule::get_txid(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) StringVal(mem, txid));
+    return wrap_value(new(mem) StringVal(mem, txid));
 }
 
 
-ValuePtr BlockchainModule::get_previous_block(Scope& scope)
+ValuePtr BlockchainModule::get_previous_block(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) StringVal(mem, previous_block));
+    return wrap_value(new(mem) StringVal(mem, previous_block));
 }
 
-ValuePtr BlockchainModule::get_sender(Scope& scope)
+ValuePtr BlockchainModule::get_sender(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) StringVal(mem, sender));
+    return wrap_value(new(mem) StringVal(mem, sender));
 }
 
-ValuePtr BlockchainModule::get_contractaddress(Scope& scope)
+ValuePtr BlockchainModule::get_contractaddress(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) StringVal(mem, contract_address));
+    return wrap_value(new(mem) StringVal(mem, contract_address));
 }
 
-ValuePtr BlockchainModule::get_current_time(Scope& scope)
+ValuePtr BlockchainModule::get_current_time(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) IntVal(mem, current_time));
+    return wrap_value(new(mem) IntVal(mem, current_time));
 }
 
-ValuePtr BlockchainModule::get_previous_time(Scope& scope)
+ValuePtr BlockchainModule::get_previous_time(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) IntVal(mem, previous_time));
+    return wrap_value(new(mem) IntVal(mem, previous_time));
 }
 
-ValuePtr BlockchainModule::get_value(Scope& scope)
+ValuePtr BlockchainModule::get_value(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) IntVal(mem, value));
+    return wrap_value(new(mem) IntVal(mem, value));
 }
 
-ValuePtr BlockchainModule::get_contract_balance(Scope& scope)
+ValuePtr BlockchainModule::get_contract_balance(Scope &scope)
 {
     auto &mem = memory_manager();
-    return wrap_value(new (mem) IntVal(mem, contract_balance));
+    return wrap_value(new(mem) IntVal(mem, contract_balance));
 }
 
-ValuePtr BlockchainModule::get_random(Scope& scope)
+ValuePtr BlockchainModule::get_random(Scope &scope)
 {
-    if(seeded == 0) seed();
+    if(seeded == 0)
+        seed();
 
     auto &mem = memory_manager();
-    return wrap_value(new (mem) IntVal(mem, prng_get_uint()));
+    return wrap_value(new(mem) IntVal(mem, prng_get_uint()));
 }
 
-ValuePtr BlockchainModule::get_member(const std::string &name){
+ValuePtr BlockchainModule::get_member(const std::string &name)
+{
 
-    if(function_map.find(name)!=function_map.end()){
+    if(function_map.find(name) != function_map.end())
+    {
         return function_map[name];
     }
     // fallback
-    throw std::runtime_error("no such function '" + name + "' in blockchain module");
-
+    throw std::runtime_error("no such "
+                             "funchttps://github.com/adafruit/Raspberry-Pi-Installer-Scripts/raw/"
+                             "master/adafruit-pitft.shtion '" +
+                             name + "' in blockchain module");
 }
 
-void BlockchainModule::seed(){
+void BlockchainModule::seed()
+{
     // not seeding with integers because of the big / little endian dilemma
-    prng_seed_bytes((unsigned char*)current_block.c_str(), strlen(current_block.c_str()));
-    prng_seed_bytes((unsigned char*)previous_block.c_str(), strlen(previous_block.c_str()));
-    prng_seed_bytes((unsigned char*)sender.c_str(), strlen(sender.c_str()));
-    prng_seed_bytes((unsigned char*)contract_address.c_str(), strlen(contract_address.c_str()));
-    prng_seed_bytes((unsigned char*)txid.c_str(), strlen(txid.c_str()));
-
+    prng_seed_bytes((unsigned char *)current_block.c_str(), strlen(current_block.c_str()));
+    prng_seed_bytes((unsigned char *)previous_block.c_str(), strlen(previous_block.c_str()));
+    prng_seed_bytes((unsigned char *)sender.c_str(), strlen(sender.c_str()));
+    prng_seed_bytes((unsigned char *)contract_address.c_str(), strlen(contract_address.c_str()));
+    prng_seed_bytes((unsigned char *)txid.c_str(), strlen(txid.c_str()));
 }
 
-void register_blockchain_module(Interpreter& i){
-    auto v = wrap_value(new (i.memory_manager()) BlockchainModule(i.memory_manager()));
+void register_blockchain_module(Interpreter &i)
+{
+    auto v = wrap_value(new(i.memory_manager()) BlockchainModule(i.memory_manager()));
     i.set_module("blockchain", v);
 };
 
-}
+} // namespace cow

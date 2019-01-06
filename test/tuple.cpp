@@ -23,5 +23,3 @@ TEST(TupleTest, access_element)
     std::string expected = "k";
     EXPECT_EQ(expected, unpack_string(res));
 }
-
-

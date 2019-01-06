@@ -57,12 +57,11 @@ TEST(LoopTest, while_bool_cond)
 
 TEST(LoopTest, while_loop_break1)
 {
-    const std::string code =
-           "a = 5\n"
-           "while True:\n"
-           "    a += 1\n"
-           "    break\n"
-           "return a == 6";
+    const std::string code = "a = 5\n"
+                             "while True:\n"
+                             "    a += 1\n"
+                             "    break\n"
+                             "return a == 6";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -75,13 +74,12 @@ TEST(LoopTest, while_loop_break1)
 
 TEST(LoopTest, while_loop_break2)
 {
-    const std::string code =
-           "a = 5\n"
-           "while True:\n"
-           "    a += 1\n"
-           "    break\n"
-           "    a += 5\n"
-           "return a == 6";
+    const std::string code = "a = 5\n"
+                             "while True:\n"
+                             "    a += 1\n"
+                             "    break\n"
+                             "    a += 5\n"
+                             "return a == 6";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -94,13 +92,12 @@ TEST(LoopTest, while_loop_break2)
 
 TEST(LoopTest, while_loop_return)
 {
-    const std::string code =
-           "a = 5\n"
-           "while True:\n"
-           "    a += 1\n"
-           "    return a\n"
-           "    a += 5\n"
-           "return a";
+    const std::string code = "a = 5\n"
+                             "while True:\n"
+                             "    a += 1\n"
+                             "    return a\n"
+                             "    a += 5\n"
+                             "return a";
 
     auto doc = compile_string(code);
 
@@ -114,12 +111,11 @@ TEST(LoopTest, while_loop_return)
 
 TEST(LoopTest, for_loop_break)
 {
-    const std::string code =
-           "a = 5\n"
-           "for _ in range(10):\n"
-           "    a += 1\n"
-           "    break\n"
-           "return a == 6";
+    const std::string code = "a = 5\n"
+                             "for _ in range(10):\n"
+                             "    a += 1\n"
+                             "    break\n"
+                             "return a == 6";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -131,10 +127,9 @@ TEST(LoopTest, for_loop_break)
 
 TEST(LoopTest, for_loop_return)
 {
-    const std::string code =
-           "for _ in range(10):\n"
-           "    return True\n"
-           "return False";
+    const std::string code = "for _ in range(10):\n"
+                             "    return True\n"
+                             "return False";
 
     auto doc = compile_string(code);
 
@@ -147,12 +142,11 @@ TEST(LoopTest, for_loop_return)
 
 TEST(LoopTest, loop_continue)
 {
-    const std::string code =
-           "a = 5\n"
-           "for _ in range(10):\n"
-           "    continue\n"
-           "    a += 1\n"
-           "return a == 5";
+    const std::string code = "a = 5\n"
+                             "for _ in range(10):\n"
+                             "    continue\n"
+                             "    a += 1\n"
+                             "return a == 5";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -164,9 +158,8 @@ TEST(LoopTest, loop_continue)
 
 TEST(LoopTest, array_loop)
 {
-    const std::string code = 
-        "a = [2*i for i in range(5)]\n"
-        "return a[3]";
+    const std::string code = "a = [2*i for i in range(5)]\n"
+                             "return a[3]";
 
     auto doc = compile_string(code);
     DummyMemoryManager mem;
@@ -175,5 +168,3 @@ TEST(LoopTest, array_loop)
     auto res = pyint.execute();
     EXPECT_EQ(6, unpack_integer(res));
 }
-
-
