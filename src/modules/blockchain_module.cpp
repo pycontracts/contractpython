@@ -152,8 +152,7 @@ ValuePtr BlockchainModule::send(Scope &scope)
 
 ValuePtr BlockchainModule::revert(Scope &scope)
 {
-    auto &mem = memory_manager();
-    return wrap_value(new(mem) StringVal(mem, txid));
+    throw std::runtime_error("contract execution has been reverted");
 }
 
 
