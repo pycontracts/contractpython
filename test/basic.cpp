@@ -46,6 +46,36 @@ TEST(BasicTest, arraystr)
     EXPECT_EQ("['foo', 'bar']", unpack_string(pyint.execute()));
 }
 
+TEST(BasicTest, multiwordstring)
+{
+    const std::string code = "a = \"hello fucking world\"\n"
+                             "return str(a)";
+
+    auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
+    EXPECT_EQ("hello fucking world", unpack_string(pyint.execute()));
+}
+
+TEST(BasicTest, longstring)
+{
+    const std::string code = "a = "
+                             "\"aabbccddeeffgghhaabbccddeeffgghhaabbccddeeffgghhaabbccddeeffgghhaab"
+                             "bccddeeffgghhaabbccddeeffgghhaabbccddeeffgghhaabbccddeeffgghhaabbccdd"
+                             "eeffgghhaabbccddeeffgghhaabbccddeeffgghh\"\n"
+                             "return str(a)";
+
+    auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
+    EXPECT_EQ("aabbccddeeffgghhaabbccddeeffgghhaabbccddeeffgghhaabbccddeeffgghhaab"
+              "bccddeeffgghhaabbccddeeffgghhaabbccddeeffgghhaabbccddeeffgghhaabbccdd"
+              "eeffgghhaabbccddeeffgghhaabbccddeeffgghh",
+              unpack_string(pyint.execute()));
+}
+
 TEST(BasicTest, pass)
 {
     const std::string code = "pass\n"

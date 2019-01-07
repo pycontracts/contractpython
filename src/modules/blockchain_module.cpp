@@ -28,12 +28,14 @@
 std::vector<std::string> empty;
 #define EMPTY_ARGS empty
 
+
 #define ADD_FUNCTION(x, m_args, y)    \
     function_map[x] = wrap_value(new( \
     mem) CallableCFunction(mem, m_args, std::bind(&BlockchainModule::y, this, std::placeholders::_1)));
 
 namespace cow
 {
+net_type net = net_type::MAIN;
 
 /* These are hardcoded default values for easy testing */
 std::string txid = "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d";

@@ -7,8 +7,29 @@
 #include <cowlang/unpack.h>
 #define COIN 100000000
 
+typedef struct
+{
+    std::string txid;
+    std::string current_block;
+    std::string previous_block;
+    uint32_t current_time;
+    uint32_t previous_time;
+    std::string sender;
+    std::string contract_address;
+    uint64_t value;
+    uint64_t contract_balance;
+} blockchain_arguments;
+
 namespace cow
 {
+enum class net_type
+{
+    MAIN,
+    TEST,
+    REGTEST
+};
+extern net_type net;
+
 extern std::string txid;
 extern std::string current_block;
 extern std::string previous_block;

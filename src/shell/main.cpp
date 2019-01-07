@@ -44,28 +44,22 @@ extern size_t DEFAULT_MAXIMUM_HEAP_PAGES;
 #define AT_LX (FL_LOWER | FL_ALPHA | FL_PRINT | FL_XDIGIT)
 
 // table of attributes for ascii characters
-const uint8_t attr[] = {
-    0,     0,     0,     0,     0,     0,     0,     0,     0,     AT_SP, AT_SP, AT_SP, AT_SP,
-    AT_SP, 0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-    0,     0,     0,     0,     0,     0,     AT_SP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
-    AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_DI, AT_DI, AT_DI, AT_DI,
-    AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
-    AT_UX, AT_UX, AT_UX, AT_UX, AT_UX, AT_UX, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
-    AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
-    AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_LX, AT_LX, AT_LX, AT_LX, AT_LX, AT_LX, AT_LO,
-    AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
-    AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0
-};
+const uint8_t attr[] = { 0,     0,     0,     0,     0,     0,     0,     0,     0,     AT_SP,
+                         AT_SP, AT_SP, AT_SP, AT_SP, 0,     0,     0,     0,     0,     0,
+                         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+                         0,     0,     AT_SP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
+                         AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_DI, AT_DI,
+                         AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_PR, AT_PR,
+                         AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_UX, AT_UX, AT_UX, AT_UX, AT_UX,
+                         AT_UX, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
+                         AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
+                         AT_UP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_LX, AT_LX, AT_LX,
+                         AT_LX, AT_LX, AT_LX, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
+                         AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
+                         AT_LO, AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0 };
 
 // Command line parsing
 bool only_compile = false;
-enum net_type
-{
-    MAIN,
-    TEST,
-    REGTEST
-};
-net_type net = MAIN;
 uint32_t gas = 5000000;
 uint32_t gasprice = 100;
 uint32_t pagelimit = DEFAULT_MAXIMUM_HEAP_PAGES;
@@ -509,12 +503,12 @@ int pre_process_options(int argc, char **argv)
                 {
                     exit(usage(argv));
                 }
-                if(net == 0)
-                    net = MAIN;
-                if(net == 1)
-                    net = TEST;
-                if(net == 2)
-                    net = REGTEST;
+                if(_net == 0)
+                    net = net_type::MAIN;
+                if(_net == 1)
+                    net = net_type::TEST;
+                if(_net == 2)
+                    net = net_type::REGTEST;
             }
             else if(strcmp(argv[a], "-m") == 0)
             {

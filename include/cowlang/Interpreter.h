@@ -73,7 +73,6 @@ private:
     std::string read_name();
     std::vector<std::string> read_names();
 
-    bitstream m_data;
     MemoryManager &m_mem;
     bool do_not_free_scope;
 
@@ -83,6 +82,7 @@ private:
 
     uint32_t m_num_execution_steps;
     uint32_t m_execution_step_limit;
+    bitstream m_data;
 };
 
 inline void Interpreter::set_value(const std::string &name, ValuePtr value)

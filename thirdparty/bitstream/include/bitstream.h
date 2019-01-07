@@ -246,18 +246,21 @@ public:
         uint32_t length;
         bytecode.read((char *)&length, sizeof(uint32_t));
         length = Swap(length);
-        for(uint32_t i = 0; i < length; ++i)
+        if(length > 0)
         {
-            char c;
-            bytecode >> c;
-            data += c;
+            data.resize(length);
+            bytecode.read(&data[0], length);
         }
+        printf("DESERIALIZING LEN %d: %s\n", length, data.c_str());
+
         return *this;
     }
 
     bitstream &operator<<(std::string data)
     {
         uint32_t length = (uint32_t)data.size();
+        printf("SERIALIZING LEN %d: %s\n", length, data.c_str());
+
         length = Swap(length);
         bytecode.write((const char *)&length, sizeof(uint32_t));
         if(length > 0)

@@ -44,6 +44,13 @@ clang_tidy_checks = '-hicpp-signed-bitwise,-readability-implicit-bool-conversion
 # Now, build the command line interpreter
 contractpython = executable('contractpython', shell_cpp_files, dependencies: [gtest, pypa_dep, readline], link_with: [libcowlang, snappy_lib], include_directories: [inc_dir_pypy, inc_dirs_global, bitstream_local_incdir, pybind_inc, inc_dir_snappy])
 
+# .. and the shared library
+contractpythonlib = static_library('contractpython', slib_cpp_files, dependencies: [gtest, pypa_dep, readline], link_with: [libcowlang, snappy_lib], include_directories: [inc_dir_pypy, inc_dirs_global, bitstream_local_incdir, pybind_inc, inc_dir_snappy])
+
+# .. and the shared library
+contractpythonlibtest = executable('librarytester', slibtest_cpp_files, dependencies: [gtest, pypa_dep, readline], link_with: [contractpythonlib, libcowlang, snappy_lib], include_directories: [inc_dir_pypy, inc_dirs_global, bitstream_local_incdir, pybind_inc, inc_dir_snappy])
+
+
 # NOTE: gtest on ubuntu still uses deprecated functions so we can't lint the test files yet
 clangtidy = find_program('clang-tidy', required: false)
 if clangtidy.found()
