@@ -66,13 +66,19 @@ BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem)
     ADD_FUNCTION("value", EMPTY_ARGS, get_value);
     ADD_FUNCTION("contract_balance", EMPTY_ARGS, get_contract_balance);
     ADD_FUNCTION("random", EMPTY_ARGS, get_random);
+
+    std::vector<std::string> assert_args;
+    assert_args.push_back("address");
+
+    std::vector<std::string> send_args;
+    send_args.push_back("address");
+    send_args.push_back("value");
+
+    ADD_FUNCTION("assert_address", assert_args, assert_address);
+    ADD_FUNCTION("send", send_args, send);
+    ADD_FUNCTION("revert", EMPTY_ARGS, revert);
 }
 
-ValuePtr BlockchainModule::fourtytwo(Scope &scope)
-{
-    auto &mem = memory_manager();
-    return wrap_value(new(mem) IntVal(mem, 42));
-}
 
 ValuePtr BlockchainModule::get_current_block(Scope &scope)
 {
@@ -81,6 +87,70 @@ ValuePtr BlockchainModule::get_current_block(Scope &scope)
 }
 
 ValuePtr BlockchainModule::get_txid(Scope &scope)
+{
+    auto &mem = memory_manager();
+    return wrap_value(new(mem) StringVal(mem, txid));
+}
+
+ValuePtr BlockchainModule::assert_address(Scope &scope)
+{
+    auto &mem = memory_manager();
+
+    if(!scope.has_value("address"))
+        throw std::runtime_error("address argument not present");
+
+    ValuePtr p = scope.get_value("address");
+    if(p == 0)
+        throw std::runtime_error("pointer clash");
+
+    std::string a = p->str();
+    if(a.size() == 0)
+        throw std::runtime_error("address cannot be of length zero");
+
+    if(!addr_check(a.c_str()))
+        throw std::runtime_error("assert failed: argument is not a valid address");
+
+    return wrap_value(new(mem) BoolVal(mem, true));
+}
+
+ValuePtr BlockchainModule::send(Scope &scope)
+{
+    auto &mem = memory_manager();
+
+    // First, we get the address from the arguments
+    if(!scope.has_value("address"))
+        throw std::runtime_error("address argument not present");
+
+    ValuePtr p = scope.get_value("address");
+    if(p == 0)
+        throw std::runtime_error("pointer clash");
+
+    std::string a = p->str();
+    if(a.size() == 0)
+        throw std::runtime_error("address cannot be of length zero");
+
+    if(!addr_check(a.c_str()))
+        throw std::runtime_error("assert failed: argument is not a valid address");
+
+    // and now, we get the value to be sent
+    if(!scope.has_value("value"))
+        throw std::runtime_error("value argument not present");
+
+    ValuePtr v = scope.get_value("value");
+    if(p == 0)
+        throw std::runtime_error("pointer clash");
+
+    int64_t value = unpack_integer(v);
+    if(value<0 | value> contract_balance)
+    {
+        throw std::runtime_error("sending more than the contract has");
+    }
+
+    // TODO SEND
+    return wrap_value(new(mem) BoolVal(mem, true));
+}
+
+ValuePtr BlockchainModule::revert(Scope &scope)
 {
     auto &mem = memory_manager();
     return wrap_value(new(mem) StringVal(mem, txid));
@@ -147,8 +217,7 @@ ValuePtr BlockchainModule::get_member(const std::string &name)
     }
     // fallback
     throw std::runtime_error("no such "
-                             "funchttps://github.com/adafruit/Raspberry-Pi-Installer-Scripts/raw/"
-                             "master/adafruit-pitft.shtion '" +
+                             "function '" +
                              name + "' in blockchain module");
 }
 

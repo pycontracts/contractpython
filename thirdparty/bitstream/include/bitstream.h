@@ -251,7 +251,6 @@ public:
             data.resize(length);
             bytecode.read(&data[0], length);
         }
-        printf("DESERIALIZING LEN %d: %s\n", length, data.c_str());
 
         return *this;
     }
@@ -259,7 +258,6 @@ public:
     bitstream &operator<<(std::string data)
     {
         uint32_t length = (uint32_t)data.size();
-        printf("SERIALIZING LEN %d: %s\n", length, data.c_str());
 
         length = Swap(length);
         bytecode.write((const char *)&length, sizeof(uint32_t));

@@ -13,7 +13,7 @@ inline bool unpack_bool(ValuePtr val)
     return bval->get();
 }
 
-inline int32_t unpack_integer(ValuePtr val)
+inline int64_t unpack_integer(ValuePtr val)
 {
     if(val == nullptr || val->type() != ValueType::Integer)
     {

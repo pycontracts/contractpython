@@ -77,6 +77,17 @@ bool execute_program(std::string raw, net_type network, blockchain_arguments blk
     try
     {
 
+        // set those global fields for the mod blockchain module
+        cow::txid = blkchn.txid;
+        cow::current_block = blkchn.current_block;
+        cow::previous_block = blkchn.previous_block;
+        cow::current_time = blkchn.current_time;
+        cow::previous_time = blkchn.previous_time;
+        cow::sender = blkchn.sender;
+        cow::contract_address = blkchn.contract_address;
+        cow::value = blkchn.value;
+        cow::contract_balance = blkchn.contract_balance;
+
         // make sure to select the correct net
         net = network;
 
