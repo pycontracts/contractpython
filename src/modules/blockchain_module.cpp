@@ -47,6 +47,7 @@ std::string sender = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa";
 std::string contract_address = "1XPTgDRhN8RFnzniWCddobD9iKZatrvH4";
 uint64_t value = (uint64_t)50 * COIN;
 uint64_t contract_balance = (uint64_t)300 * COIN;
+std::map<std::string, uint64_t> send_map;
 
 BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem)
 {
@@ -141,10 +142,15 @@ ValuePtr BlockchainModule::send(Scope &scope)
         throw std::runtime_error("pointer clash");
 
     int64_t value = unpack_integer(v);
-    if(value<0 | value> contract_balance)
+    if((value < 0) | ((uint64_t)value > contract_balance))
     {
-        throw std::runtime_error("sending more than the contract has");
+        throw std::runtime_error("sending more than the contract balance would allow");
     }
+
+    // Store that data in the send map (outside of the mapped heap)
+    std::map<std::string, uint64_t>::iterator it = m.find(a);
+    if(it != m.end())
+        it->second += value;
 
     // TODO SEND
     return wrap_value(new(mem) BoolVal(mem, true));
