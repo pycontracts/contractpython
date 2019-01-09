@@ -6,4 +6,5 @@ interpreter_cpp_files = files(
     'modules/rand.cpp',
     'Scope.cpp',
     'MemoryManager.cpp',
-    'Generator.cpp')
+    'Generator.cpp',
+    'PersistableDictionary.cpp')

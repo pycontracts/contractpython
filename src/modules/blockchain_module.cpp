@@ -9,10 +9,10 @@
 #include <float.h>
 #include <limits.h>
 #include <math.h>
+#include <memory>
 #include <modules/blockchain_module.h>
 #include <stddef.h>
 #include <string.h>
-#include <time.h>
 
 #define s(i) _s[i]
 /* Swap bytes that A and B point to. */
@@ -36,7 +36,6 @@ std::vector<std::string> empty;
 namespace cow
 {
 net_type net = net_type::MAIN;
-
 /* These are hardcoded default values for easy testing */
 std::string txid = "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d";
 std::string current_block = "00000000000000000015c23c0979270b91c26a562ae62463b85481f1d945bc21";
@@ -49,14 +48,13 @@ uint64_t value = (uint64_t)50 * COIN;
 uint64_t contract_balance = (uint64_t)300 * COIN;
 std::map<std::string, uint64_t> send_map;
 
-BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem)
+BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem), store(mem)
 {
     // preseed RC4
     for(int i = 0; i < 256; i++)
         s(i) = i;
     seeded = 0;
 
-    // ADD_FUNCTION("fourtytwo", EMPTY_ARGS, fourtytwo);
     ADD_FUNCTION("txid", EMPTY_ARGS, get_txid);
     ADD_FUNCTION("current_block", EMPTY_ARGS, get_current_block);
     ADD_FUNCTION("previous_block", EMPTY_ARGS, get_previous_block);
@@ -142,17 +140,33 @@ ValuePtr BlockchainModule::send(Scope &scope)
         throw std::runtime_error("pointer clash");
 
     int64_t value = unpack_integer(v);
-    if((value < 0) | ((uint64_t)value > contract_balance))
+    if((value <= 0) | ((uint64_t)value > contract_balance))
     {
-        throw std::runtime_error("sending more than the contract balance would allow");
+        throw std::runtime_error("sending nothing or more than the contract balance would allow");
     }
 
     // Store that data in the send map (outside of the mapped heap)
-    std::map<std::string, uint64_t>::iterator it = m.find(a);
-    if(it != m.end())
+    std::map<std::string, uint64_t>::iterator it = send_map.find(a);
+    if(it != send_map.end())
+    {
+        uint64_t overflow_check = it->second;
         it->second += value;
+        if(it->second <= overflow_check)
+        {
+            throw std::runtime_error("sending produces overflow in receiver balance");
+        }
+    }
+    else
+        send_map[it->first] = it->second;
 
-    // TODO SEND
+    // now decuct the remaining contract balance
+    uint64_t overflow_check = it->second;
+    contract_balance -= value;
+    if(contract_balance <= overflow_check)
+    {
+        throw std::runtime_error("sending produces overflow in contract balance");
+    }
+
     return wrap_value(new(mem) BoolVal(mem, true));
 }
 
@@ -215,6 +229,11 @@ ValuePtr BlockchainModule::get_random(Scope &scope)
 
 ValuePtr BlockchainModule::get_member(const std::string &name)
 {
+
+    if(name == "store")
+    {
+        return std::make_shared<PersistableDictionary>(store);
+    }
 
     if(function_map.find(name) != function_map.end())
     {

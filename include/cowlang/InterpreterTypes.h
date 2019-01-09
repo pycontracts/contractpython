@@ -17,6 +17,7 @@ enum class ValueType
     Builtin,
     List,
     Dictionary,
+    PersistableDictionary,
     Iterator,
     Tuple,
     Alias,

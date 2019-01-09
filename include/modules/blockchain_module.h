@@ -4,6 +4,7 @@
 #include <btc.h>
 #include <cowlang/Interpreter.h>
 #include <cowlang/Module.h>
+#include <cowlang/PersistableDictionary.h>
 #include <cowlang/cow.h>
 #include <cowlang/unpack.h>
 #include <segwit_addr.h>
@@ -78,6 +79,7 @@ private:
     ValuePtr revert(Scope &scope);
     ValuePtr get_contract_balance(Scope &scope);
     std::map<std::string, ValuePtr> function_map;
+    PersistableDictionary store;
 
     void seed();
 

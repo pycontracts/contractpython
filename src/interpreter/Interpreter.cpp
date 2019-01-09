@@ -904,6 +904,10 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         {
             returnval = value_cast<Dictionary>(val)->get(value_cast<StringVal>(slice)->get());
         }
+        else if(val->type() == ValueType::PersistableDictionary && slice->type() == ValueType::String)
+        {
+            returnval = value_cast<Dictionary>(val)->get(value_cast<StringVal>(slice)->get());
+        }
         else if(val->type() == ValueType::List && slice->type() == ValueType::Integer)
         {
             returnval = value_cast<List>(val)->get(value_cast<IntVal>(slice)->get());
