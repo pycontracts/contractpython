@@ -60,6 +60,7 @@ const uint8_t attr[] = { 0,     0,     0,     0,     0,     0,     0,     0,    
 
 // Command line parsing
 bool only_compile = false;
+bool unsnappy = false;
 uint32_t gas = 5000000;
 uint32_t gasprice = 100;
 uint32_t pagelimit = DEFAULT_MAXIMUM_HEAP_PAGES;
@@ -334,6 +335,32 @@ void compile_src_file(std::string &filename)
     }
 }
 
+void compile_src_file_unsnappy(std::string &filename)
+{
+    HANDLE_WITH_FULL_HEADER = 1;
+    try
+    {
+        auto doc = compile_file(filename, err_func);
+        std::ofstream fl(filename + ".bitstream.unsnappy", std::ios::out | std::ios::binary);
+        std::string compressed = doc.store();
+
+        fl.write((const char *)compressed.data(), compressed.size());
+        fl.close();
+    }
+    catch(std::exception &e)
+    {
+        error_buffer.seekg(0, std::ios::end);
+        int size = error_buffer.tellg();
+        if(size > 0)
+            std::cerr << termcolor::on_white << termcolor::red << error_buffer.str() << termcolor::reset;
+        else
+            std::cerr << termcolor::on_white << termcolor::red << "CompileError: " << e.what()
+                      << termcolor::reset << std::endl;
+
+        error_buffer.str("");
+    }
+}
+
 std::string get_prompt(const char *prompt) { return prompt; }
 
 void handle_readline(Interpreter &pyint)
@@ -404,7 +431,8 @@ int usage(char **argv)
     printf("usage: %s [<opts>] [<filename> | <contract address> | <empty>]\n"
            "\nOptions:\n\n"
            "-x             : compile python file into bitstream\n"
-           "-g [N]         : add N gas to the engine [default: 5000000]\n"
+           "-x             : compile python file into bitstream\n"
+           "-S             : (unsnappy) compiles the bitstream without compression (debug only)\n"
            "-G [N]         : set gasprice, maximum instructions will be gas / gasprice [default: "
            "100]\n"
            "-n [N]         : set network type (0=main, 1=testnet, 2=regtest) [default: 0]\n"
@@ -452,6 +480,10 @@ int pre_process_options(int argc, char **argv)
             else if(strcmp(argv[a], "-x") == 0)
             {
                 only_compile = true;
+            }
+            else if(strcmp(argv[a], "-S") == 0)
+            {
+                unsnappy = true;
             }
             else if(strcmp(argv[a], "-B") == 0)
             {
@@ -567,7 +599,10 @@ int main(int argc, char *argv[])
         else
         {
             if(only_compile)
-                compile_src_file(input);
+                if(unsnappy)
+                    compile_src_file_unsnappy(input);
+                else
+                    compile_src_file(input);
             else
             {
                 handle_src_file(input, pyint);

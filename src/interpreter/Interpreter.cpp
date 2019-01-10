@@ -239,9 +239,9 @@ std::vector<std::string> Interpreter::read_names()
         result.push_back(read_name());
         result.push_back(read_name());
     }
-    else
+    else{
         throw std::runtime_error("Not a valid name [m]");
-
+    }
     return result;
 }
 
@@ -389,6 +389,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         uint32_t num_targets = 0;
         m_data >> num_targets;
+
+        printf("ASSIGNMENT, NUM TARGETS %d\n", num_targets);
 
         for(uint32_t i = 0; i < num_targets; ++i)
         {
@@ -906,6 +908,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         }
         else if(val->type() == ValueType::PersistableDictionary && slice->type() == ValueType::String)
         {
+            printf("FOUND PERSISTABLE SUBSTRING: %s\n", slice->str().c_str());
             returnval = value_cast<Dictionary>(val)->get(value_cast<StringVal>(slice)->get());
         }
         else if(val->type() == ValueType::List && slice->type() == ValueType::Integer)
