@@ -72,62 +72,68 @@ void handle_error(pypa::Error e)
 }
 std::function<void(pypa::Error)> err_func(handle_error);
 
-int execute_program(std::string raw, net_type network, blockchain_arguments blkchn, uint64_t gas, uint32_t gasprice)
+int execute_program(std::string raw, net_type network, blockchain_arguments blkchn, uint64_t gas, uint32_t gasprice, uint64_t &used_g)
 {
+
+    // possibly throws early on syntax error
+
+    // set those global fields for the mod blockchain module
+    cow::txid = blkchn.txid;
+    cow::current_block = blkchn.current_block;
+    cow::previous_block = blkchn.previous_block;
+    cow::current_time = blkchn.current_time;
+    cow::previous_time = blkchn.previous_time;
+    cow::sender = blkchn.sender;
+    cow::contract_address = blkchn.contract_address;
+    cow::value = blkchn.value;
+    cow::contract_balance = blkchn.contract_balance;
+
+    // make sure to select the correct net
+    net = network;
+
+    // init everything
+    DefaultMemoryManager mem_manager;
+    std::string decompressed;
+    snappy::Uncompress(raw.data(), raw.size(), &decompressed);
+
+    bitstream doc(decompressed);
+    Interpreter pyint(doc, mem_manager);
+    uint64_t limit = gas;
+    limit /= gasprice;
+    pyint.set_execution_step_limit((uint32_t)limit);
+    register_blockchain_module(pyint);
+
     try
     {
-
-        // set those global fields for the mod blockchain module
-        cow::txid = blkchn.txid;
-        cow::current_block = blkchn.current_block;
-        cow::previous_block = blkchn.previous_block;
-        cow::current_time = blkchn.current_time;
-        cow::previous_time = blkchn.previous_time;
-        cow::sender = blkchn.sender;
-        cow::contract_address = blkchn.contract_address;
-        cow::value = blkchn.value;
-        cow::contract_balance = blkchn.contract_balance;
-
-        // make sure to select the correct net
-        net = network;
-
-        // init everything
-        DefaultMemoryManager mem_manager;
-        std::string decompressed;
-        snappy::Uncompress(raw.data(), raw.size(), &decompressed);
-
-        bitstream doc(decompressed);
-        Interpreter pyint(doc, mem_manager);
-        uint64_t limit = gas;
-        limit /= gasprice;
-        pyint.set_execution_step_limit((uint32_t)limit);
-        register_blockchain_module(pyint);
-
         // Go for it
         pyint.execute(); // make print also print to a buffer
-
+        used_g = (limit - pyint.max_execution_steps()) * gasprice;
         return 0;
     }
     catch(OutOfGasException &e)
     {
+        used_g = (limit - pyint.max_execution_steps()) * gasprice;
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x70;
     }
     catch(SuicideException &e)
     {
+        used_g = (limit - pyint.max_execution_steps()) * gasprice;
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x69;
     }
     catch(RevertException &e)
     {
+        used_g = (limit - pyint.max_execution_steps()) * gasprice;
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x71;
     }
     catch(std::exception &e)
     {
+        used_g = (limit - pyint.max_execution_steps()) * gasprice;
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x80;
