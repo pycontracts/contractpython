@@ -53,7 +53,7 @@ ValuePtr List::get(int64_t index)
     return m_elements[index];
 }
 
-ValuePtr List::set(int64_t index, ValuePtr val)
+void List::set(int64_t index, ValuePtr val)
 {
     if(index >= size())
     {

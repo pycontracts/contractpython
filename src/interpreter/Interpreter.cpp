@@ -421,13 +421,11 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 auto index = execute();
                 // and now the subscript parent variable, which should always be a constant
                 auto sscr = read_name();
-                printf("%s[%s] = %s, index type %d\n", sscr.c_str(), index->str().c_str(),
-                       val->str().c_str(), index->type());
 
                 // Now we do the assigment and check for the validity of the index!
                 // numeric for List and String for Dict!
                 auto obj = scope.get_value(sscr);
-                if(obj == 0)
+                if(obj == nullptr)
                 {
                     throw std::runtime_error("Array or dictionary '" + sscr + "' has not been defined.");
                 }
@@ -439,12 +437,13 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                     }
                     if(obj->type() == ValueType::Dictionary)
                     {
-                        auto unwrapped = value_cast<Dictionary>(obj);
+                        std::shared_ptr<Dictionary> unwrapped = value_cast<Dictionary>(obj);
                         unwrapped->insert(index->str(), val);
                     }
                     else
                     {
-                        auto unwrapped = value_cast<PersistableDictionary>(obj);
+                        std::shared_ptr<PersistableDictionary> unwrapped =
+                        value_cast<PersistableDictionary>(obj);
                         unwrapped->insert(index->str(), val);
                     }
                 }
@@ -454,7 +453,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                     {
                         throw std::runtime_error("Array indices must be of type 'Integer'");
                     }
-                    auto unwrapped = value_cast<List>(obj);
+                    std::shared_ptr<List> unwrapped = value_cast<List>(obj);
                     int64_t i = (int64_t)value_cast<IntVal>(index)->get();
                     unwrapped->set(i, val);
                 }

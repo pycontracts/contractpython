@@ -33,7 +33,7 @@ public:
 
     ValuePtr get(int64_t index);
 
-    ValuePtr set(int64_t index, ValuePtr val);
+    void set(int64_t index, ValuePtr val);
 
     ValuePtr get_member(const std::string &name) override;
 

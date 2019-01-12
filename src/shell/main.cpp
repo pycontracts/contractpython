@@ -3,7 +3,9 @@
 #include <cowlang/cow.h>
 #include <cowlang/unpack.h>
 #include <fstream>
+#include <helpmessages.h>
 #include <inttypes.h>
+#include <iomanip>
 #include <iostream>
 #include <modules/blockchain_module.h>
 #include <readline/history.h>
@@ -11,10 +13,8 @@
 #include <snappy.h>
 #include <sstream>
 #include <stdio.h>
-#include <unistd.h>
-
-#include <helpmessages.h>
 #include <termcolor.h>
+#include <unistd.h>
 
 using namespace cow;
 
@@ -44,19 +44,18 @@ extern size_t DEFAULT_MAXIMUM_HEAP_PAGES;
 #define AT_LX (FL_LOWER | FL_ALPHA | FL_PRINT | FL_XDIGIT)
 
 // table of attributes for ascii characters
-const uint8_t attr[] = { 0,     0,     0,     0,     0,     0,     0,     0,     0,     AT_SP,
-                         AT_SP, AT_SP, AT_SP, AT_SP, 0,     0,     0,     0,     0,     0,
-                         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-                         0,     0,     AT_SP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
-                         AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_DI, AT_DI,
-                         AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_PR, AT_PR,
-                         AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_UX, AT_UX, AT_UX, AT_UX, AT_UX,
-                         AT_UX, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
-                         AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
-                         AT_UP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_LX, AT_LX, AT_LX,
-                         AT_LX, AT_LX, AT_LX, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
-                         AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
-                         AT_LO, AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0 };
+const uint8_t attr[] = {
+    0,     0,     0,     0,     0,     0,     0,     0,     0,     AT_SP, AT_SP, AT_SP, AT_SP,
+    AT_SP, 0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+    0,     0,     0,     0,     0,     0,     AT_SP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
+    AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_DI, AT_DI, AT_DI, AT_DI,
+    AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
+    AT_UX, AT_UX, AT_UX, AT_UX, AT_UX, AT_UX, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
+    AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
+    AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_LX, AT_LX, AT_LX, AT_LX, AT_LX, AT_LX, AT_LO,
+    AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
+    AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0
+};
 
 // Command line parsing
 bool only_compile = false;
@@ -608,5 +607,33 @@ int main(int argc, char *argv[])
                 handle_src_file(input, pyint);
             }
         }
+        std::cout << termcolor::bold << "\nGood bye! We will now dump the send table for you:" << std::endl
+                  << termcolor::reset << std::endl;
+        std::cout << termcolor::cyan << "| " << std::setw(40) << "Address"
+                  << " | " << std::setw(20) << "Value (in Satoshi)"
+                  << " |" << termcolor::reset << std::endl;
+        std::cout << termcolor::reset << termcolor::cyan
+                  << "-------------------------------------------------------------------"
+                  << termcolor::reset << std::endl;
+
+        std::map<std::string, uint64_t>::iterator it = send_map.begin();
+        if(it == send_map.end())
+        {
+            std::cout << termcolor::reset << termcolor::cyan << "| " << termcolor::reset
+                      << std::setw(63) << "The send table has no entries" << termcolor::reset
+                      << termcolor::cyan << " |" << termcolor::reset << std::endl;
+        }
+        while(it != send_map.end())
+        {
+            std::cout << termcolor::reset << termcolor::cyan << "| " << termcolor::reset
+                      << std::setw(40) << it->first << termcolor::reset << termcolor::cyan << " | "
+                      << termcolor::reset << std::setw(20) << it->second << termcolor::reset
+                      << termcolor::cyan << " |" << termcolor::reset << std::endl;
+            ++it;
+        }
+
+        std::cout << termcolor::reset << termcolor::cyan
+                  << "-------------------------------------------------------------------"
+                  << termcolor::reset << std::endl;
     }
 }

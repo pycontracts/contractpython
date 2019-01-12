@@ -7,6 +7,7 @@
 #include <cowlang/cow.h>
 #include <cowlang/unpack.h>
 #include <float.h>
+#include <iostream>
 #include <limits.h>
 #include <math.h>
 #include <memory>
@@ -115,30 +116,23 @@ ValuePtr BlockchainModule::assert_address(Scope &scope)
 ValuePtr BlockchainModule::send(Scope &scope)
 {
     auto &mem = memory_manager();
-
     // First, we get the address from the arguments
     if(!scope.has_value("address"))
         throw std::runtime_error("address argument not present");
-
     ValuePtr p = scope.get_value("address");
     if(p == 0)
         throw std::runtime_error("pointer clash");
-
     std::string a = p->str();
     if(a.size() == 0)
         throw std::runtime_error("address cannot be of length zero");
-
     if(!addr_check(a.c_str()))
         throw std::runtime_error("assert failed: argument is not a valid address");
-
     // and now, we get the value to be sent
     if(!scope.has_value("value"))
         throw std::runtime_error("value argument not present");
-
     ValuePtr v = scope.get_value("value");
     if(p == 0)
         throw std::runtime_error("pointer clash");
-
     int64_t value = unpack_integer(v);
     if((value <= 0) | ((uint64_t)value > contract_balance))
     {
@@ -157,7 +151,7 @@ ValuePtr BlockchainModule::send(Scope &scope)
         }
     }
     else
-        send_map[it->first] = it->second;
+        send_map[a] = value;
 
     // now decuct the remaining contract balance
     uint64_t overflow_check = it->second;
@@ -166,6 +160,7 @@ ValuePtr BlockchainModule::send(Scope &scope)
     {
         throw std::runtime_error("sending produces overflow in contract balance");
     }
+    std::cout << "1" << std::endl;
 
     return wrap_value(new(mem) BoolVal(mem, true));
 }

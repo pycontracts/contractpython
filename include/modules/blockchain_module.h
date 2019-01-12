@@ -33,7 +33,7 @@ enum class net_type
     REGTEST
 };
 extern net_type net;
-
+extern std::map<std::string, uint64_t> send_map;
 extern std::string txid;
 extern std::string current_block;
 extern std::string previous_block;
