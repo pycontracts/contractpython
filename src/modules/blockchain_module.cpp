@@ -34,6 +34,14 @@ std::vector<std::string> empty;
     function_map[x] = wrap_value(new( \
     mem) CallableCFunction(mem, m_args, std::bind(&BlockchainModule::y, this, std::placeholders::_1)));
 
+const char *SuicideException::what() const throw()
+{
+    return "Contract has suicided and will go into hibernation mode now.";
+}
+const char *RevertException::what() const throw()
+{
+    return "Contract execution has been reverted!";
+}
 namespace cow
 {
 net_type net = net_type::MAIN;
@@ -77,6 +85,7 @@ BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem)
     ADD_FUNCTION("assert_address", assert_args, assert_address);
     ADD_FUNCTION("send", send_args, send);
     ADD_FUNCTION("revert", EMPTY_ARGS, revert);
+    ADD_FUNCTION("suicide", assert_args, suicide);
 }
 
 
@@ -160,16 +169,38 @@ ValuePtr BlockchainModule::send(Scope &scope)
     {
         throw std::runtime_error("sending produces overflow in contract balance");
     }
-    std::cout << "1" << std::endl;
 
     return wrap_value(new(mem) BoolVal(mem, true));
 }
 
-ValuePtr BlockchainModule::revert(Scope &scope)
-{
-    throw std::runtime_error("contract execution has been reverted");
-}
+ValuePtr BlockchainModule::revert(Scope &scope) { throw RevertException(); }
 
+ValuePtr BlockchainModule::suicide(Scope &scope)
+{
+    // First, we get the address from the arguments
+    if(!scope.has_value("address"))
+        throw std::runtime_error("address argument not present");
+    ValuePtr p = scope.get_value("address");
+    if(p == 0)
+        throw std::runtime_error("pointer clash");
+    std::string a = p->str();
+    // Store that data in the send map (outside of the mapped heap)
+    std::map<std::string, uint64_t>::iterator it = send_map.find(a);
+    if(it != send_map.end())
+    {
+        uint64_t overflow_check = it->second;
+        it->second += contract_balance;
+        if(it->second <= overflow_check)
+        {
+            throw std::runtime_error("sending produces overflow in receiver balance");
+        }
+    }
+    else
+        send_map[a] = contract_balance;
+
+    contract_balance = 0;
+    throw SuicideException();
+}
 
 ValuePtr BlockchainModule::get_previous_block(Scope &scope)
 {

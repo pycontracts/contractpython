@@ -7,9 +7,18 @@
 #include <cowlang/PersistableDictionary.h>
 #include <cowlang/cow.h>
 #include <cowlang/unpack.h>
+#include <exception>
 #include <segwit_addr.h>
 
 #define COIN 100000000
+struct SuicideException : public std::exception
+{
+    const char *what() const throw();
+};
+struct RevertException : public std::exception
+{
+    const char *what() const throw();
+};
 
 typedef struct
 {
@@ -77,6 +86,7 @@ private:
     ValuePtr assert_address(Scope &scope);
     ValuePtr send(Scope &scope);
     ValuePtr revert(Scope &scope);
+    ValuePtr suicide(Scope &scope);
     ValuePtr get_contract_balance(Scope &scope);
     std::map<std::string, ValuePtr> function_map;
     void seed();

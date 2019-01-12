@@ -291,10 +291,37 @@ void handle_src_file(std::string &filename, Interpreter &pyint)
         stdout_buffer.str("");
         ;
     }
+    catch(RevertException &e)
+    {
+        stdout_buffer.seekg(0, std::ios::end);
+        int size = stdout_buffer.tellg();
+        if(size > 0)
+            std::cout << termcolor::green << stdout_buffer.str() << termcolor::reset;
+        stdout_buffer.str("");
+        std::cerr << termcolor::on_blue << termcolor::green
+                  << "** the contract execution has been reverted gracefully **" << termcolor::reset
+                  << std::endl;
+    }
+    catch(SuicideException &e)
+    {
+        stdout_buffer.seekg(0, std::ios::end);
+        int size = stdout_buffer.tellg();
+        if(size > 0)
+            std::cout << termcolor::green << stdout_buffer.str() << termcolor::reset;
+        stdout_buffer.str("");
+        std::cerr << termcolor::on_blue << termcolor::green
+                  << "** the contract has suicided, and will go into hibernation mode now **"
+                  << termcolor::reset << std::endl;
+    }
     catch(std::exception &e)
     {
+        stdout_buffer.seekg(0, std::ios::end);
+        int size = stdout_buffer.tellg();
+        if(size > 0)
+            std::cout << termcolor::green << stdout_buffer.str() << termcolor::reset;
+        stdout_buffer.str("");
         error_buffer.seekg(0, std::ios::end);
-        int size = error_buffer.tellg();
+        size = error_buffer.tellg();
         if(size > 0)
             std::cerr << termcolor::on_white << termcolor::red << error_buffer.str() << termcolor::reset;
         else
@@ -408,6 +435,18 @@ void handle_readline(Interpreter &pyint)
             stdout_buffer.str("");
 
             line.clear(); // clear
+        }
+        catch(RevertException &e)
+        {
+            std::cerr << termcolor::on_blue << termcolor::green
+                      << "** the contract execution has been reverted gracefully **"
+                      << termcolor::reset << std::endl;
+        }
+        catch(SuicideException &e)
+        {
+            std::cerr << termcolor::on_blue << termcolor::green
+                      << "** the contract has suicided, and will go into hibernation mode now **"
+                      << termcolor::reset << std::endl;
         }
         catch(std::exception &e)
         {
