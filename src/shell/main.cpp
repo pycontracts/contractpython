@@ -275,15 +275,41 @@ void print_instruction_limit(Interpreter &pyint)
               << termcolor::yellow << "] " << termcolor::reset << std::endl;
 }
 
+inline bool ends_with(std::string const &value, std::string const &ending)
+{
+    if(ending.size() > value.size())
+        return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
 
 void handle_src_file(std::string &filename, Interpreter &pyint)
 {
     HANDLE_WITH_FULL_HEADER = 1;
     try
     {
-        auto doc = compile_file(filename, err_func);
-        pyint.re_assign_bitstream(doc);
-        pyint.execute();
+        if(ends_with(filename, ".bitstream.unsnappy"))
+        {
+            std::ifstream input(filename, std::ios::binary);
+            std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+            pyint.re_assign_bitstream(str);
+            pyint.execute();
+        }
+        else if(ends_with(filename, ".bitstream"))
+        {
+            std::ifstream input(filename, std::ios::binary);
+            std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+            std::string decompressed;
+            snappy::Uncompress(str.data(), str.size(), &decompressed);
+            pyint.re_assign_bitstream(decompressed);
+            pyint.execute();
+        }
+        else
+        {
+            auto doc = compile_file(filename, err_func);
+            pyint.re_assign_bitstream(doc);
+            pyint.execute();
+        }
+
         stdout_buffer.seekg(0, std::ios::end);
         int size = stdout_buffer.tellg();
         if(size > 0)
@@ -625,54 +651,58 @@ int main(int argc, char *argv[])
         pyint.set_execution_step_limit((uint32_t)limit);
         register_blockchain_module(pyint);
 
-        if(input == "")
+        if(!only_compile)
         {
-            std::cout << termcolor::bold << "\nWelcome to " << __VERSIONSTRING__ << std::endl;
-            std::cout << termcolor::reset << termcolor::cyan << "Press CTRL+D to exit"
-                      << termcolor::reset << std::endl
-                      << std::endl;
+            if(input == "")
+            {
+                std::cout << termcolor::bold << "\nWelcome to " << __VERSIONSTRING__ << std::endl;
+                std::cout << termcolor::reset << termcolor::cyan << "Press CTRL+D to exit"
+                          << termcolor::reset << std::endl
+                          << std::endl;
 
-            handle_readline(pyint);
-        }
-        else
-        {
-            if(only_compile)
-                if(unsnappy)
-                    compile_src_file_unsnappy(input);
-                else
-                    compile_src_file(input);
+                handle_readline(pyint);
+            }
             else
             {
-                handle_src_file(input, pyint);
+                if(only_compile)
+                    if(unsnappy)
+                        compile_src_file_unsnappy(input);
+                    else
+                        compile_src_file(input);
+                else
+                {
+                    handle_src_file(input, pyint);
+                }
             }
-        }
-        std::cout << termcolor::bold << "\nGood bye! We will now dump the send table for you:" << std::endl
-                  << termcolor::reset << std::endl;
-        std::cout << termcolor::cyan << "| " << std::setw(40) << "Address"
-                  << " | " << std::setw(20) << "Value (in Satoshi)"
-                  << " |" << termcolor::reset << std::endl;
-        std::cout << termcolor::reset << termcolor::cyan
-                  << "-------------------------------------------------------------------"
-                  << termcolor::reset << std::endl;
+            std::cout << termcolor::bold
+                      << "\nGood bye! We will now dump the send table for you:" << std::endl
+                      << termcolor::reset << std::endl;
+            std::cout << termcolor::cyan << "| " << std::setw(40) << "Address"
+                      << " | " << std::setw(20) << "Value (in Satoshi)"
+                      << " |" << termcolor::reset << std::endl;
+            std::cout << termcolor::reset << termcolor::cyan
+                      << "-------------------------------------------------------------------"
+                      << termcolor::reset << std::endl;
 
-        std::map<std::string, uint64_t>::iterator it = send_map.begin();
-        if(it == send_map.end())
-        {
-            std::cout << termcolor::reset << termcolor::cyan << "| " << termcolor::reset
-                      << std::setw(63) << "The send table has no entries" << termcolor::reset
-                      << termcolor::cyan << " |" << termcolor::reset << std::endl;
-        }
-        while(it != send_map.end())
-        {
-            std::cout << termcolor::reset << termcolor::cyan << "| " << termcolor::reset
-                      << std::setw(40) << it->first << termcolor::reset << termcolor::cyan << " | "
-                      << termcolor::reset << std::setw(20) << it->second << termcolor::reset
-                      << termcolor::cyan << " |" << termcolor::reset << std::endl;
-            ++it;
-        }
+            std::map<std::string, uint64_t>::iterator it = send_map.begin();
+            if(it == send_map.end())
+            {
+                std::cout << termcolor::reset << termcolor::cyan << "| " << termcolor::reset
+                          << std::setw(63) << "The send table has no entries" << termcolor::reset
+                          << termcolor::cyan << " |" << termcolor::reset << std::endl;
+            }
+            while(it != send_map.end())
+            {
+                std::cout << termcolor::reset << termcolor::cyan << "| " << termcolor::reset
+                          << std::setw(40) << it->first << termcolor::reset << termcolor::cyan << " | "
+                          << termcolor::reset << std::setw(20) << it->second << termcolor::reset
+                          << termcolor::cyan << " |" << termcolor::reset << std::endl;
+                ++it;
+            }
 
-        std::cout << termcolor::reset << termcolor::cyan
-                  << "-------------------------------------------------------------------"
-                  << termcolor::reset << std::endl;
+            std::cout << termcolor::reset << termcolor::cyan
+                      << "-------------------------------------------------------------------"
+                      << termcolor::reset << std::endl;
+        }
     }
 }
