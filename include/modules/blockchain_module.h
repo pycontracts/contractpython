@@ -19,7 +19,10 @@ struct RevertException : public std::exception
 {
     const char *what() const throw();
 };
-
+struct OutOfGasException : public std::exception
+{
+    const char *what() const throw();
+};
 typedef struct
 {
     std::string txid;

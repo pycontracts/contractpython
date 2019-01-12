@@ -72,7 +72,7 @@ void handle_error(pypa::Error e)
 }
 std::function<void(pypa::Error)> err_func(handle_error);
 
-bool execute_program(std::string raw, net_type network, blockchain_arguments blkchn, uint64_t gas, uint32_t gasprice)
+int execute_program(std::string raw, net_type network, blockchain_arguments blkchn, uint64_t gas, uint32_t gasprice)
 {
     try
     {
@@ -106,12 +106,30 @@ bool execute_program(std::string raw, net_type network, blockchain_arguments blk
         // Go for it
         pyint.execute(); // make print also print to a buffer
 
-        return true;
+        return 0;
+    }
+    catch(OutOfGasException &e)
+    {
+        error_buffer << "ContractError: " << e.what();
+        error_buffer << std::endl;
+        return 0x70;
+    }
+    catch(SuicideException &e)
+    {
+        error_buffer << "ContractError: " << e.what();
+        error_buffer << std::endl;
+        return 0x69;
+    }
+    catch(RevertException &e)
+    {
+        error_buffer << "ContractError: " << e.what();
+        error_buffer << std::endl;
+        return 0x71;
     }
     catch(std::exception &e)
     {
-        error_buffer << "ExecutionException: " << e.what();
+        error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
-        return false;
+        return 0x80;
     }
 }

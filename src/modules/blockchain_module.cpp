@@ -42,6 +42,10 @@ const char *RevertException::what() const throw()
 {
     return "Contract execution has been reverted!";
 }
+const char *OutOfGasException::what() const throw()
+{
+    return "Contract execution has been aborted because the VM ran out of gas!";
+}
 namespace cow
 {
 net_type net = net_type::MAIN;

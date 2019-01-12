@@ -3,6 +3,7 @@
 #include <cowlang/Callable.h>
 #include <cowlang/CallableVMFunction.h>
 #include <cowlang/Dictionary.h>
+#include <modules/blockchain_module.h>
 
 #include <cowlang/InterpreterTypes.h>
 #include <cowlang/List.h>
@@ -287,7 +288,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
     if(m_execution_step_limit > 0 && m_num_execution_steps >= m_execution_step_limit)
     {
-        throw execution_limit_exception("Reached maximum number of steps!");
+        throw OutOfGasException();
     }
 
     auto start = m_data.pos();
