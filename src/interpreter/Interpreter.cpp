@@ -3,8 +3,12 @@
 #include <cowlang/Callable.h>
 #include <cowlang/CallableVMFunction.h>
 #include <cowlang/Dictionary.h>
+
 #include <cowlang/InterpreterTypes.h>
+#include <cowlang/List.h>
+#include <cowlang/PersistableDictionary.h>
 #include <cowlang/Scope.h>
+
 #include <iostream>
 #include <map>
 #include <memory>
@@ -22,11 +26,16 @@ Interpreter::Interpreter(const bitstream &data, MemoryManager &mem)
 {
     do_not_free_scope = false;
     m_global_scope = new(memory_manager()) Scope(memory_manager());
+
+    // add persistent store to interpreter
+    store = std::make_shared<PersistableDictionary>(mem);
+    m_global_scope->set_value("store", store);
 }
 
 Interpreter::Interpreter(const bitstream &data, MemoryManager &mem, Interpreter &scope_borrower)
 : m_mem(mem), m_num_execution_steps(0), m_execution_step_limit(0), m_data(data)
 {
+    store = scope_borrower.get_storage_pointer();
     do_not_free_scope = true;
     m_global_scope = scope_borrower.m_global_scope;
 }
@@ -35,6 +44,8 @@ Interpreter::~Interpreter()
 {
     if(!do_not_free_scope)
         delete m_global_scope;
+
+    // no need to free store: shared pointer will release it properly
 }
 
 
@@ -239,11 +250,13 @@ std::vector<std::string> Interpreter::read_names()
         result.push_back(read_name());
         result.push_back(read_name());
     }
-    else{
-        throw std::runtime_error("Not a valid name [m]");
+    else
+    {
+        throw std::runtime_error("Not a valid name [" + std::to_string((int)type) + "]");
     }
     return result;
 }
+
 
 std::string Interpreter::read_name()
 {
@@ -390,29 +403,117 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         uint32_t num_targets = 0;
         m_data >> num_targets;
 
-        printf("ASSIGNMENT, NUM TARGETS %d\n", num_targets);
 
         for(uint32_t i = 0; i < num_targets; ++i)
         {
-            auto names = read_names();
+            // here we need to decide whether we are dealing with a "subscript expression" or pure
+            // constants for this, we use the "peek operator" '&'
+            NodeType lookAhead;
+            m_data &lookAhead;
 
-            if(names.size() == 1)
-                scope.set_value(names[0], val);
-            else if(names.size() == 2)
+            if(lookAhead == NodeType::Subscript)
             {
-                if(val->type() != ValueType::Tuple)
+                // we found the subscript assignment, we need to remove the lookahead from m_data now! We do it quick and dirty
+                m_data >> lookAhead;
+
+                // Now we parse, and evaluate the subscript
+                // first, we evaluate the index of the parent variable, which may be a complex expresion
+                auto index = execute();
+                // and now the subscript parent variable, which should always be a constant
+                auto sscr = read_name();
+                printf("%s[%s] = %s, index type %d\n", sscr.c_str(), index->str().c_str(),
+                       val->str().c_str(), index->type());
+
+                // Now we do the assigment and check for the validity of the index!
+                // numeric for List and String for Dict!
+                auto obj = scope.get_value(sscr);
+                if(obj == 0)
                 {
-                    throw std::runtime_error("cannot unpack value: not a tuple");
+                    throw std::runtime_error("Array or dictionary '" + sscr + "' has not been defined.");
                 }
-
-                auto t = value_cast<Tuple>(val);
-
-                scope.set_value(names[0], t->get(0));
-                scope.set_value(names[1], t->get(1));
+                if(obj->type() == ValueType::Dictionary || obj->type() == ValueType::PersistableDictionary)
+                {
+                    if(index->type() != ValueType::String)
+                    {
+                        throw std::runtime_error("Dictionary indices must be of type 'String'");
+                    }
+                    if(obj->type() == ValueType::Dictionary)
+                    {
+                        auto unwrapped = value_cast<Dictionary>(obj);
+                        unwrapped->insert(index->str(), val);
+                    }
+                    else
+                    {
+                        auto unwrapped = value_cast<PersistableDictionary>(obj);
+                        unwrapped->insert(index->str(), val);
+                    }
+                }
+                else if(obj->type() == ValueType::List)
+                {
+                    if(index->type() != ValueType::Integer)
+                    {
+                        throw std::runtime_error("Array indices must be of type 'Integer'");
+                    }
+                    auto unwrapped = value_cast<List>(obj);
+                    int64_t i = (int64_t)value_cast<IntVal>(index)->get();
+                    unwrapped->set(i, val);
+                }
+                else
+                {
+                    throw std::runtime_error("Variable '" + sscr + "' is not an array or dictionary.");
+                }
             }
             else
             {
-                throw std::runtime_error("invalid number of names");
+
+                auto names = read_names();
+
+                if(names.size() == 1)
+                    scope.set_value(names[0], val);
+                else if(names.size() == 2)
+                {
+                    if(val->type() == ValueType::Tuple)
+                    {
+                        auto t = value_cast<Tuple>(val);
+
+                        scope.set_value(names[0], t->get(0));
+                        scope.set_value(names[1], t->get(1));
+                    }
+                    else
+                        throw std::runtime_error("cannot unpack value: not a tuple");
+                }
+                else if(names.size() == 3)
+                {
+                    auto dict = names[2];
+                    auto subscript = names[1];
+                    ValuePtr obj = scope.get_value(dict);
+                    if(obj->type() == ValueType::Dictionary)
+                    {
+                        auto t = value_cast<Dictionary>(obj);
+                        t->insert(subscript, val);
+                    }
+                    else if(obj->type() == ValueType::PersistableDictionary)
+                    {
+                        std::cout << "AAHAHAHAHAA " << dict << "{" << subscript << "}"
+                                  << " PTR" << obj->type() << std::endl;
+
+                        auto t = value_cast<PersistableDictionary>(obj);
+                        t->insert(subscript, val);
+                    }
+                    else if(obj->type() == ValueType::List)
+                    {
+                        auto t = value_cast<List>(obj);
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                        "subscript assigning only supported by array and dict");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("invalid number of names");
+                }
             }
         }
 
@@ -484,7 +585,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         }
         else if(res && res->type() == ValueType::Integer)
         {
-            int32_t i = value_cast<IntVal>(res)->get();
+            uint64_t i = value_cast<IntVal>(res)->get();
 
             switch(type)
             {
@@ -908,8 +1009,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         }
         else if(val->type() == ValueType::PersistableDictionary && slice->type() == ValueType::String)
         {
-            printf("FOUND PERSISTABLE SUBSTRING: %s\n", slice->str().c_str());
-            returnval = value_cast<Dictionary>(val)->get(value_cast<StringVal>(slice)->get());
+            returnval = value_cast<PersistableDictionary>(val)->get(value_cast<StringVal>(slice)->get());
         }
         else if(val->type() == ValueType::List && slice->type() == ValueType::Integer)
         {

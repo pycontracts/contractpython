@@ -135,6 +135,16 @@ public:
         v = (type)typus;                                               \
         return stream;                                                 \
     }                                                                  \
+    inline bitstream &operator&(bitstream &stream, type &v)            \
+    {                                                                  \
+        uint32_t typus = 0;                                            \
+        std::stringstream::pos_type pos = stream.bytecode.tellg();     \
+        stream.bytecode.read((char *)&typus, sizeof(uint32_t));        \
+        typus = stream.Swap(typus);                                    \
+        v = (type)typus;                                               \
+        stream.bytecode.seekg(pos);                                    \
+        return stream;                                                 \
+    }                                                                  \
     inline bitstream &operator<<(bitstream &stream, type v)            \
     {                                                                  \
         uint32_t typus = (uint32_t)v;                                  \

@@ -48,7 +48,7 @@ uint64_t value = (uint64_t)50 * COIN;
 uint64_t contract_balance = (uint64_t)300 * COIN;
 std::map<std::string, uint64_t> send_map;
 
-BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem), store(mem)
+BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem)
 {
     // preseed RC4
     for(int i = 0; i < 256; i++)
@@ -229,12 +229,6 @@ ValuePtr BlockchainModule::get_random(Scope &scope)
 
 ValuePtr BlockchainModule::get_member(const std::string &name)
 {
-
-    if(name == "store")
-    {
-        return std::make_shared<PersistableDictionary>(store);
-    }
-
     if(function_map.find(name) != function_map.end())
     {
         return function_map[name];

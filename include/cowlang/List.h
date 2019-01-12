@@ -31,7 +31,9 @@ public:
 
     ValuePtr duplicate(MemoryManager &mem) override;
 
-    ValuePtr get(uint32_t index);
+    ValuePtr get(int64_t index);
+
+    ValuePtr set(int64_t index, ValuePtr val);
 
     ValuePtr get_member(const std::string &name) override;
 

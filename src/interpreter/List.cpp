@@ -43,7 +43,7 @@ ValuePtr List::get_member(const std::string &name)
     }
 }
 
-ValuePtr List::get(uint32_t index)
+ValuePtr List::get(int64_t index)
 {
     if(index >= size())
     {
@@ -51,6 +51,16 @@ ValuePtr List::get(uint32_t index)
     }
 
     return m_elements[index];
+}
+
+ValuePtr List::set(int64_t index, ValuePtr val)
+{
+    if(index >= size())
+    {
+        throw std::runtime_error("List index out of range");
+    }
+
+    m_elements[index] = val;
 }
 
 uint32_t List::size() const { return m_elements.size(); }

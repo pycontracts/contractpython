@@ -49,6 +49,9 @@ inline std::ostream &operator<<(std::ostream &stream, ValueType type)
     case ValueType::Dictionary:
         stream << "Dictionary";
         break;
+    case ValueType::PersistableDictionary:
+        stream << "PersistableDictionary";
+        break;
     default:
         stream << "Unknown Value Type";
     }

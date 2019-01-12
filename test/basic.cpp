@@ -46,6 +46,54 @@ TEST(BasicTest, arraystr)
     EXPECT_EQ("['foo', 'bar']", unpack_string(pyint.execute()));
 }
 
+TEST(BasicTest, arrayassignment)
+{
+    const std::string code = "a = [1,2,3]\n"
+                             "a[0] = 'loop'\n"
+                             "return str(a[0])";
+
+    auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
+    EXPECT_EQ("loop", unpack_string(pyint.execute()));
+}
+
+TEST(BasicTest, dictassignment)
+{
+    const std::string code = "a = {'a':'foo', 'b':'bar'}\n"
+                             "a['b'] = 'loop'\n"
+                             "return str(a['b'])";
+
+    auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
+    EXPECT_EQ("loop", unpack_string(pyint.execute()));
+}
+
+TEST(BasicTest, dictassignment_in_initial_assign_wrong_index)
+{
+    const std::string code = "a = {5:'foo', 'b':'bar'}";
+
+    auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+    ASSERT_THROW(pyint.execute(), std::exception);
+}
+
+TEST(BasicTest, dictget)
+{
+    const std::string code = "a = {'a':'foo', 'b':'bar'}\n"
+                             "return a['b']";
+
+    auto doc = compile_string(code);
+    DummyMemoryManager mem;
+    Interpreter pyint(doc, mem);
+
+    EXPECT_EQ("bar", unpack_string(pyint.execute()));
+}
+
 TEST(BasicTest, multiwordstring)
 {
     const std::string code = "a = \"hello fucking world\"\n"

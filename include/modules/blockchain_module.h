@@ -79,8 +79,6 @@ private:
     ValuePtr revert(Scope &scope);
     ValuePtr get_contract_balance(Scope &scope);
     std::map<std::string, ValuePtr> function_map;
-    PersistableDictionary store;
-
     void seed();
 
     // RC$

@@ -15,8 +15,11 @@ typedef std::shared_ptr<PersistableDictionary> PersistableDictionaryPtr;
 class PersistableDictionary : public Value
 {
 public:
-    explicit PersistableDictionary(MemoryManager &mem) : Value(mem) {}
-
+    PersistableDictionary(MemoryManager &mem) : Value(mem) {}
+    static void operator delete(void *ptr)
+    {
+        // this object is not on memorymanager's heap
+    }
     ValuePtr get(const std::string &key);
     void insert(const std::string &key, ValuePtr value);
     void remove(const std::string &key);

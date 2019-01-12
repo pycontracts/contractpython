@@ -5,9 +5,11 @@
 #include "Dictionary.h"
 #include "Module.h"
 #include "NodeType.h"
+#include "PersistableDictionary.h"
 #include "Scope.h"
 #include "Tuple.h"
 #include "Value.h"
+
 #include "execution_limits.h"
 extern bool devmode;
 extern bool contractmode;
@@ -35,7 +37,7 @@ public:
     ValuePtr execute();
     ValuePtr execute_in_scope(Scope &scope);
     Scope &get_scope() { return *m_global_scope; };
-
+    std::shared_ptr<PersistableDictionary> get_storage_pointer() { return store; }
 
     void set_value(const std::string &name, ValuePtr value);
 
@@ -83,6 +85,8 @@ private:
     uint32_t m_num_execution_steps;
     uint32_t m_execution_step_limit;
     bitstream m_data;
+
+    std::shared_ptr<PersistableDictionary> store;
 };
 
 inline void Interpreter::set_value(const std::string &name, ValuePtr value)
