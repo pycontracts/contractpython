@@ -287,7 +287,7 @@ void handle_src_file(std::string &filename, Interpreter &pyint)
     HANDLE_WITH_FULL_HEADER = 1;
     try
     {
-        if(ends_with(filename, ".bitstream.unsnappy"))
+        if(ends_with(filename, ".bitstream.unsnappy") || unsnappy)
         {
             std::ifstream input(filename, std::ios::binary);
             std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
@@ -651,29 +651,30 @@ int main(int argc, char *argv[])
         pyint.set_execution_step_limit((uint32_t)limit);
         register_blockchain_module(pyint);
 
-        if(!only_compile)
-        {
-            if(input == "")
-            {
-                std::cout << termcolor::bold << "\nWelcome to " << __VERSIONSTRING__ << std::endl;
-                std::cout << termcolor::reset << termcolor::cyan << "Press CTRL+D to exit"
-                          << termcolor::reset << std::endl
-                          << std::endl;
 
-                handle_readline(pyint);
-            }
+        if(input == "")
+        {
+            std::cout << termcolor::bold << "\nWelcome to " << __VERSIONSTRING__ << std::endl;
+            std::cout << termcolor::reset << termcolor::cyan << "Press CTRL+D to exit"
+                      << termcolor::reset << std::endl
+                      << std::endl;
+
+            handle_readline(pyint);
+        }
+        else
+        {
+            if(only_compile)
+                if(unsnappy)
+                    compile_src_file_unsnappy(input);
+                else
+                    compile_src_file(input);
             else
             {
-                if(only_compile)
-                    if(unsnappy)
-                        compile_src_file_unsnappy(input);
-                    else
-                        compile_src_file(input);
-                else
-                {
-                    handle_src_file(input, pyint);
-                }
+                handle_src_file(input, pyint);
             }
+        }
+        if(!only_compile)
+        {
             std::cout << termcolor::bold
                       << "\nGood bye! We will now dump the send table for you:" << std::endl
                       << termcolor::reset << std::endl;
