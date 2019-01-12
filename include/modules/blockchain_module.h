@@ -171,44 +171,6 @@ private:
 void register_blockchain_module(cow::Interpreter &i);
 }; // namespace cow
 
-inline bool addr_check(const char *address)
-{
-
-    if(address == 0)
-        return false;
-
-    auto mp_chainparams = &btc_chainparams_main;
-    if(cow::net == cow::net_type::TEST)
-        mp_chainparams = &btc_chainparams_test;
-    else if(cow::net == cow::net_type::REGTEST)
-        mp_chainparams = &btc_chainparams_regtest;
-
-    uint8_t buf[strlen(address) * 2];
-    bool valid = false;
-    int r = btc_base58_decode_check(address, buf, sizeof(buf));
-    if(r > 0 && buf[0] == mp_chainparams->b58prefix_pubkey_address)
-    {
-        valid = true;
-    }
-    else if(r > 0 && buf[0] == mp_chainparams->b58prefix_script_address)
-    {
-        valid = true;
-    }
-    else
-    {
-        // check for bech32
-        int version = 0;
-        unsigned char programm[40] = { 0 };
-        size_t programmlen = 0;
-        if(segwit_addr_decode(&version, programm, &programmlen, mp_chainparams->bech32_hrp, address) == 1)
-        {
-            if(programmlen == 20)
-            {
-                valid = true;
-            }
-        }
-    }
-    return valid;
-}
+bool addr_check(const char *address);
 
 #endif /* end of include guard: BLOCKCHAIN_MODULE_H */
