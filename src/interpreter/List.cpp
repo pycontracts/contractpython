@@ -45,7 +45,7 @@ ValuePtr List::get_member(const std::string &name)
 
 ValuePtr List::get(int64_t index)
 {
-    if(index >= size() || index <= -size())
+    if(index >= size() || index <= -(int32_t)size())
     {
         throw std::runtime_error("List index out of range");
     }

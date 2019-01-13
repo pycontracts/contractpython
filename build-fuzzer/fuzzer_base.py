@@ -1,5 +1,8 @@
 def p():
-	i=2
+	def gg():
+		p=[1,2,3,4,5]
+		return p[2]
+	i=2*gg()
 	p=i*4
 	return p
 def h(x):
