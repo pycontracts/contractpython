@@ -1,6 +1,6 @@
 #include <cowlang/Function.h>
+#include <cowlang/Interpreter.h>
 #include <cowlang/List.h>
-
 namespace cow
 {
 
@@ -45,20 +45,23 @@ ValuePtr List::get_member(const std::string &name)
 
 ValuePtr List::get(int64_t index)
 {
-    if(index >= size())
+    if(index >= size() || index <= -size())
     {
         throw std::runtime_error("List index out of range");
     }
-
+    if(index < 0)
+        index = size() + index;
     return m_elements[index];
 }
 
 void List::set(int64_t index, ValuePtr val)
 {
-    if(index >= size())
+    if(index >= size() || index <= -size())
     {
         throw std::runtime_error("List index out of range");
     }
+    if(index < 0)
+        index = size() + index;
 
     m_elements[index] = val;
 }
@@ -83,13 +86,21 @@ std::string List::str() const
             result += ", ";
         }
 
-        if(elem->type() == ValueType::String)
+        if(elem == nullptr)
         {
-            result += '\'' + elem->str() + '\'';
+            result += "None";
         }
         else
         {
-            result += elem->str();
+
+            if(elem->type() == ValueType::String)
+            {
+                result += '\'' + elem->str() + '\'';
+            }
+            else
+            {
+                result += elem->str();
+            }
         }
     }
 
@@ -100,6 +111,7 @@ bool List::contains(const Value &value) const
 {
     for(auto elem : m_elements)
     {
+        ASSERT_GENERIC(elem);
         if(*elem == value)
             return true;
     }

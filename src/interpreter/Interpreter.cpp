@@ -19,25 +19,6 @@ bool devmode = false;
 bool contractmode = false;
 
 
-#define ASSERT_LEFT_AND_RIGHT               \
-    if(left == nullptr || right == nullptr) \
-    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
-#define ASSERT_LEFT     \
-    if(left == nullptr) \
-    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
-#define ASSERT_RIGHT     \
-    if(right == nullptr) \
-    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
-#define ASSERT_GENERIC(right) \
-    if(right == nullptr)      \
-    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
-#define CHARGE_EXECUTION                                                              \
-    m_num_execution_steps += 1;                                                       \
-    if(m_execution_step_limit > 0 && m_num_execution_steps >= m_execution_step_limit) \
-    {                                                                                 \
-        throw OutOfGasException();                                                    \
-    }
-
 namespace cow
 {
 
@@ -845,8 +826,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         {
             CHARGE_EXECUTION;
             auto res = execute_next(scope, dummy_loop_state);
+            ASSERT_GENERIC(res);
             list->append(res);
-            // no assertion, adding none is fine
         }
 
         returnval = list;
@@ -902,7 +883,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 ASSERT_GENERIC(rval);
                 if(rval->type() != ValueType::List)
                     throw std::runtime_error("Can only call in on lists");
-
+                ASSERT_GENERIC(current);
                 res = value_cast<List>(rval)->contains(*current);
             }
             else if(op_type == CompareOpType::NotEqual)
@@ -917,7 +898,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 ASSERT_GENERIC(rval);
                 if(rval->type() != ValueType::List)
                     throw std::runtime_error("Can only call in on lists");
-
+                ASSERT_GENERIC(current);
                 res = !value_cast<List>(rval)->contains(*current);
             }
             else if(op_type == CompareOpType::LessEqual)
@@ -1043,6 +1024,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             CHARGE_EXECUTION;
             auto name = read_name();
             auto value = execute_next(scope, dummy_loop_state);
+            ASSERT_GENERIC(value);
 
             res->insert(name, value);
         }

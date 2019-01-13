@@ -39,6 +39,11 @@ public:
 
     ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope, uint32_t &, uint32_t &) override
     {
+
+        // No nullpointers please
+        for(size_t i = 0; i < args.size(); ++i)
+            ASSERT_GENERIC(args[i]);
+
         if(m_type == BuiltinType::Range)
         {
             int min, max, step;

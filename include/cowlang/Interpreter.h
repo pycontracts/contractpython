@@ -14,6 +14,25 @@
 extern bool devmode;
 extern bool contractmode;
 
+#define ASSERT_LEFT_AND_RIGHT               \
+    if(left == nullptr || right == nullptr) \
+    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
+#define ASSERT_LEFT     \
+    if(left == nullptr) \
+    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
+#define ASSERT_RIGHT     \
+    if(right == nullptr) \
+    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
+#define ASSERT_GENERIC(right) \
+    if(right == nullptr)      \
+    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
+#define CHARGE_EXECUTION                                                              \
+    m_num_execution_steps += 1;                                                       \
+    if(m_execution_step_limit > 0 && m_num_execution_steps >= m_execution_step_limit) \
+    {                                                                                 \
+        throw OutOfGasException();                                                    \
+    }
+
 namespace cow
 {
 

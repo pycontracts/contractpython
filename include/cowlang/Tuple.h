@@ -20,7 +20,12 @@ public:
 
     uint32_t size() const override { return m_content.size(); }
 
-    ValuePtr get(uint32_t pos) { return m_content[pos]; }
+    ValuePtr get(uint32_t pos)
+    {
+        if(pos >= m_content.size())
+            throw std::runtime_error("Tuple index out of bounds");
+        return m_content[pos];
+    }
 
 private:
     std::vector<ValuePtr> m_content;
