@@ -18,7 +18,9 @@ int main()
     };
     std::ifstream input("librarytest.py.bitstream", std::ios::binary);
     std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-    execute_program(str, cow::net_type::MAIN, args, 50000000, 100, used_g);
+    std::stringstream ss;
+    std::string os = "";
+    execute_program(str, cow::net_type::MAIN, args, 50000000, 100, used_g, os, ss);
     std::cout << "Program returned:" << std::endl << get_outbuf() << std::endl;
     std::cout << "Errors were:" << std::endl << get_errorbuf() << std::endl;
     std::cout << "Gas used: " << used_g << std::endl;

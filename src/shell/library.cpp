@@ -1,5 +1,8 @@
 #include "pypa/parser/error.hh"
 #include "pypa/parser/parser.hh"
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/map.hpp>
 #include <cowlang/cow.h>
 #include <cowlang/unpack.h>
 #include <fstream>
@@ -72,7 +75,14 @@ void handle_error(pypa::Error e)
 }
 std::function<void(pypa::Error)> err_func(handle_error);
 
-int execute_program(std::string raw, net_type network, blockchain_arguments blkchn, uint64_t gas, uint32_t gasprice, uint64_t &used_g)
+int execute_program(std::string raw,
+                    net_type network,
+                    blockchain_arguments blkchn,
+                    uint64_t gas,
+                    uint32_t gasprice,
+                    uint64_t &used_g,
+                    std::string &old_storage,
+                    std::stringstream &s)
 {
 
     // possibly throws early on syntax error
@@ -91,6 +101,7 @@ int execute_program(std::string raw, net_type network, blockchain_arguments blkc
     // make sure to select the correct net
     net = network;
 
+
     // init everything
     DefaultMemoryManager mem_manager;
     std::string decompressed;
@@ -98,6 +109,27 @@ int execute_program(std::string raw, net_type network, blockchain_arguments blkc
 
     bitstream doc(decompressed);
     Interpreter pyint(doc, mem_manager);
+    std::shared_ptr<PersistableDictionary> stpt = pyint.get_storage_pointer();
+
+    if(old_storage.size() > 0)
+    {
+        // unserializa old storage
+        /*
+        std::map<std::string, std::string> m_elements_string;
+        std::map<std::string, int64_t> m_elements_int;
+        std::map<std::string, double> m_elements_double;
+        std::map<std::string, bool> m_elements_bool;
+        */
+        std::stringstream ss;
+        ss.str(old_storage);
+        boost::archive::text_iarchive iarch(ss);
+        iarch >> stpt->m_elements_string;
+        iarch >> stpt->m_elements_int;
+        iarch >> stpt->m_elements_double;
+        iarch >> stpt->m_elements_bool;
+    }
+
+
     uint64_t limit = gas;
     limit /= gasprice;
     pyint.set_execution_step_limit((uint32_t)limit);
@@ -108,11 +140,25 @@ int execute_program(std::string raw, net_type network, blockchain_arguments blkc
         // Go for it
         pyint.execute(); // make print also print to a buffer
         used_g = (pyint.num_execution_steps()) * gasprice;
+        {
+            boost::archive::text_oarchive oarch(s);
+            oarch << stpt->m_elements_string;
+            oarch << stpt->m_elements_int;
+            oarch << stpt->m_elements_double;
+            oarch << stpt->m_elements_bool;
+        }
         return 0;
     }
     catch(OutOfGasException &e)
     {
         used_g = (limit - pyint.num_execution_steps()) * gasprice;
+        {
+            boost::archive::text_oarchive oarch(s);
+            oarch << stpt->m_elements_string;
+            oarch << stpt->m_elements_int;
+            oarch << stpt->m_elements_double;
+            oarch << stpt->m_elements_bool;
+        }
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x70;
@@ -120,6 +166,13 @@ int execute_program(std::string raw, net_type network, blockchain_arguments blkc
     catch(SuicideException &e)
     {
         used_g = (limit - pyint.num_execution_steps()) * gasprice;
+        {
+            boost::archive::text_oarchive oarch(s);
+            oarch << stpt->m_elements_string;
+            oarch << stpt->m_elements_int;
+            oarch << stpt->m_elements_double;
+            oarch << stpt->m_elements_bool;
+        }
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x69;
@@ -127,6 +180,13 @@ int execute_program(std::string raw, net_type network, blockchain_arguments blkc
     catch(RevertException &e)
     {
         used_g = (limit - pyint.num_execution_steps()) * gasprice;
+        {
+            boost::archive::text_oarchive oarch(s);
+            oarch << stpt->m_elements_string;
+            oarch << stpt->m_elements_int;
+            oarch << stpt->m_elements_double;
+            oarch << stpt->m_elements_bool;
+        }
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x71;
@@ -134,6 +194,13 @@ int execute_program(std::string raw, net_type network, blockchain_arguments blkc
     catch(std::exception &e)
     {
         used_g = (limit - pyint.num_execution_steps()) * gasprice;
+        {
+            boost::archive::text_oarchive oarch(s);
+            oarch << stpt->m_elements_string;
+            oarch << stpt->m_elements_int;
+            oarch << stpt->m_elements_double;
+            oarch << stpt->m_elements_bool;
+        }
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x80;

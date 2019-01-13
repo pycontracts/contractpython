@@ -31,7 +31,7 @@ public:
         throw std::runtime_error("Persistent dictionaries cannot be copied.");
     }
 
-private:
+
     std::map<std::string, std::string> m_elements_string;
     std::map<std::string, int64_t> m_elements_int;
     std::map<std::string, double> m_elements_double;
