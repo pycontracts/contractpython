@@ -1,25 +1,31 @@
-# The Cow Language
+# Contract Python
 
-[![Build Status](https://travis-ci.com/kaimast/cowlang.svg?branch=master)](https://travis-ci.com/kaimast/cowlang)
-
-Cow is a minimal Python interpreter that can be embedded into C++ programs.
+Contract Python is a minimal Python interpreter that can be embedded into C++ programs. It features a strict "iron heap" and can impose strict limits for the execution of your program. As a matter of fact, numerous attacks such as the infamous "use after free" are mitigated by design.
 
 ## Features
 * Supports an imperative subset of Python, currently there is no support for classes
-* Custom C++ objects can be hooked into the interpreter 
 * User defined constraints on memory size and application runtime
+* More features than the COW language, i.e., a special set of blockchain functions and the possibility to define and call functions
+
+## Testing
+* The code can be tested either using the integrated test suite
+* ... or using the "Americal Fuzzer Loop"
 
 ## Dependencies
 * The Meson Build System
 * Google Test
-* libpypa (https://github.com/vinzenz/libpypa): A python parser, currently used in the compiler 
-* libdocument (https://github.com/kaimast/libdocument): A super fast JSON library
-* pybind11 (if you want to build the python bindings)
 
-## Building cowlang
+## Building contractpython
 ```
 meson build
 cd build
 ninja
 sudo ninja install
+```
+
+## Building contractpython for "American Fuzzer Loop"
+```
+./make_fuzzer.sh
+cd build-fuzzer
+ninja all
 ```
