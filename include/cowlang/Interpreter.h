@@ -51,6 +51,7 @@ public:
     const uint32_t max_mem() const;
 
     void set_execution_step_limit(uint32_t limit);
+    void set_num_execution_steps(uint32_t current);
 
     MemoryManager &memory_manager() { return m_mem; }
 

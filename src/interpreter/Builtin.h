@@ -37,7 +37,7 @@ public:
 
     ValueType type() const override { return ValueType::Builtin; }
 
-    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope) override
+    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope, uint32_t &, uint32_t &) override
     {
         if(m_type == BuiltinType::Range)
         {

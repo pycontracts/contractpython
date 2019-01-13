@@ -24,7 +24,10 @@ public:
         return wrap_value(new(mem) Function(mem, m_func));
     }
 
-    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope) override { return m_func(args); }
+    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope, uint32_t &current_num, uint32_t &current_max) override
+    {
+        return m_func(args);
+    }
 
     ValueType type() const override { return ValueType::Function; }
 

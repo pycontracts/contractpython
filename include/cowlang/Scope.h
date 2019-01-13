@@ -24,8 +24,15 @@ public:
     static constexpr const char *BUILTIN_STR_CLEAR = "clear";
     static constexpr const char *BUILTIN_STR_CLEARLIMITS = "clearlimits";
 
-    Scope(MemoryManager &mem) : Object(mem), m_parent(nullptr) {}
-    Scope(MemoryManager &mem, Scope &parent) : Object(mem), m_parent(&parent) {}
+    Scope(MemoryManager &mem) : Object(mem), m_parent(nullptr), depth(0) {}
+    Scope(MemoryManager &mem, Scope &parent)
+    : Object(mem), m_parent(&parent), depth(parent.depth + 1)
+    {
+        if(depth >= 128)
+        {
+            throw std::runtime_error("You have exceeded the maximum recursion depth of 128");
+        }
+    }
 
     ValuePtr get_value(const std::string &id);
     void set_value(const std::string &name, ValuePtr value);
@@ -40,6 +47,7 @@ private:
     Scope *m_parent;
     bool m_terminated = false;
     bool m_require_global = false;
+    int depth;
 
     std::unordered_map<std::string, ValuePtr> m_values;
     std::set<std::string> m_global_tags;

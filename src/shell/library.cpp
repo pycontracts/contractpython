@@ -107,33 +107,33 @@ int execute_program(std::string raw, net_type network, blockchain_arguments blkc
     {
         // Go for it
         pyint.execute(); // make print also print to a buffer
-        used_g = (limit - pyint.max_execution_steps()) * gasprice;
+        used_g = (pyint.num_execution_steps()) * gasprice;
         return 0;
     }
     catch(OutOfGasException &e)
     {
-        used_g = (limit - pyint.max_execution_steps()) * gasprice;
+        used_g = (limit - pyint.num_execution_steps()) * gasprice;
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x70;
     }
     catch(SuicideException &e)
     {
-        used_g = (limit - pyint.max_execution_steps()) * gasprice;
+        used_g = (limit - pyint.num_execution_steps()) * gasprice;
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x69;
     }
     catch(RevertException &e)
     {
-        used_g = (limit - pyint.max_execution_steps()) * gasprice;
+        used_g = (limit - pyint.num_execution_steps()) * gasprice;
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x71;
     }
     catch(std::exception &e)
     {
-        used_g = (limit - pyint.max_execution_steps()) * gasprice;
+        used_g = (limit - pyint.num_execution_steps()) * gasprice;
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x80;

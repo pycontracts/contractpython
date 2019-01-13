@@ -26,7 +26,7 @@ public:
         return wrap_value(new(mem) CallableCFunction(mem, m_args, func));
     }
 
-    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope) override
+    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope, uint32_t &current_num, uint32_t &current_max) override
     {
         ValuePtr returnval = nullptr;
         // call with own context

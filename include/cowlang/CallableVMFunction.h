@@ -1,11 +1,11 @@
 #ifndef CALLABLE_VM
 #define CALLABLE_VM
 
-#include <cowlang/Interpreter.h>
-#include <functional>
 #include "Callable.h"
 #include "Scope.h"
 #include "Value.h"
+#include <cowlang/Interpreter.h>
+#include <functional>
 
 namespace cow
 {
@@ -29,17 +29,26 @@ public:
         return wrap_value(new(mem) CallableVMFunction(mem, m_begin_jump, m_args, m_defaults));
     }
 
-    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope) override
+    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope, uint32_t &current_num, uint32_t &current_max) override
     {
         ValuePtr returnval = nullptr;
         // call with own context
         Scope body_scope(memory_manager(), scope);
         body_scope.require_global();
         Interpreter pyint(m_begin_jump, memory_manager()); // borrow the scope of the parent interpreter
+        pyint.set_execution_step_limit(current_max);
+        pyint.set_num_execution_steps(current_num);
 
         // set default values to the args first
         uint32_t minimum_arguments = 0;
         uint32_t maximum_arguments = m_args.size();
+
+        if(args.size() < minimum_arguments || args.size() > maximum_arguments)
+        {
+            throw std::runtime_error(
+            "You did not provide the correct number of arguments to the function");
+        }
+
         for(size_t i = 0; i < maximum_arguments; ++i)
         {
             if(m_defaults[i] != nullptr)
@@ -50,21 +59,22 @@ public:
             }
         }
 
-        if(args.size() < minimum_arguments || args.size() > maximum_arguments)
+        for(size_t i = 0; i < args.size(); ++i)
         {
-            throw std::runtime_error(
-            "You did not provide the correct number of arguments to the function");
-        }
-        else
-        {
-            for(size_t i = 0; i < args.size(); ++i)
-            {
-                body_scope.set_value(m_args[i], args[i]);
-            }
+            body_scope.set_value(m_args[i], args[i]);
         }
 
-        returnval = pyint.execute_in_scope(body_scope);
 
+        try
+        {
+            returnval = pyint.execute_in_scope(body_scope);
+        }
+        catch(...)
+        {
+            current_num = pyint.num_execution_steps();
+            throw;
+        }
+        current_num = pyint.num_execution_steps();
         return returnval;
     }
 

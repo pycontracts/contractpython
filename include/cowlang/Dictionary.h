@@ -32,7 +32,7 @@ public:
 
     ValueType type() const override { return ValueType::DictItems; }
 
-    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope) override
+    ValuePtr call(const std::vector<ValuePtr> &args, Scope &scope, uint32_t &, uint32_t &) override
     {
         if(args.size() != 0)
             throw std::runtime_error("invalid number of arguments");

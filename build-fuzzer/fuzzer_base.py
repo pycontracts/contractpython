@@ -4,6 +4,14 @@ def p():
 	return p
 def h(x):
 	print(x)
-
-x=p()
+import blockchain as b
+v=22
+x=p()*2*9*v*p()
 h(str(x))
+print("hsfsufhsufhashfuashufhasufhasufhasufsa")
+print(2)
+print("dshgfudg",354,35,35)
+for x in range(10):
+  p=x*3*4
+  print(p)
+print(b.contract_balance())

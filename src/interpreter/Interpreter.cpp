@@ -18,6 +18,26 @@
 bool devmode = false;
 bool contractmode = false;
 
+
+#define ASSERT_LEFT_AND_RIGHT               \
+    if(left == nullptr || right == nullptr) \
+    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
+#define ASSERT_LEFT     \
+    if(left == nullptr) \
+    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
+#define ASSERT_RIGHT     \
+    if(right == nullptr) \
+    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
+#define ASSERT_GENERIC(right) \
+    if(right == nullptr)      \
+    throw std::runtime_error("VM was halted: bytecode is improperly formatted.")
+#define CHARGE_EXECUTION                                                              \
+    m_num_execution_steps += 1;                                                       \
+    if(m_execution_step_limit > 0 && m_num_execution_steps >= m_execution_step_limit) \
+    {                                                                                 \
+        throw OutOfGasException();                                                    \
+    }
+
 namespace cow
 {
 
@@ -74,8 +94,7 @@ ValuePtr Interpreter::read_function_stub(Interpreter &inti)
 
         for(uint32_t i = 0; i < num_args; ++i)
         {
-            // auto arg = execute_next(scope, dummy_loop_state);
-            // args.push_back(arg);
+            CHARGE_EXECUTION;
             auto arg = read_name();
             args.push_back(arg);
         }
@@ -98,6 +117,7 @@ ValuePtr Interpreter::read_function_stub(Interpreter &inti)
         bool non_standard = false;
         for(uint32_t i = 0; i < num_defaults; ++i)
         {
+            CHARGE_EXECUTION;
             auto arg = execute_next(inti.get_scope(), dummy_loop_state);
             if(arg != nullptr)
                 non_standard = true;
@@ -195,6 +215,8 @@ void Interpreter::set_execution_step_limit(uint32_t limit)
     m_execution_step_limit = limit;
 }
 
+void Interpreter::set_num_execution_steps(uint32_t current) { m_num_execution_steps = current; }
+
 void Interpreter::load_module(Scope &scope, const std::string &mname, const std::string &as_name)
 {
     auto module = get_module(mname);
@@ -283,13 +305,7 @@ std::string Interpreter::read_name()
 ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 {
 
-    // TODO: Recursion limit
-    m_num_execution_steps += 1;
-
-    if(m_execution_step_limit > 0 && m_num_execution_steps >= m_execution_step_limit)
-    {
-        throw OutOfGasException();
-    }
+    CHARGE_EXECUTION;
 
     auto start = m_data.pos();
     ValuePtr returnval = nullptr;
@@ -307,6 +323,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         auto module = read_name();
 
         auto val = execute_next(scope, dummy_loop_state);
+        ASSERT_GENERIC(val);
 
         if(val->type() == ValueType::Tuple)
         {
@@ -331,9 +348,13 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         m_data >> num_elems;
 
         auto tuple = wrap_value(new(memory_manager()) Tuple(memory_manager()));
-
         for(uint32_t i = 0; i < num_elems; ++i)
-            tuple->append(execute_next(scope, dummy_loop_state));
+        {
+            CHARGE_EXECUTION;
+            auto val = execute_next(scope, dummy_loop_state);
+            ASSERT_GENERIC(val);
+            tuple->append(val);
+        }
 
         returnval = tuple;
         break;
@@ -342,6 +363,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::Import:
     {
         auto val = execute_next(scope, dummy_loop_state);
+        ASSERT_GENERIC(val);
         auto alias = value_cast<Alias>(val);
         load_module(scope, alias->name(), alias->as_name());
         break;
@@ -360,6 +382,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::Attribute:
     {
         ValuePtr value = execute_next(scope, dummy_loop_state);
+        ASSERT_GENERIC(value);
         std::string name = read_name();
         returnval = value->get_member(name);
         break;
@@ -400,13 +423,15 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::Assign:
     {
         auto val = execute_next(scope, dummy_loop_state);
-
+        ASSERT_GENERIC(val);
         uint32_t num_targets = 0;
         m_data >> num_targets;
 
 
         for(uint32_t i = 0; i < num_targets; ++i)
         {
+            CHARGE_EXECUTION;
+
             // here we need to decide whether we are dealing with a "subscript expression" or pure
             // constants for this, we use the "peek operator" '&'
             NodeType lookAhead;
@@ -420,6 +445,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                 // Now we parse, and evaluate the subscript
                 // first, we evaluate the index of the parent variable, which may be a complex expresion
                 auto index = execute();
+                ASSERT_GENERIC(index);
                 // and now the subscript parent variable, which should always be a constant
                 auto sscr = read_name();
 
@@ -487,6 +513,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
                     auto dict = names[2];
                     auto subscript = names[1];
                     ValuePtr obj = scope.get_value(dict);
+                    ASSERT_GENERIC(obj);
                     if(obj->type() == ValueType::Dictionary)
                     {
                         auto t = value_cast<Dictionary>(obj);
@@ -525,6 +552,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         m_data >> size;
         for(uint32_t i = 0; i < size; ++i)
         {
+            CHARGE_EXECUTION;
+
             auto name = read_name();
             scope.set_global_tag(name);
         }
@@ -539,6 +568,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         for(uint32_t i = 0; i < size; ++i)
         {
+            CHARGE_EXECUTION;
+
             if(scope.is_terminated() || loop_state == LoopState::Break || loop_state == LoopState::Continue)
             {
                 skip_next();
@@ -569,8 +600,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         m_data >> type;
 
         auto res = execute_next(scope, dummy_loop_state);
+        ASSERT_GENERIC(res);
 
-        if(res && res->type() == ValueType::Bool)
+        if(res->type() == ValueType::Bool)
         {
             bool cond = value_cast<BoolVal>(res)->get();
 
@@ -630,6 +662,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
             for(uint32_t i = 0; i < num_vals; ++i)
             {
+                CHARGE_EXECUTION;
                 if(!res)
                 {
                     skip_next();
@@ -657,6 +690,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
             for(uint32_t i = 0; i < num_vals; ++i)
             {
+                CHARGE_EXECUTION;
                 if(res)
                 {
                     skip_next();
@@ -694,6 +728,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         {
         case BinaryOpType::Add:
         {
+            ASSERT_LEFT_AND_RIGHT;
             if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
             {
                 auto i1 = value_cast<IntVal>(left)->get();
@@ -710,19 +745,16 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             }
             else
             {
-#ifdef IS_ENCLAVE
-                throw std::runtime_error("Failed to add");
-#else
                 std::stringstream sstr;
                 sstr << "failed to add: incompatible types " << left->type() << right->type();
                 throw std::runtime_error(sstr.str());
-#endif
             }
 
             break;
         }
         case BinaryOpType::Mult:
         {
+            ASSERT_LEFT_AND_RIGHT;
             if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
             {
                 auto i1 = value_cast<IntVal>(left)->get();
@@ -737,10 +769,13 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         }
         case BinaryOpType::Div:
         {
+            ASSERT_LEFT_AND_RIGHT;
             if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
             {
                 auto i1 = value_cast<IntVal>(left)->get();
                 auto i2 = value_cast<IntVal>(right)->get();
+                if(i2 == 0)
+                    throw std::runtime_error("division by zero");
 
                 returnval = memory_manager().create_integer(i1 / i2);
             }
@@ -748,7 +783,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             {
                 auto f1 = value_cast<FloatVal>(left)->get();
                 auto f2 = value_cast<FloatVal>(right)->get();
-
+                if(f2 == 0)
+                    throw std::runtime_error("division by zero");
                 returnval = memory_manager().create_float(f1 / f2);
             }
             else
@@ -758,11 +794,13 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         }
         case BinaryOpType::Mod:
         {
+            ASSERT_LEFT_AND_RIGHT;
             if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
             {
                 auto i1 = value_cast<IntVal>(left)->get();
                 auto i2 = value_cast<IntVal>(right)->get();
-
+                if(i2 == 0)
+                    throw std::runtime_error("modulus by zero");
                 returnval = memory_manager().create_integer(i1 % i2);
             }
             else
@@ -772,11 +810,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         case BinaryOpType::Sub:
         {
-            if(!left || !right)
-            {
-                throw std::runtime_error("Cannot subtract on none values");
-            }
-            else if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
+            ASSERT_LEFT_AND_RIGHT;
+
+            if(left->type() == ValueType::Integer && right->type() == ValueType::Integer)
             {
                 auto i1 = value_cast<IntVal>(left)->get();
                 auto i2 = value_cast<IntVal>(right)->get();
@@ -802,14 +838,15 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::List:
     {
         auto list = memory_manager().create_list();
-
         uint32_t size = 0;
         m_data >> size;
 
         for(uint32_t i = 0; i < size; ++i)
         {
+            CHARGE_EXECUTION;
             auto res = execute_next(scope, dummy_loop_state);
             list->append(res);
+            // no assertion, adding none is fine
         }
 
         returnval = list;
@@ -832,6 +869,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         for(uint32_t i = 0; i < size; ++i)
         {
+            CHARGE_EXECUTION;
             CompareOpType op_type;
             m_data >> op_type;
 
@@ -861,6 +899,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             }
             else if(op_type == CompareOpType::In)
             {
+                ASSERT_GENERIC(rval);
                 if(rval->type() != ValueType::List)
                     throw std::runtime_error("Can only call in on lists");
 
@@ -875,6 +914,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             }
             else if(op_type == CompareOpType::NotIn)
             {
+                ASSERT_GENERIC(rval);
                 if(rval->type() != ValueType::List)
                     throw std::runtime_error("Can only call in on lists");
 
@@ -918,6 +958,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::Call:
     {
         auto callable = execute_next(scope, dummy_loop_state);
+        ASSERT_GENERIC(callable);
         if(!callable->is_callable())
         {
             throw std::runtime_error("Cannot call un-callable!");
@@ -929,11 +970,22 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         std::vector<ValuePtr> args;
         for(uint32_t i = 0; i < num_args; ++i)
         {
+            CHARGE_EXECUTION;
             auto arg = execute_next(scope, dummy_loop_state);
             args.push_back(arg);
         }
 
-        returnval = value_cast<Callable>(callable)->call(args, scope);
+        uint32_t current_num = num_execution_steps();
+        uint32_t current_max = max_execution_steps();
+        try
+        {
+            returnval = value_cast<Callable>(callable)->call(args, scope, current_num, current_max);
+        }
+        catch(...)
+        {
+            set_num_execution_steps(current_num);
+            throw;
+        }
 
         break;
     }
@@ -959,7 +1011,6 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     case NodeType::IfElse:
     {
         auto test = execute_next(scope, loop_state);
-
         if(test && test->type() != ValueType::Bool)
         {
             throw std::runtime_error("not a boolean!");
@@ -989,6 +1040,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         for(uint32_t i = 0; i < size; ++i)
         {
+            CHARGE_EXECUTION;
             auto name = read_name();
             auto value = execute_next(scope, dummy_loop_state);
 
@@ -1002,7 +1054,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         auto slice = execute_next(scope, dummy_loop_state);
         auto val = execute_next(scope, dummy_loop_state);
-
+        ASSERT_GENERIC(slice);
+        ASSERT_GENERIC(val);
         if(val->type() == ValueType::Dictionary && slice->type() == ValueType::String)
         {
             returnval = value_cast<Dictionary>(val)->get(value_cast<StringVal>(slice)->get());
@@ -1033,6 +1086,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         while(!scope.is_terminated() && for_loop_state != LoopState::Break)
         {
+            CHARGE_EXECUTION;
             m_data.move_to(start);
 
             auto test = execute_next(scope, dummy_loop_state);
@@ -1065,6 +1119,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         auto obj = execute_next(scope, dummy_loop_state);
         IteratorPtr iter = nullptr;
 
+        ASSERT_GENERIC(obj);
+
         if(obj->is_generator())
         {
             iter = value_cast<Iterator>(obj);
@@ -1080,6 +1136,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         while(!scope.is_terminated() && for_loop_state != LoopState::Break)
         {
+            CHARGE_EXECUTION;
             Scope body_scope(memory_manager(), scope);
             ValuePtr next = nullptr;
 
@@ -1151,6 +1208,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         auto list = memory_manager().create_list();
 
         auto iter = value_cast<Iterator>(execute_next(scope, loop_state));
+        ASSERT_GENERIC(iter);
 
         // no support for if statements yet
         skip_next();
@@ -1159,6 +1217,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         while(!scope.is_terminated() && for_loop_state != LoopState::Break)
         {
+            CHARGE_EXECUTION;
             ValuePtr next;
 
             try
@@ -1219,6 +1278,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
         // Now, read the stub and get the stack jump point
         ValuePtr jump_point = read_function_stub(*this);
+        ASSERT_GENERIC(jump_point);
 
         scope.set_value(t_name, jump_point);
         break;
@@ -1272,6 +1332,7 @@ void Interpreter::skip_next()
 
         for(uint32_t i = 0; i < num_targets; ++i)
         {
+            CHARGE_EXECUTION;
             skip_next();
         }
         break;
@@ -1283,6 +1344,7 @@ void Interpreter::skip_next()
 
         for(uint32_t i = 0; i < size; ++i)
         {
+            CHARGE_EXECUTION;
             skip_next();
         }
         break;
@@ -1307,6 +1369,7 @@ void Interpreter::skip_next()
 
         for(uint32_t i = 0; i < size; ++i)
         {
+            CHARGE_EXECUTION;
             CompareOpType op_type;
             m_data >> op_type;
             skip_next();
@@ -1325,7 +1388,10 @@ void Interpreter::skip_next()
         uint32_t num_args = 0;
         m_data >> num_args;
         for(uint32_t i = 0; i < num_args; ++i)
+        {
+            CHARGE_EXECUTION;
             skip_next();
+        }
         break;
     }
     case NodeType::IfElse:
@@ -1341,7 +1407,11 @@ void Interpreter::skip_next()
         uint32_t size;
         m_data >> size;
         for(uint32_t i = 0; i < size; ++i)
+        {
+            CHARGE_EXECUTION;
             skip_next();
+        }
+
         break;
     }
     case NodeType::Dictionary:
@@ -1350,6 +1420,7 @@ void Interpreter::skip_next()
         m_data >> size;
         for(uint32_t i = 0; i < size; ++i)
         {
+            CHARGE_EXECUTION;
             skip_next();
             skip_next();
         }
@@ -1369,7 +1440,10 @@ void Interpreter::skip_next()
         m_data >> op >> num_vals;
 
         for(uint32_t i = 0l; i < num_vals; ++i)
+        {
+            CHARGE_EXECUTION;
             skip_next();
+        }
         break;
     }
     case NodeType::AugmentedAssign:

@@ -131,19 +131,29 @@ public:
     {                                                                  \
         uint32_t typus = 0;                                            \
         stream.bytecode.read((char *)&typus, sizeof(uint32_t));        \
-        typus = stream.Swap(typus);                                    \
-        v = (type)typus;                                               \
-        return stream;                                                 \
+        if(stream.bytecode)                                            \
+        {                                                              \
+            typus = stream.Swap(typus);                                \
+            v = (type)typus;                                           \
+            return stream;                                             \
+        }                                                              \
+        else                                                           \
+            throw std::runtime_error("Unexpected EOF");                \
     }                                                                  \
     inline bitstream &operator&(bitstream &stream, type &v)            \
     {                                                                  \
         uint32_t typus = 0;                                            \
         std::stringstream::pos_type pos = stream.bytecode.tellg();     \
         stream.bytecode.read((char *)&typus, sizeof(uint32_t));        \
-        typus = stream.Swap(typus);                                    \
-        v = (type)typus;                                               \
-        stream.bytecode.seekg(pos);                                    \
-        return stream;                                                 \
+        if(stream.bytecode)                                            \
+        {                                                              \
+            typus = stream.Swap(typus);                                \
+            v = (type)typus;                                           \
+            stream.bytecode.seekg(pos);                                \
+            return stream;                                             \
+        }                                                              \
+        else                                                           \
+            throw std::runtime_error("Unexpected EOF");                \
     }                                                                  \
     inline bitstream &operator<<(bitstream &stream, type v)            \
     {                                                                  \
@@ -154,18 +164,23 @@ public:
     }
 
 
-#define SERIALIZER_FOR_POD(type)                  \
-    inline bitstream &operator>>(type &v)         \
-    {                                             \
-        bytecode.read((char *)&v, sizeof(type));  \
-        v = Swap(v);                              \
-        return *this;                             \
-    }                                             \
-    inline bitstream &operator<<(type v)          \
-    {                                             \
-        v = Swap(v);                              \
-        bytecode.write((char *)&v, sizeof(type)); \
-        return *this;                             \
+#define SERIALIZER_FOR_POD(type)                        \
+    inline bitstream &operator>>(type &v)               \
+    {                                                   \
+        bytecode.read((char *)&v, sizeof(type));        \
+        if(bytecode)                                    \
+        {                                               \
+            v = Swap(v);                                \
+            return *this;                               \
+        }                                               \
+        else                                            \
+            throw std::runtime_error("Unexpected EOF"); \
+    }                                                   \
+    inline bitstream &operator<<(type v)                \
+    {                                                   \
+        v = Swap(v);                                    \
+        bytecode.write((char *)&v, sizeof(type));       \
+        return *this;                                   \
     }
 
 class bitstream
@@ -255,11 +270,15 @@ public:
         data = "";
         uint32_t length;
         bytecode.read((char *)&length, sizeof(uint32_t));
+        if(!bytecode)
+            throw std::runtime_error("Unexpected EOF");
         length = Swap(length);
         if(length > 0)
         {
             data.resize(length);
             bytecode.read(&data[0], length);
+            if(!bytecode)
+                throw std::runtime_error("Unexpected EOF");
         }
 
         return *this;
