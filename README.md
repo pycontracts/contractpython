@@ -12,11 +12,12 @@ Contract Python is a minimal Python interpreter that can be embedded into C++ pr
 
 ## Testing
 * The code can be tested either using the integrated test suite
-* ... or using the "Americal Fuzzer Loop"
+* ... or using the "American Fuzzer Loop"
 
 ## Dependencies
 * The Meson Build System
 * Google Test
+* afl (in case you want to fuzzy-test)
 
 ## Building contractpython
 ```
