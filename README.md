@@ -14,7 +14,7 @@ Contract Python is a minimal Python interpreter that can be embedded into C++ pr
 
 ## Testing
 * The code can be tested either using the integrated test suite
-* ... or using the "American Fuzzer Loop"
+* ... or using the "American Fuzzy Lop"
 
 ## Dependencies
 * The Meson Build System
@@ -28,7 +28,7 @@ cd build
 ninja all
 ```
 
-## Building contractpython for "American Fuzzer Loop"
+## Building contractpython for "American Fuzzy Lop"
 ```
 ./make_fuzzer.sh
 cd build-fuzzer
