@@ -75,7 +75,7 @@ void handle_error(pypa::Error e)
 }
 std::function<void(pypa::Error)> err_func(handle_error);
 
-int execute_program(std::string raw,
+int execute_program(std::string &raw,
                     net_type network,
                     blockchain_arguments blkchn,
                     uint64_t gas,
