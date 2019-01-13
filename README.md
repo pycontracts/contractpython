@@ -22,8 +22,7 @@ Contract Python is a minimal Python interpreter that can be embedded into C++ pr
 ```
 meson build
 cd build
-ninja
-sudo ninja install
+ninja all
 ```
 
 ## Building contractpython for "American Fuzzer Loop"
