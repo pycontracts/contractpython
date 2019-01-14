@@ -75,6 +75,33 @@ void handle_error(pypa::Error e)
 }
 std::function<void(pypa::Error)> err_func(handle_error);
 
+
+std::string compile_src_file(std::string &filename)
+{
+    try
+    {
+        auto doc = compile_file(filename, err_func);
+        std::string raw = doc.store();
+        std::string compressed;
+        snappy::Compress(raw.data(), raw.size(), &compressed);
+        return raw;
+    }
+    catch(std::exception &e)
+    {
+        std::string exp = error_buffer.str();
+        error_buffer.str("");
+        if(exp.size() > 0)
+        {
+            throw new std::runtime_error(exp);
+        }
+        else
+        {
+            throw e;
+        }
+    }
+}
+
+
 int execute_program(std::string &raw,
                     net_type network,
                     blockchain_arguments blkchn,
