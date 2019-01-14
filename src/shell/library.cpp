@@ -92,7 +92,7 @@ std::string compile_src_file(std::string &filename)
         error_buffer.str("");
         if(exp.size() > 0)
         {
-            throw new std::runtime_error(exp);
+            throw std::runtime_error(exp);
         }
         else
         {
