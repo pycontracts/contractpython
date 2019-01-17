@@ -84,7 +84,7 @@ std::string compile_src_file(std::string &filename)
         std::string raw = doc.store();
         std::string compressed;
         snappy::Compress(raw.data(), raw.size(), &compressed);
-        return raw;
+        return compressed;
     }
     catch(std::exception &e)
     {
@@ -228,6 +228,7 @@ int execute_program(std::string &raw,
             oarch << stpt->m_elements_double;
             oarch << stpt->m_elements_bool;
         }
+
         error_buffer << "ContractError: " << e.what();
         error_buffer << std::endl;
         return 0x80;
