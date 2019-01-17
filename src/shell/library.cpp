@@ -178,7 +178,7 @@ int execute_program(std::string &raw,
     }
     catch(OutOfGasException &e)
     {
-        used_g = (limit - pyint.num_execution_steps()) * gasprice;
+        used_g = (pyint.num_execution_steps()) * gasprice;
         {
             boost::archive::text_oarchive oarch(s);
             oarch << stpt->m_elements_string;
@@ -192,7 +192,7 @@ int execute_program(std::string &raw,
     }
     catch(SuicideException &e)
     {
-        used_g = (limit - pyint.num_execution_steps()) * gasprice;
+        used_g = (pyint.num_execution_steps()) * gasprice;
         {
             boost::archive::text_oarchive oarch(s);
             oarch << stpt->m_elements_string;
@@ -206,7 +206,7 @@ int execute_program(std::string &raw,
     }
     catch(RevertException &e)
     {
-        used_g = (limit - pyint.num_execution_steps()) * gasprice;
+        used_g = (pyint.num_execution_steps()) * gasprice;
         {
             boost::archive::text_oarchive oarch(s);
             oarch << stpt->m_elements_string;
@@ -220,7 +220,7 @@ int execute_program(std::string &raw,
     }
     catch(std::exception &e)
     {
-        used_g = (limit - pyint.num_execution_steps()) * gasprice;
+        used_g = (pyint.num_execution_steps()) * gasprice;
         {
             boost::archive::text_oarchive oarch(s);
             oarch << stpt->m_elements_string;
