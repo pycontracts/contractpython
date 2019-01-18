@@ -128,6 +128,8 @@ int execute_program(std::string &raw,
     // make sure to select the correct net
     net = network;
 
+    // clean send maps
+    send_map.clear();
 
     // init everything
     DefaultMemoryManager mem_manager;

@@ -189,7 +189,7 @@ ValuePtr BlockchainModule::send(Scope &scope)
     int64_t value = unpack_integer(v);
     if((value <= 0) | ((uint64_t)value > contract_balance))
     {
-        throw std::runtime_error("sending nothing or more than the contract balance would allow");
+        throw std::runtime_error("sending nothing or more than the contract balance not allowed");
     }
 
     // Store that data in the send map (outside of the mapped heap)
@@ -200,18 +200,20 @@ ValuePtr BlockchainModule::send(Scope &scope)
         it->second += value;
         if(it->second <= overflow_check)
         {
-            throw std::runtime_error("sending produces overflow in receiver balance");
+            throw std::runtime_error(
+            "sending produces overflow in receiver balance [receiver's balance]");
         }
     }
     else
         send_map[a] = value;
 
     // now decuct the remaining contract balance
-    uint64_t overflow_check = it->second;
+    uint64_t overflow_check = contract_balance;
     contract_balance -= value;
-    if(contract_balance <= overflow_check)
+    if(contract_balance >= overflow_check)
     {
-        throw std::runtime_error("sending produces overflow in contract balance");
+        throw std::runtime_error(
+        "sending produces overflow in contract balance [sender's balance]");
     }
 
     return wrap_value(new(mem) BoolVal(mem, true));
