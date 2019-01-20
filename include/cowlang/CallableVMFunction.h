@@ -43,7 +43,7 @@ public:
         uint32_t minimum_arguments = 0;
         uint32_t maximum_arguments = m_args.size();
 
-        if(args.size() < minimum_arguments || args.size() > maximum_arguments)
+        if(args.size() > maximum_arguments)
         {
             throw std::runtime_error(
             "You did not provide the correct number of arguments to the function");
@@ -57,6 +57,12 @@ public:
             {
                 minimum_arguments++; // this argument must be provided as it has no def. value
             }
+        }
+
+        if(args.size() < minimum_arguments)
+        {
+            throw std::runtime_error(
+            "You did not provide the correct number of arguments to the function");
         }
 
         for(size_t i = 0; i < args.size(); ++i)
