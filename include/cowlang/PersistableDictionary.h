@@ -22,6 +22,8 @@ public:
     }
     ValuePtr get(const std::string &key);
     void insert(const std::string &key, ValuePtr value);
+    void apply(const std::string &key, ValuePtr value, BinaryOpType op);
+
     void remove(const std::string &key);
     bool has(const std::string &key);
     void clear();

@@ -1228,29 +1228,114 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
         BinaryOpType op_type;
         m_data >> op_type;
 
-        auto t_name = read_name();
-        auto target = scope.get_value(t_name);
+        // here we need to decide whether we are dealing with a "subscript expression" or pure
+        // constants for this, we use the "peek operator" '&'
+        NodeType lookAhead;
+        m_data &lookAhead;
 
-        auto value = execute_next(scope, dummy_loop_state);
+        if(lookAhead == NodeType::Subscript)
+        {
+            // we found the subscript assignment, we need to remove the lookahead from m_data now! We do it quick and dirty
+            m_data >> lookAhead;
 
-        switch(op_type)
-        {
-        case BinaryOpType::Add:
-        {
-            if(!target || !value || target->type() != ValueType::Integer || value->type() != ValueType::Integer)
+            // Now we parse, and evaluate the subscript
+            // first, we evaluate the index of the parent variable, which may be a complex expresion
+            auto index = execute();
+            ASSERT_GENERIC(index);
+            // and now the subscript parent variable, which should always be a constant
+            auto sscr = read_name();
+
+            // Now we do the assigment and check for the validity of the index!
+            // numeric for List and String for Dict!
+            auto obj = scope.get_value(sscr);
+            auto val = execute_next(scope, dummy_loop_state);
+            if(obj == nullptr)
             {
-                throw std::runtime_error("Values need to be numerics");
+                throw std::runtime_error("Array or dictionary '" + sscr + "' has not been defined.");
             }
+            if(obj->type() == ValueType::Dictionary || obj->type() == ValueType::PersistableDictionary)
+            {
+                if(index->type() != ValueType::String)
+                {
+                    throw std::runtime_error("Dictionary indices must be of type 'String'");
+                }
+                if(obj->type() == ValueType::Dictionary)
+                {
+                    std::shared_ptr<Dictionary> unwrapped = value_cast<Dictionary>(obj);
+                    unwrapped->apply(index->str(), val, op_type);
+                }
+                else
+                {
+                    std::shared_ptr<PersistableDictionary> unwrapped =
+                    value_cast<PersistableDictionary>(obj);
+                    unwrapped->apply(index->str(), val, op_type);
+                }
+            }
+            else if(obj->type() == ValueType::List)
+            {
+                if(index->type() != ValueType::Integer)
+                {
+                    throw std::runtime_error("Array indices must be of type 'Integer'");
+                }
+                std::shared_ptr<List> unwrapped = value_cast<List>(obj);
+                int64_t i = (int64_t)value_cast<IntVal>(index)->get();
+                unwrapped->apply(i, val, op_type);
+            }
+            else
+            {
+                throw std::runtime_error("Variable '" + sscr + "' is not an array or dictionary.");
+            }
+        }
+        else
+        {
+            auto t_name = read_name();
+            auto target = scope.get_value(t_name);
 
-            auto i_target = value_cast<IntVal>(target);
-            auto i_value = value_cast<IntVal>(value);
-            i_target->set(i_target->get() + i_value->get());
+            auto value = execute_next(scope, dummy_loop_state);
+
+            switch(op_type)
+            {
+            case BinaryOpType::Add:
+            {
+                if(!target || !value || target->type() != ValueType::Integer || value->type() != ValueType::Integer)
+                {
+                    throw std::runtime_error("Values need to be numerics");
+                }
+
+                auto i_target = value_cast<IntVal>(target);
+                auto i_value = value_cast<IntVal>(value);
+                i_target->set(i_target->get() + i_value->get());
+                break;
+            }
+            case BinaryOpType::Sub:
+            {
+                if(!target || !value || target->type() != ValueType::Integer || value->type() != ValueType::Integer)
+                {
+                    throw std::runtime_error("Values need to be numerics");
+                }
+
+                auto i_target = value_cast<IntVal>(target);
+                auto i_value = value_cast<IntVal>(value);
+                i_target->set(i_target->get() - i_value->get());
+                break;
+            }
+            case BinaryOpType::Mult:
+            {
+                if(!target || !value || target->type() != ValueType::Integer || value->type() != ValueType::Integer)
+                {
+                    throw std::runtime_error("Values need to be numerics");
+                }
+
+                auto i_target = value_cast<IntVal>(target);
+                auto i_value = value_cast<IntVal>(value);
+                i_target->set(i_target->get() * i_value->get());
+                break;
+            }
+            default:
+                throw std::runtime_error("Unknown binary op");
+            }
             break;
         }
-        default:
-            throw std::runtime_error("Unknown binary op");
-        }
-        break;
     }
     case NodeType::FunctionDef:
     {

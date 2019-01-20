@@ -1,7 +1,7 @@
 #pragma once
 
+#include "InterpreterTypes.h"
 #include "Iterator.h"
-
 namespace cow
 {
 
@@ -34,6 +34,8 @@ public:
     ValuePtr get(int64_t index);
 
     void set(int64_t index, ValuePtr val);
+    void apply(int64_t key, ValuePtr value, BinaryOpType op);
+
 
     ValuePtr get_member(const std::string &name) override;
 

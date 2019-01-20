@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Callable.h"
+#include "InterpreterTypes.h"
 #include "Iterator.h"
 #include "Scope.h"
 #include "Value.h"
-
 namespace cow
 {
 
@@ -92,6 +92,7 @@ public:
     }
 
     void insert(const std::string &key, ValuePtr value);
+    void apply(const std::string &key, ValuePtr value, BinaryOpType op);
 
     ValueType type() const override;
 

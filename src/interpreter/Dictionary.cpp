@@ -96,4 +96,71 @@ ValuePtr Dictionary::duplicate(MemoryManager &mem)
     return d;
 }
 
+
+void Dictionary::apply(const std::string &key, ValuePtr value, BinaryOpType op)
+{
+
+    ValuePtr target = nullptr;
+    auto it = m_elements.find(key);
+    if(it != m_elements.end())
+        target = it->second;
+
+    if(!value || (target != nullptr && target->type() != ValueType::Integer) || value->type() != ValueType::Integer)
+    {
+        throw std::runtime_error("Values need to be numerics");
+    }
+
+    switch(op)
+    {
+    case BinaryOpType::Add:
+    {
+        if(target == nullptr)
+        {
+            auto i_value = value_cast<IntVal>(value);
+            m_elements[key] = i_value;
+        }
+        else
+        {
+            auto i_target = value_cast<IntVal>(target);
+            auto i_value = value_cast<IntVal>(value);
+            i_target->set(i_target->get() + i_value->get());
+        }
+        break;
+    }
+    case BinaryOpType::Sub:
+    {
+        if(target == nullptr)
+        {
+            auto i_value = value_cast<IntVal>(value);
+            i_value->set(-1 * i_value->get());
+            m_elements[key] = i_value;
+        }
+        else
+        {
+            auto i_target = value_cast<IntVal>(target);
+            auto i_value = value_cast<IntVal>(value);
+            i_target->set(i_target->get() - i_value->get());
+        }
+        break;
+    }
+    case BinaryOpType::Mult:
+    {
+        if(target == nullptr)
+        {
+            auto zero = wrap_value(new(memory_manager()) IntVal(memory_manager(), 0));
+            m_elements[key] = zero;
+        }
+        else
+        {
+            auto i_target = value_cast<IntVal>(target);
+            auto i_value = value_cast<IntVal>(value);
+            i_target->set(i_target->get() + i_value->get());
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error("Unknown binary op");
+    }
+}
+
 } // namespace cow

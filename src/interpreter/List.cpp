@@ -66,6 +66,50 @@ void List::set(int64_t index, ValuePtr val)
     m_elements[index] = val;
 }
 
+void List::apply(int64_t index, ValuePtr value, BinaryOpType op)
+{
+    if(index >= size() || index <= -size())
+    {
+        throw std::runtime_error("List index out of range");
+    }
+    if(index < 0)
+        index = size() + index;
+
+    auto target = m_elements[index];
+
+    if(!target || !value || target->type() != ValueType::Integer || value->type() != ValueType::Integer)
+    {
+        throw std::runtime_error("Values need to be numerics");
+    }
+
+    switch(op)
+    {
+    case BinaryOpType::Add:
+    {
+        auto i_target = value_cast<IntVal>(target);
+        auto i_value = value_cast<IntVal>(value);
+        i_target->set(i_target->get() + i_value->get());
+        break;
+    }
+    case BinaryOpType::Sub:
+    {
+        auto i_target = value_cast<IntVal>(target);
+        auto i_value = value_cast<IntVal>(value);
+        i_target->set(i_target->get() - i_value->get());
+        break;
+    }
+    case BinaryOpType::Mult:
+    {
+        auto i_target = value_cast<IntVal>(target);
+        auto i_value = value_cast<IntVal>(value);
+        i_target->set(i_target->get() * i_value->get());
+        break;
+    }
+    default:
+        throw std::runtime_error("Unknown binary op");
+    }
+}
+
 uint32_t List::size() const { return m_elements.size(); }
 
 const std::vector<ValuePtr> &List::elements() const { return m_elements; }
