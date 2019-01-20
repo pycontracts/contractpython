@@ -1,5 +1,5 @@
 #include <cowlang/PersistableDictionary.h>
-
+#include <iostream>
 ValuePtr PersistableDictionary::get(const std::string &key)
 {
     {
@@ -29,7 +29,6 @@ void PersistableDictionary::apply(const std::string &key, ValuePtr value, Binary
 {
 
     int64_t target = 0;
-
     auto itx = m_elements_bool.find(key);
     auto ity = m_elements_double.find(key);
     auto itz = m_elements_string.find(key);

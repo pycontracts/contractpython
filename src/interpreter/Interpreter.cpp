@@ -1245,6 +1245,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             // and now the subscript parent variable, which should always be a constant
             auto sscr = read_name();
 
+
             // Now we do the assigment and check for the validity of the index!
             // numeric for List and String for Dict!
             auto obj = scope.get_value(sscr);
@@ -1334,8 +1335,8 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
             default:
                 throw std::runtime_error("Unknown binary op");
             }
-            break;
         }
+        break;
     }
     case NodeType::FunctionDef:
     {
