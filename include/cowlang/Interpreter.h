@@ -55,6 +55,7 @@ public:
     void re_assign_bitstream(const bitstream &data);
     ValuePtr execute();
     ValuePtr execute_in_scope(Scope &scope);
+    ValuePtr calldata(std::string &data);
     Scope &get_scope() { return *m_global_scope; };
     std::shared_ptr<PersistableDictionary> get_storage_pointer() { return store; }
 
@@ -86,7 +87,7 @@ private:
 
     ModulePtr get_module(const std::string &name);
 
-    ValuePtr execute_next(Scope &scope, LoopState &loop_state);
+    ValuePtr execute_next(Scope &scope, LoopState &loop_state, bool ignoreJail = false);
     void skip_next();
 
     void load_from_module(Scope &scope, const std::string &module, const std::string &name, const std::string &as_name);

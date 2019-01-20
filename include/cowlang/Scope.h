@@ -40,7 +40,7 @@ public:
     void set_global_tag(const std::string &name);
     void terminate();
     bool is_terminated() const;
-
+    int get_depth() { return depth; }
     void require_global() { m_require_global = true; };
 
 private:

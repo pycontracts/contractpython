@@ -11,6 +11,9 @@ import blockchain as b
 v=22
 x=p()*2*9*v*p()
 h(str(x))
+store["df"]=242
+store["df"]+=3
+store["fff"]+=222
 print("hsfsufhsufhashfuashufhasufhasufhasufsa")
 print(2)
 print("dshgfudg",354,35,35)

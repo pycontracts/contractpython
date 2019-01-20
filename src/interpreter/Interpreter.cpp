@@ -217,6 +217,98 @@ ValuePtr Interpreter::execute()
     return val;
 }
 
+ValuePtr Interpreter::calldata(std::string &data)
+{
+
+    ValuePtr val = nullptr;
+
+    // try to read string first
+    bitstream argsbit(data);
+    std::string function = "default";
+    if(data.size() > 0)
+        argsbit >> function;
+
+
+    auto callable = m_global_scope->get_value(function);
+    if(function.substr(0, 1) == "_" || callable == nullptr || !callable->is_callable())
+    {
+        throw std::runtime_error("Cannot call un-callable or unknown function: " + function);
+    }
+    std::vector<ValuePtr> args;
+
+    {
+        uint32_t num_args = 0;
+        try
+        {
+            // do not fail here
+            argsbit >> num_args;
+        }
+        catch(...)
+        {
+            num_args = 0;
+        }
+
+        for(uint32_t i = 0; i < num_args; ++i)
+        {
+            CHARGE_EXECUTION;
+            uint32_t argtype = 0;
+            argsbit >> argtype;
+            switch(argtype)
+            {
+            case 1:
+            {
+                std::string arg;
+                argsbit >> arg;
+                auto argptr1 = wrap_value(new(memory_manager()) StringVal(memory_manager(), arg));
+                args.push_back(argptr1);
+                break;
+            }
+            case 2:
+            {
+                int64_t arg;
+                argsbit >> arg;
+                auto argptr2 = wrap_value(new(memory_manager()) IntVal(memory_manager(), arg));
+                args.push_back(argptr2);
+                break;
+            }
+            case 3:
+            {
+                double arg;
+                argsbit >> arg;
+                auto argptr3 = wrap_value(new(memory_manager()) FloatVal(memory_manager(), arg));
+                args.push_back(argptr3);
+                break;
+            }
+            case 4:
+            {
+                bool arg;
+                argsbit >> arg;
+                auto argptr = wrap_value(new(memory_manager()) BoolVal(memory_manager(), arg));
+                args.push_back(argptr);
+                break;
+            }
+            default:
+                throw std::runtime_error(
+                "Only string, int, float and bool are allowed as arguments.");
+            }
+        }
+    }
+    uint32_t current_num = num_execution_steps();
+    uint32_t current_max = max_execution_steps();
+    try
+    {
+        val = value_cast<Callable>(callable)->call(args, *m_global_scope, current_num, current_max);
+    }
+    catch(...)
+    {
+        set_num_execution_steps(current_num);
+        throw;
+    }
+
+
+    return val;
+}
+
 ValuePtr Interpreter::execute_in_scope(Scope &scope)
 {
     LoopState loop_state = LoopState::None;
@@ -283,7 +375,7 @@ std::string Interpreter::read_name()
 }
 
 
-ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
+ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state, bool ignoreJail)
 {
 
     CHARGE_EXECUTION;
@@ -294,6 +386,16 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     NodeType type;
     m_data >> type;
 
+    // disallow any type other than function definitions in top level
+    if(ignoreJail == false && scope.get_depth() == 0 && type != NodeType::FunctionDef &&
+       type != NodeType::StatementList && type != NodeType::ImportFrom &&
+       type != NodeType::Import && type != NodeType::Pass)
+    {
+        throw std::runtime_error("Wrong code: you have to put all program logic into functions, no "
+                                 "code execution on the top level allowed. [" +
+                                 std::to_string((int)type) + "]");
+    }
+
 
     LoopState dummy_loop_state = LoopState::None;
 
@@ -303,7 +405,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
     {
         auto module = read_name();
 
-        auto val = execute_next(scope, dummy_loop_state);
+        auto val = execute_next(scope, dummy_loop_state, true);
         ASSERT_GENERIC(val);
 
         if(val->type() == ValueType::Tuple)
@@ -343,7 +445,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
     case NodeType::Import:
     {
-        auto val = execute_next(scope, dummy_loop_state);
+        auto val = execute_next(scope, dummy_loop_state, true);
         ASSERT_GENERIC(val);
         auto alias = value_cast<Alias>(val);
         load_module(scope, alias->name(), alias->as_name());

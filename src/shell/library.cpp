@@ -109,7 +109,8 @@ int execute_program(std::string &raw,
                     uint32_t gasprice,
                     uint64_t &used_g,
                     std::string &old_storage,
-                    std::stringstream &s)
+                    std::stringstream &s,
+                    std::string &data)
 {
 
     // possibly throws early on syntax error
@@ -168,6 +169,9 @@ int execute_program(std::string &raw,
     {
         // Go for it
         pyint.execute(); // make print also print to a buffer
+        // and now call either the default function or some other function
+        pyint.calldata(data);
+
         used_g = (pyint.num_execution_steps()) * gasprice;
         {
             boost::archive::text_oarchive oarch(s);

@@ -221,6 +221,7 @@ public:
         return (uint32_t)pos;
     }
 
+
     uint32_t pos_write()
     {
         std::stringstream::pos_type pos = bytecode.tellp();
