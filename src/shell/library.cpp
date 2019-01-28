@@ -121,6 +121,7 @@ int execute_program(std::string &raw,
     cow::previous_block = blkchn.previous_block;
     cow::current_time = blkchn.current_time;
     cow::previous_time = blkchn.previous_time;
+    cow::current_height = blkchn.current_height;
     cow::sender = blkchn.sender;
     cow::contract_address = blkchn.contract_address;
     cow::value = blkchn.value;

@@ -94,6 +94,7 @@ std::string txid = "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5
 std::string current_block = "00000000000000000015c23c0979270b91c26a562ae62463b85481f1d945bc21";
 std::string previous_block = "0000000000000000002f3cb3939d8685c8976dc9e35ccec08c4e121b12688974";
 uint32_t current_time = 1546659311;
+uint32_t current_height = 1234567;
 uint32_t previous_time = 1546659307;
 std::string sender = "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa";
 std::string contract_address = "1XPTgDRhN8RFnzniWCddobD9iKZatrvH4";
@@ -109,6 +110,7 @@ BlockchainModule::BlockchainModule(MemoryManager &mem) : Module(mem)
     seeded = 0;
 
     ADD_FUNCTION("txid", EMPTY_ARGS, get_txid);
+    ADD_FUNCTION("current_height", EMPTY_ARGS, get_current_height);
     ADD_FUNCTION("current_block", EMPTY_ARGS, get_current_block);
     ADD_FUNCTION("previous_block", EMPTY_ARGS, get_previous_block);
     ADD_FUNCTION("current_time", EMPTY_ARGS, get_current_time);
@@ -270,6 +272,12 @@ ValuePtr BlockchainModule::get_current_time(Scope &scope)
 {
     auto &mem = memory_manager();
     return wrap_value(new(mem) IntVal(mem, current_time));
+}
+
+ValuePtr BlockchainModule::get_current_height(Scope &scope)
+{
+    auto &mem = memory_manager();
+    return wrap_value(new(mem) IntVal(mem, current_height));
 }
 
 ValuePtr BlockchainModule::get_previous_time(Scope &scope)

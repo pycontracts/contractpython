@@ -29,6 +29,7 @@ typedef struct
     std::string current_block;
     std::string previous_block;
     uint32_t current_time;
+    uint32_t current_height;
     uint32_t previous_time;
     std::string sender;
     std::string contract_address;
@@ -50,6 +51,7 @@ extern std::string txid;
 extern std::string current_block;
 extern std::string previous_block;
 extern uint32_t current_time;
+extern uint32_t current_height;
 extern uint32_t previous_time;
 extern std::string sender;
 extern std::string contract_address;
@@ -79,6 +81,7 @@ private:
     ValuePtr fourtytwo(Scope &scope);
     ValuePtr get_txid(Scope &scope);
     ValuePtr get_current_block(Scope &scope);
+    ValuePtr get_current_height(Scope &scope);
     ValuePtr get_previous_block(Scope &scope);
     ValuePtr get_sender(Scope &scope);
     ValuePtr get_contractaddress(Scope &scope);

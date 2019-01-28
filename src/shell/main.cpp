@@ -44,18 +44,19 @@ extern size_t DEFAULT_MAXIMUM_HEAP_PAGES;
 #define AT_LX (FL_LOWER | FL_ALPHA | FL_PRINT | FL_XDIGIT)
 
 // table of attributes for ascii characters
-const uint8_t attr[] = {
-    0,     0,     0,     0,     0,     0,     0,     0,     0,     AT_SP, AT_SP, AT_SP, AT_SP,
-    AT_SP, 0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-    0,     0,     0,     0,     0,     0,     AT_SP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
-    AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_DI, AT_DI, AT_DI, AT_DI,
-    AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
-    AT_UX, AT_UX, AT_UX, AT_UX, AT_UX, AT_UX, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
-    AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
-    AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_LX, AT_LX, AT_LX, AT_LX, AT_LX, AT_LX, AT_LO,
-    AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
-    AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0
-};
+const uint8_t attr[] = { 0,     0,     0,     0,     0,     0,     0,     0,     0,     AT_SP,
+                         AT_SP, AT_SP, AT_SP, AT_SP, 0,     0,     0,     0,     0,     0,
+                         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+                         0,     0,     AT_SP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR,
+                         AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_DI, AT_DI,
+                         AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_DI, AT_PR, AT_PR,
+                         AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_UX, AT_UX, AT_UX, AT_UX, AT_UX,
+                         AT_UX, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
+                         AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP, AT_UP,
+                         AT_UP, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_PR, AT_LX, AT_LX, AT_LX,
+                         AT_LX, AT_LX, AT_LX, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
+                         AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO, AT_LO,
+                         AT_LO, AT_LO, AT_LO, AT_PR, AT_PR, AT_PR, AT_PR, 0 };
 
 // Command line parsing
 bool only_compile = false;
@@ -510,6 +511,7 @@ int usage(char **argv)
            "                 [default: %s]\n"
            "-t [N]         : current block's UNIX timestamp [default: %u]\n"
            "-T [N]         : previous block's UNIX timestamp [default: %u]\n"
+           "-H [N]         : current block's height [default: %u]\n"
            "-s [<address>] : the sender of the current transaction\n"
            "                 [default: %s]\n"
            "-a [<address>] : the current address of the contract\n"
@@ -518,7 +520,7 @@ int usage(char **argv)
            "-V [N]         : the contract's current balance [default: %" PRIu64 "]\n"
            "\n",
            argv[0], cow::txid.c_str(), cow::current_block.c_str(), cow::previous_block.c_str(),
-           cow::current_time, cow::previous_time, cow::sender.c_str(),
+           cow::current_time, cow::previous_time, cow::current_height, cow::sender.c_str(),
            cow::contract_address.c_str(), cow::value, cow::contract_balance);
 
     return 1;
@@ -562,6 +564,11 @@ int pre_process_options(int argc, char **argv)
             else if(strcmp(argv[a], "-T") == 0)
             {
                 cow::previous_time = atoi(argv[a + 1]);
+                skip++;
+            }
+            else if(strcmp(argv[a], "-H") == 0)
+            {
+                cow::current_height = atoi(argv[a + 1]);
                 skip++;
             }
             else if(strcmp(argv[a], "-s") == 0)
