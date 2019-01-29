@@ -6,7 +6,7 @@
 #include "Value.h"
 #include <cowlang/Interpreter.h>
 #include <functional>
-
+#include <iostream>
 namespace cow
 {
 

@@ -54,6 +54,7 @@ public:
 
     void re_assign_bitstream(const bitstream &data);
     ValuePtr execute();
+    ValuePtr execute_i();
     ValuePtr execute_in_scope(Scope &scope);
     ValuePtr calldata(std::string &data);
     Scope &get_scope() { return *m_global_scope; };
@@ -82,12 +83,13 @@ private:
         TopLevel,
         Normal,
         Break,
-        Continue
+        Continue,
+        IgnoreAll
     };
 
     ModulePtr get_module(const std::string &name);
 
-    ValuePtr execute_next(Scope &scope, LoopState &loop_state, bool ignoreJail = false);
+    ValuePtr execute_next(Scope &scope, LoopState &loop_state);
     void skip_next();
 
     void load_from_module(Scope &scope, const std::string &module, const std::string &name, const std::string &as_name);

@@ -217,6 +217,13 @@ ValuePtr Interpreter::execute()
     return val;
 }
 
+ValuePtr Interpreter::execute_i()
+{
+    LoopState loop_state = LoopState::IgnoreAll;
+    ValuePtr val = execute_next(*m_global_scope, loop_state);
+    return val;
+}
+
 ValuePtr Interpreter::calldata(std::string &data)
 {
 
@@ -375,7 +382,7 @@ std::string Interpreter::read_name()
 }
 
 
-ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state, bool ignoreJail)
+ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 {
 
     CHARGE_EXECUTION;
@@ -387,9 +394,9 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state, bool ign
     m_data >> type;
 
     // disallow any type other than function definitions in top level
-    if(ignoreJail == false && scope.get_depth() == 0 && type != NodeType::FunctionDef &&
+    if(loop_state != LoopState::IgnoreAll && scope.get_depth() == 0 && type != NodeType::FunctionDef &&
        type != NodeType::StatementList && type != NodeType::ImportFrom &&
-       type != NodeType::Import && type != NodeType::Pass)
+       type != NodeType::Import && type != NodeType::Alias && type != NodeType::Pass)
     {
         throw std::runtime_error("Wrong code: you have to put all program logic into functions, no "
                                  "code execution on the top level allowed. [" +
@@ -398,14 +405,14 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state, bool ign
 
 
     LoopState dummy_loop_state = LoopState::None;
-
+    LoopState ignore_all_state = LoopState::IgnoreAll;
     switch(type)
     {
     case NodeType::ImportFrom:
     {
         auto module = read_name();
 
-        auto val = execute_next(scope, dummy_loop_state, true);
+        auto val = execute_next(scope, ignore_all_state);
         ASSERT_GENERIC(val);
 
         if(val->type() == ValueType::Tuple)
@@ -445,7 +452,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state, bool ign
 
     case NodeType::Import:
     {
-        auto val = execute_next(scope, dummy_loop_state, true);
+        auto val = execute_next(scope, ignore_all_state);
         ASSERT_GENERIC(val);
         auto alias = value_cast<Alias>(val);
         load_module(scope, alias->name(), alias->as_name());
@@ -527,7 +534,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state, bool ign
 
                 // Now we parse, and evaluate the subscript
                 // first, we evaluate the index of the parent variable, which may be a complex expresion
-                auto index = execute();
+                auto index = execute_i();
                 ASSERT_GENERIC(index);
                 // and now the subscript parent variable, which should always be a constant
                 auto sscr = read_name();
@@ -1342,7 +1349,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state, bool ign
 
             // Now we parse, and evaluate the subscript
             // first, we evaluate the index of the parent variable, which may be a complex expresion
-            auto index = execute();
+            auto index = execute_i();
             ASSERT_GENERIC(index);
             // and now the subscript parent variable, which should always be a constant
             auto sscr = read_name();

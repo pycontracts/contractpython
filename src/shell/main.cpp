@@ -283,7 +283,7 @@ inline bool ends_with(std::string const &value, std::string const &ending)
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-void handle_src_file(std::string &filename, Interpreter &pyint)
+void handle_src_file(std::string &filename, Interpreter &pyint, std::string &data)
 {
     HANDLE_WITH_FULL_HEADER = 1;
     try
@@ -294,6 +294,7 @@ void handle_src_file(std::string &filename, Interpreter &pyint)
             std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
             pyint.re_assign_bitstream(str);
             pyint.execute();
+            pyint.calldata(data);
         }
         else if(ends_with(filename, ".bitstream"))
         {
@@ -303,12 +304,14 @@ void handle_src_file(std::string &filename, Interpreter &pyint)
             snappy::Uncompress(str.data(), str.size(), &decompressed);
             pyint.re_assign_bitstream(decompressed);
             pyint.execute();
+            pyint.calldata(data);
         }
         else
         {
             auto doc = compile_file(filename, err_func);
             pyint.re_assign_bitstream(doc);
             pyint.execute();
+            pyint.calldata(data);
         }
 
         stdout_buffer.seekg(0, std::ios::end);
@@ -677,7 +680,8 @@ int main(int argc, char *argv[])
                     compile_src_file(input);
             else
             {
-                handle_src_file(input, pyint);
+                std::string data("");
+                handle_src_file(input, pyint, data);
             }
         }
         if(!only_compile)
