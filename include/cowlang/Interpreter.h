@@ -54,7 +54,6 @@ public:
 
     void re_assign_bitstream(const bitstream &data);
     ValuePtr execute();
-    ValuePtr execute_i();
     ValuePtr execute_in_scope(Scope &scope);
     ValuePtr calldata(std::string &data);
     Scope &get_scope() { return *m_global_scope; };

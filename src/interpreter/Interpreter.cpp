@@ -210,20 +210,6 @@ void Interpreter::load_module(Scope &scope, const std::string &mname, const std:
     scope.set_value(as_name == "" ? mname : as_name, module);
 }
 
-ValuePtr Interpreter::execute()
-{
-    LoopState loop_state = LoopState::None;
-    ValuePtr val = execute_next(*m_global_scope, loop_state);
-    return val;
-}
-
-ValuePtr Interpreter::execute_i()
-{
-    LoopState loop_state = LoopState::IgnoreAll;
-    ValuePtr val = execute_next(*m_global_scope, loop_state);
-    return val;
-}
-
 ValuePtr Interpreter::calldata(std::string &data)
 {
 
@@ -311,7 +297,7 @@ ValuePtr Interpreter::calldata(std::string &data)
         set_num_execution_steps(current_num);
         throw;
     }
-
+    set_num_execution_steps(current_num);
 
     return val;
 }
@@ -320,6 +306,13 @@ ValuePtr Interpreter::execute_in_scope(Scope &scope)
 {
     LoopState loop_state = LoopState::None;
     ValuePtr val = execute_next(scope, loop_state);
+    return val;
+}
+
+ValuePtr Interpreter::execute()
+{
+    LoopState loop_state = LoopState::None;
+    ValuePtr val = execute_next(*m_global_scope, loop_state);
     return val;
 }
 
@@ -534,7 +527,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
                 // Now we parse, and evaluate the subscript
                 // first, we evaluate the index of the parent variable, which may be a complex expresion
-                auto index = execute_i();
+                auto index = execute_in_scope(scope);
                 ASSERT_GENERIC(index);
                 // and now the subscript parent variable, which should always be a constant
                 auto sscr = read_name();
@@ -1349,7 +1342,7 @@ ValuePtr Interpreter::execute_next(Scope &scope, LoopState &loop_state)
 
             // Now we parse, and evaluate the subscript
             // first, we evaluate the index of the parent variable, which may be a complex expresion
-            auto index = execute_i();
+            auto index = execute_in_scope(scope);
             ASSERT_GENERIC(index);
             // and now the subscript parent variable, which should always be a constant
             auto sscr = read_name();
